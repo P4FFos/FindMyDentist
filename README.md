@@ -1,7 +1,7 @@
 
-## Social contract 
+# Social contract 
 
-Group members: 
+**Group members:** 
 - Danylo Baranov @danylob
 - Stefan Tram @stefantr
 - Mykhailo Serdiuk @mykhailo
@@ -27,3 +27,7 @@ Group members:
 > Decisions about project features and ideas would be discussed during the meetings and voted by each member of the team. 
 
 > If the person is late for the meeting without informing beforehand, the group will wait for 10 minutes and start the meeting. 
+
+# System Diagram
+
+
