@@ -46,4 +46,4 @@ Our team decided to use a Service-Oriented Architecture (SOA) with a dual-databa
 ![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/1-issue-1-readme-start/docs/Component%20diagram.png?ref_type=heads)
 
 ### ER Diagram
-
+![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/1-issue-1-readme-start/docs/ER%20Diagram.png?ref_type=heads)
