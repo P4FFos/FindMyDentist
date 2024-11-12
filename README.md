@@ -36,7 +36,7 @@
 - Eclipse Paho: MQTT client library
 
 ### Testing strategy
-TODO 
+Each team member would create Postman tests in order to test functionality, additionaly we use integration test for each of the feature we create  
 
 
 # System Architecture
