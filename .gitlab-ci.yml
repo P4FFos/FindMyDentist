@@ -19,6 +19,8 @@ before_script:
 build:
   stage: build
   script:
+    - echo "Running Maven CI/CD pipeline..."
+    - chmod +x mvnw
     - ./mvnw clean compile
 
 test:
