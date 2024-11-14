@@ -16,11 +16,15 @@ before_script:
 
 build:
   stage: build
+  tags:
+    - docker 
   script:
     - chmod +x mvnw
     - ./mvnw clean compile
 
 test:
   stage: test
+  tags:
+  - docker 
   script:
     - ./mvnw test
