@@ -19,7 +19,7 @@ before_script:
 build:
   stage: build
   script:
-    - mvn clean compile
+    - ./mvnw clean compile
 
 test:
   stage: test
