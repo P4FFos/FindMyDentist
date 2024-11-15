@@ -36,11 +36,6 @@ app.use(cors());
 // Looks for X-HTTP-Method-Override header in requests
 app.use(methodOverride('X-HTTP-Method-Override'));
 
-//Checks every hour
-setInterval(sendScheduledMail, 3600000)
-//For Testing (checks every minute)
-//setInterval(sendScheduledMail, 60000);
-
 app.get('/api', function(req, res) {
     res.json({'message': 'Welcome to the FindMyDentist!'});
 });
