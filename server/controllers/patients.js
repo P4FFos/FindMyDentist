@@ -3,6 +3,10 @@ const Appointment = require('../models/appointment');
 const Timeslot = require('../models/timeslot');
 const mqtt = require('../mqtt-config');
 
+/*
+    The database related functionality will be implemented in later issues
+*/
+
 mqtt.subscribe('dentists/timeslots/available');
 mqtt.subscribe('patients/book');
 mqtt.subscribe('patients/cancel');
