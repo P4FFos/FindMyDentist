@@ -5,7 +5,9 @@ const Appointment = require('../models/appointment');
 const mqtt = require('../mqtt-config');
 
 /*
-    The database related functionality will be implemented in later issues
+    TODO:
+    implement database interactions for each endpoint using schemas defined in the models;
+    Fix error handling accordingly( change if statements);
 */
 
 // Book an appointment
@@ -32,13 +34,17 @@ router.post('/api/appointments/booking', async function (req, res, next) {
     }
 });
 
-// // Cancel an appointment
-// async function cancelAppointment(data) {
-//   const { appointmentId } = data;
+// Cancel an appointment
+router.delete('/api/appointments/booking/:appointmentId', async function (req, res, next) {
+    const { appointmentId } = req.params.appointmentId;
 
-//   try {
-//       mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'success', message: `appointment ${appointmentId} cancelled successfully` }));
-//   } catch (error) {
-//       mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
-//   }
-// }
+    try {
+        if(!appointmentId) {
+            res.status(404).json({"message": `Appointment ${appointmentId}`});
+        }
+        mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'success', message: `appointment ${appointmentId} cancelled successfully` }));
+        res.status(201).json({"message": `Appointment ${appointmentId} cancelled`});
+    } catch (error) {
+        mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
+    }
+});
