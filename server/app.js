@@ -10,6 +10,10 @@ var methodOverride = require('method-override');
 var mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
 var port = process.env.PORT || 3000;
 
+
+var appointmentBookingController = require('./controllers/appointments.js');
+
+
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function(err) {
     console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);

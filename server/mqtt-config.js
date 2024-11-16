@@ -1,7 +1,7 @@
 const mqtt = require("mqtt");
 
-const protocol = 'mqtt';
-const host = 'test.mosquitto.org';
+const protocol = 'tcp';
+const host = 'broker.hivemq.com';
 const port = '1883';
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`; //random id for the current client
 
