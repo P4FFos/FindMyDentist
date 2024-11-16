@@ -1,6 +1,5 @@
 import org.eclipse.paho.client.mqttv3.*;
 
-
 public class PublicationCenter {
 
     // Connect to the MQTT broker
@@ -12,7 +11,7 @@ public class PublicationCenter {
             MqttClient client = new MqttClient(broker, clientId, new MemoryPersistence());
             client.connect();
             System.out.println("MQTTPublisher has been connected!");
-            
+
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -21,7 +20,7 @@ public class PublicationCenter {
     // Topics to be added
 
     //#region Methods
-    
+
     // Method to send message/data to broker
     private void publishMessage(MqttClient client, String topic, String payload) {
         try {
@@ -34,5 +33,4 @@ public class PublicationCenter {
     }
 
     //#endregion
-
 }
