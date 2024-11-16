@@ -26,26 +26,23 @@ router.post('/api/appointments/booking', async function (req, res, next) {
         timeslot: timeslotId,
         isBooked: true
       };
-      mqtt.publish('patients/book/response', JSON.stringify({ status: 'success', message: 'Appointment booked successfully', appointment }));
+    //   mqtt.publish('patients/book/response', JSON.stringify({ status: 'success', message: 'Appointment booked successfully', appointment }));
       res.status(201).json({"message": `Patient ${patient} booked appointment for timeslot ${timeslotId}`});
     } catch (error) {
-      mqtt.publish('patients/book/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
+    //   mqtt.publish('patients/book/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
       return next(error);
     }
 });
 
 // Cancel an appointment
 router.delete('/api/appointments/booking/:appointmentId', async function (req, res, next) {
-    const { appointmentId } = req.params.appointmentId;
+    const appointmentId = req.params.appointmentId;
 
     try {
-        if(!appointmentId) {
-            res.status(404).json({"message": `Appointment ${appointmentId}`});
-        }
-        mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'success', message: `appointment ${appointmentId} cancelled successfully` }));
-        res.status(201).json({"message": `Appointment ${appointmentId} cancelled`});
+        // mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'success', message: `appointment ${appointmentId} cancelled successfully` }));
+        res.status(200).json({"message": `Appointment ${appointmentId} cancelled`});
     } catch (error) {
-        mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
+        // mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
     }
 });
 

@@ -20,3 +20,5 @@ router.post('/api/timeslots/available', async function (req, res, next) {
       return next(error);
     }
 });
+
+module.exports = router;

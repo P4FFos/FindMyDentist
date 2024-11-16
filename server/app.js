@@ -12,6 +12,7 @@ var port = process.env.PORT || 3000;
 
 
 var appointmentBookingController = require('./controllers/appointments.js');
+var timeslotsController = require('./controllers/timeslots.js');
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function(err) {
@@ -41,6 +42,7 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 
 // Import routes
 app.use(appointmentBookingController);
+app.use(timeslotsController);
 
 app.get('/api', function(req, res) {
     res.json({'message': 'Welcome to the FindMyDentist!'});
