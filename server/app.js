@@ -13,7 +13,6 @@ var port = process.env.PORT || 3000;
 
 var appointmentBookingController = require('./controllers/appointments.js');
 
-
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function(err) {
     console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);
@@ -39,6 +38,9 @@ app.use(cors());
 
 // Looks for X-HTTP-Method-Override header in requests
 app.use(methodOverride('X-HTTP-Method-Override'));
+
+// Import routes
+app.use(appointmentBookingController);
 
 app.get('/api', function(req, res) {
     res.json({'message': 'Welcome to the FindMyDentist!'});

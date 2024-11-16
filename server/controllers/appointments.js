@@ -48,3 +48,5 @@ router.delete('/api/appointments/booking/:appointmentId', async function (req, r
         mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
     }
 });
+
+module.exports = router;
