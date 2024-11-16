@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const Appointment = require('../models/appointment');
-const mqtt = require('../mqtt-config');
+const mqttPublicationCenter = require('../mqtt/publicationCenter');
 
 /*
     TODO:
@@ -26,10 +26,21 @@ router.post('/api/appointments/booking', async function (req, res, next) {
         timeslot: timeslotId,
         isBooked: true
       };
-    //   mqtt.publish('patients/book/response', JSON.stringify({ status: 'success', message: 'Appointment booked successfully', appointment }));
+
+      // Publish the appointment booking response
+      mqttPublicationCenter.publishMessage('patients/book/response', JSON.stringify({
+          status: 'success',
+          message: 'Appointment booked successfully',
+          appointment
+      }));
+
       res.status(201).json({"message": `Patient ${patient} booked appointment for timeslot ${timeslotId}`});
     } catch (error) {
-    //   mqtt.publish('patients/book/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
+      mqttPublicationCenter.publishMessage('patients/book/response', JSON.stringify({
+          status: 'error',
+          message: 'Server error',
+          error: error.message
+      }));
       return next(error);
     }
 });
@@ -39,10 +50,18 @@ router.delete('/api/appointments/booking/:appointmentId', async function (req, r
     const appointmentId = req.params.appointmentId;
 
     try {
-        // mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'success', message: `appointment ${appointmentId} cancelled successfully` }));
+        // Appointment cancellation booking response
+        mqttPublicationCenter.publishMessage('patients/cancel/response', JSON.stringify({
+            status: 'success',
+            message: `appointment ${appointmentId} cancelled successfully`
+        }));
         res.status(200).json({"message": `Appointment ${appointmentId} cancelled`});
     } catch (error) {
-        // mqtt.publish('patients/cancel/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
+        mqttPublicationCenter.publishMessage('patients/cancel/response', JSON.stringify({
+            status: 'error',
+            message: 'Server error',
+            error: error.message
+        }));
     }
 });
 

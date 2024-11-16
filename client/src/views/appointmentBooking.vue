@@ -75,7 +75,7 @@ import { Api } from '../Api.js'
           async getTimeslots() {
             try {
               const response = await Api.get('/timeslots/available')
-              this.timeslots = response.data
+              this.timeslots = response.data.timeslots
             } catch (error) {
                 this.message = `Error: ${error}`
             }

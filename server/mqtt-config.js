@@ -1,7 +1,7 @@
 const mqtt = require("mqtt");
 
-const protocol = 'tcp';
-const host = 'broker.hivemq.com';
+const protocol = 'mqtt';
+const host = 'test.mosquitto.org';
 const port = '1883';
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`; //random id for the current client
 
@@ -12,15 +12,15 @@ const client = mqtt.connect(connectUrl, {
     clientId,
     clean: true,
     connectTimeout: 4000,
-    username: 'test_client',
-    password: 'test_client_password',
     reconnectPeriod: 1000,
 });
 
 client.on('connect', () => {
-    console.log('Client Connected to The Broker')
+    console.log('Publish Center connected to the broker')
 });
 
-client.on('error', () => {
-    console.log('Broker connection error');
+client.on('error', (err) => {
+    console.log('Broker connection error', err);
 });
+
+module.exports = client;
