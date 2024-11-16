@@ -11,12 +11,15 @@ const mqtt = require('../mqtt-config');
 */
 
 // Get all available timeslots
-router.post('/api/timeslots/available', async function (req, res, next) {
+router.get('/api/timeslots/available', async function (req, res, next) {
+    var timeslots;
     try {
-      mqtt.publish('patients/timeslots/available', JSON.stringify({ status: 'success', message: 'Available timeslots fetched successfully', appointment }));
+        timeslots = ['12:30', '16:30', '17:50'];
+        res.json(timeslots);
+    //   mqtt.publish('patients/timeslots/available', JSON.stringify({ status: 'success', message: 'Available timeslots fetched successfully', appointment }));
       res.status(200).json({"message": "Timeslots fetched successfully"});
     } catch(error) {
-      mqtt.publish('patients/book/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
+    //   mqtt.publish('patients/book/response', JSON.stringify({ status: 'error', message: 'Server error', error: error.message }));
       return next(error);
     }
 });

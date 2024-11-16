@@ -1,7 +1,14 @@
 <template>
+  <h1>Book an Appointment</h1>
+  <h2>available timeslots:</h2>
+  <li v-for="timeslot in timeslots">
+        <div>
+            <p> - Timeslot id: {{ timeslot }}</p>
+        </div>
+    </li>
   <div class="booking-form">
-    <h1>Book an Appointment</h1>
-    <form @submit.prevent="bookAppointment">
+    <h2>Booking:</h2>
+    <form @submit.prevent="bookAppointment(timeslotId)">
       <label for="patientId">Patient:</label>
       <input type="text" v-model="patient" required />
 
@@ -32,19 +39,26 @@ import { Api } from '../Api.js'
           timeslotId: '',
           appointmentId: '',
           appointments: [],
+          timeslots: [],
           message: ''
         };
       },
       methods: {
-          async bookAppointment() {
+          async bookAppointment(timeslot) {
             try {
-                  await Api.post('/appointments/booking', {
+                if(this.timeslots.includes(timeslot)){
+                    await Api.post('/appointments/booking', {
                     patient: this.patient,
                     timeslotId: this.timeslotId,
-                  })
-                this.appointmentId = `apnt_${this.patient}_${this.timeslotId}`
-                this.appointments.push(this.appointmentId)
-                this.message = `Appointment booked successfully! AppointmentId: ${this.appointmentId}`
+                    })
+                    this.appointmentId = `apnt_${this.patient}_${this.timeslotId}`
+                    this.appointments.push(this.appointmentId)
+                    this.patient = ''
+                    this.timeslotId = ''
+                    this.message = `Appointment booked successfully! AppointmentId: ${this.appointmentId}`
+                } else {
+                    this.message = `Error: timeslot is unavailable!`
+                }
             } catch (error) {
                 this.message = `Error: ${error}`
             }
@@ -57,7 +71,18 @@ import { Api } from '../Api.js'
               } catch (error) {
                   this.message = `Error: ${error}`
             }
+          },
+          async getTimeslots() {
+            try {
+              const response = await Api.get('/timeslots/available')
+              this.timeslots = response.data
+            } catch (error) {
+                this.message = `Error: ${error}`
+            }
           }
+      },
+      mounted() {
+        this.getTimeslots()
       }
   }
 </script>
