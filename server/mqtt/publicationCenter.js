@@ -11,7 +11,7 @@ function publishMessage(topic, payload) {
     });
 }
 
-// Exporting the publish function to use in other files
+// Export function
 module.exports = {
     publishMessage
 };
