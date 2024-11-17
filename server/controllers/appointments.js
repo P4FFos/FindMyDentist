@@ -12,7 +12,7 @@ const mqttPublicationCenter = require('../mqtt/publicationCenter');
 
 // Book an appointment
 router.post('/api/appointments/booking', async function (req, res, next) {
-    const { patient, timeslotId } = req.body;
+    const { patient, timeslotId, email: recipientEmail } = req.body;
 
     try{
       if(!patient){
@@ -31,6 +31,7 @@ router.post('/api/appointments/booking', async function (req, res, next) {
       mqttPublicationCenter.publishMessage('patients/book/response', JSON.stringify({
           status: 'success',
           message: 'Appointment booked successfully',
+          recipientEmail,
           appointment
       }));
 
@@ -48,12 +49,13 @@ router.post('/api/appointments/booking', async function (req, res, next) {
 // Cancel an appointment
 router.delete('/api/appointments/booking/:appointmentId', async function (req, res, next) {
     const appointmentId = req.params.appointmentId;
+    const recipientEmail = req.body.email;
 
     try {
         // Appointment cancellation booking response
         mqttPublicationCenter.publishMessage('patients/cancel/response', JSON.stringify({
             status: 'success',
-            message: `appointment ${appointmentId} cancelled successfully`
+            message: `appointment ${appointmentId} cancelled successfully`, recipientEmail, appointmentId
         }));
         res.status(200).json({"message": `Appointment ${appointmentId} cancelled`});
     } catch (error) {
