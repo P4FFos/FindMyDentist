@@ -2,7 +2,7 @@
   "name": "server",
   "version": "0.1.0",
   "engines": {
-      "node": "20.x"
+    "node": "20.x"
   },
   "scripts": {
     "start": "node ./app.js",
@@ -18,7 +18,8 @@
     "method-override": "^3.0.0",
     "mongoose": "^8.8.1",
     "morgan": "^1.10.0",
-    "mqtt": "^5.10.2"
+    "mqtt": "^5.10.2",
+    "nodemailer": "^6.9.16"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

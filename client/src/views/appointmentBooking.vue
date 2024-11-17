@@ -12,6 +12,9 @@
       <label for="patientId">Patient:</label>
       <input type="text" v-model="patient" required />
 
+      <label for="email">Email:</label>
+      <input type="email" v-model="email" required/>
+
       <label for="timeslotId">Timeslot ID:</label>
       <input type="text" v-model="timeslotId" required />
 
@@ -36,6 +39,7 @@ import { Api } from '../Api.js'
       data() {
         return {
           patient: '',
+          email: '',
           timeslotId: '',
           appointmentId: '',
           appointments: [],
@@ -49,12 +53,16 @@ import { Api } from '../Api.js'
                 if(this.timeslots.includes(timeslot)){
                     await Api.post('/appointments/booking', {
                     patient: this.patient,
+                    email: this.email,
                     timeslotId: this.timeslotId,
                     })
-                    this.appointmentId = `apnt_${this.patient}_${this.timeslotId}`
-                    this.appointments.push(this.appointmentId)
-                    this.patient = ''
+                  this.appointments.push({
+                    id: `apnt_${this.patient}_${this.timeslotId}`,
+                    email: this.email,
+                  });
+                  this.patient = ''
                     this.timeslotId = ''
+                    this.email = ''
                     this.message = `Appointment booked successfully! AppointmentId: ${this.appointmentId}`
                 } else {
                     this.message = `Error: timeslot is unavailable!`
@@ -63,16 +71,20 @@ import { Api } from '../Api.js'
                 this.message = `Error: ${error}`
             }
           },
-          async cancelAppointment(appointmentId) {
-            try {
-                  await Api.delete(`/appointments/booking/${appointmentId}`, {})
-                  this.appointments = this.appointments.filter(appointment => appointment !== appointmentId)
-                  this.message = `Appointment ${this.appointmentId} was cancelled!`
-              } catch (error) {
-                  this.message = `Error: ${error}`
-            }
-          },
-          async getTimeslots() {
+        async cancelAppointment(appointment) {
+          try {
+            const {id, email} = appointment;
+            await Api.delete(`/appointments/booking/${id}`, {
+              data: {email},
+            });
+
+            this.appointments = this.appointments.filter(appointment => appointment !== appointmentId)
+            this.message = `Appointment ${this.appointmentId} was cancelled!`
+          } catch (error) {
+            this.message = `Error: ${error}`
+          }
+        },
+        async getTimeslots() {
             try {
               const response = await Api.get('/timeslots/available')
               this.timeslots = response.data.timeslots

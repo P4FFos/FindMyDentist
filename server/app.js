@@ -5,6 +5,8 @@ var path = require('path');
 var cors = require('cors');
 var history = require('connect-history-api-fallback');
 var methodOverride = require('method-override');
+const NotificationSender = require('./NotificationService/NotificationSender');
+const SubscriptionHandler = require('./NotificationService/NotificationHandler');
 
 // Variables
 var mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
