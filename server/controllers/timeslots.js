@@ -11,10 +11,10 @@ const mqttPublicationCenter = require('../mqtt/publicationCenter');
 */
 
 // Get all available timeslots
-router.get('/api/timeslots/available', async function (req, res, next) {
+router.get('/available', async function (req, res, next) {
 
     try {
-        var timeslots = ['12:30', '16:30', '17:50'];
+        var timeslots = await Timeslot.find({ isBooked: false });
         mqttPublicationCenter.publishMessage('timeslots/available/response', JSON.stringify({
             status: 'success',
             message: 'Available timeslots fetched successfully',
