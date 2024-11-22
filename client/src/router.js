@@ -1,8 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import appointmentBooking from './views/appointmentBooking.vue'
+import appointmentBooking from './views/patient/appointmentBooking.vue'
+import Register from './views/patient/registration.vue'
+import Login from './views/patient/login.vue'
 
 const routes = [
-  { path: '/', name: 'appointmentBooking', component: appointmentBooking }
+  { path: '/', name: 'appointmentBooking', component: appointmentBooking },
+  { path: '/registration', name: 'Register', component: Register },
+  { path: '/login', name: 'Login', component: Login }
 ]
 
 const router = createRouter({
