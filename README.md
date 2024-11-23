@@ -27,3 +27,9 @@ Our team decided to use a **Service-Oriented Architecture (SOA)** with a dual-da
 
 ### ER Diagram
 ![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/ER%20Diagram.png?ref_type=heads)
+
+### MQTT Diagram 
+![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/MQTTDiagram.png?ref_type=heads)
+
+### SPEM 2.0 Diagram
+![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/SPEM%202.0%20diagram.png?ref_type=heads)
