@@ -11,7 +11,7 @@ const mqttPublicationCenter = require('../mqtt/publicationCenter');
 */
 
 // Book an appointment
-router.post('/api/appointments/booking', async function (req, res, next) {
+router.post('/api/v1/appointments/booking', async function (req, res, next) {
     const { patient, timeslotId, email: recipientEmail } = req.body;
 
     try{
@@ -47,7 +47,7 @@ router.post('/api/appointments/booking', async function (req, res, next) {
 });
 
 // Cancel an appointment
-router.delete('/api/appointments/booking/:appointmentId', async function (req, res, next) {
+router.delete('/api/v1/appointments/booking/:appointmentId', async function (req, res, next) {
     const appointmentId = req.params.appointmentId;
     const recipientEmail = req.body.email;
 

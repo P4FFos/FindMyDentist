@@ -15,6 +15,7 @@ var port = process.env.PORT || 3000;
 
 var appointmentBookingController = require('./controllers/appointments.js');
 var timeslotsController = require('./controllers/timeslots.js');
+var patientController = require('./controllers/patient.js');
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function(err) {
@@ -43,8 +44,9 @@ app.use(cors());
 app.use(methodOverride('X-HTTP-Method-Override'));
 
 // Import routes
-app.use('/api/appointments', appointmentBookingController);
-app.use('/api/timeslots', timeslotsController);
+app.use(appointmentBookingController);
+app.use(timeslotsController);
+app.use(patientController);
 
 app.get('/api', function(req, res) {
     res.json({'message': 'Welcome to the FindMyDentist!'});
