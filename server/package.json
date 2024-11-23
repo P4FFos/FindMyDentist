@@ -9,6 +9,9 @@
     "dev": "nodemon ./app.js",
     "test": "cross-env-shell MONGODB_URI=mongodb://localhost:27017/serverTestDB \"npm run newman-server\"",
     "ci-test": "npm run newman-server",
+    "newman-server": "cross-env-shell PORT=3000 \"run-p --race start newman-wait\"",
+    "newman-wait": "wait-on http://localhost:3000/api && npm run newman",
+    "newman": "newman run ./tests/server.postman_collection.json --env-var host=http://localhost:3000/api",
     "dropdb": "node ./tests/dropdb.js"
   },
   "dependencies": {
@@ -19,7 +22,8 @@
     "mongoose": "^8.8.1",
     "morgan": "^1.10.0",
     "mqtt": "^5.10.2",
-    "nodemailer": "^6.9.16"
+    "nodemailer": "^6.9.16",
+    "server": "file:"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
