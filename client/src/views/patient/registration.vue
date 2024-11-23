@@ -41,7 +41,7 @@ export default {
   methods: {
     async register() {
       try {
-        await Api.post('/api/v1/patients', {
+        await Api.post('v1/patients', {
           firstName: this.firstName,
           secondName: this.secondName,
           email: this.email,
@@ -49,6 +49,7 @@ export default {
           password: this.password
         });
         this.message = 'Registration successful!';
+        this.$router.push('/login');
       } catch (error) {
         this.message = `Error: ${error.response.data.message || error.message}`;
       }

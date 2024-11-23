@@ -29,11 +29,12 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await Api.post('/api/v1/patients/', {
+        const response = await Api.get('/v1/patients/', {
           email: this.email,
           password: this.password
         });
         this.message = response.data.message;
+        this.$router.push('/booking');
       } catch (error) {
         this.message = `Error: ${error.response.data.message || error.message}`;
       }

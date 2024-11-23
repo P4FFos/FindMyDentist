@@ -13,7 +13,7 @@ const mqttPublicationCenter = require('../mqtt/publicationCenter');
 //-----------------------------------------------------------------GET-------------------------------------------------------------------------------//
 
 // Get all timeslots
-router.get('/', async function (req, res, next) {
+router.get('/api/v1/timeslots', async function (req, res, next) {
     try {
         let timeslots = await Timeslot.find();
         res.status(200).json({
@@ -27,7 +27,7 @@ router.get('/', async function (req, res, next) {
 });
 
 // Get all available timeslots
-router.get('/available', async function (req, res, next) {
+router.get('/api/v1/timeslots/available', async function (req, res, next) {
     try {
         var timeslots = await Timeslot.find({ isBooked: false });
         mqttPublicationCenter.publishMessage('timeslots/available/response', JSON.stringify({
@@ -50,7 +50,7 @@ router.get('/available', async function (req, res, next) {
 });
 
 // Get all unavailable timeslots
-router.get('/unavailable', async function (req, res, next) {
+router.get('/api/v1/timeslots/unavailable', async function (req, res, next) {
     try {
         var timeslots = await Timeslot.find({ isBooked: true });
         mqttPublicationCenter.publishMessage('timeslots/unavailable/response', JSON.stringify({
@@ -76,7 +76,7 @@ router.get('/unavailable', async function (req, res, next) {
 //-----------------------------------------------------------------POST-------------------------------------------------------------------------------//
 
 //create a timeslot
-router.post('/', async function (req, res, next) {
+router.post('/api/v1/timeslots', async function (req, res, next) {
     let newTimeslot = new Timeslot(req.body);
 
     try {
@@ -95,7 +95,7 @@ router.post('/', async function (req, res, next) {
 
 //-----------------------------------------------------------------DELETE-------------------------------------------------------------------------------//
 
-router.delete('/', async function (req, res, next) {
+router.delete('/api/v1/timeslots', async function (req, res, next) {
     try {
         await Timeslot.collection.drop();
         return res.json({ "message": "Timeslots deleted" });

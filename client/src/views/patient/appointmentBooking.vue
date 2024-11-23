@@ -51,7 +51,7 @@ import { Api } from '../../Api.js'
           async bookAppointment(timeslot) {
             try {
                 if(this.timeslots.includes(timeslot)){
-                    await Api.post('/appointments/booking', {
+                    await Api.post('/v1/appointments/booking', {
                     patient: this.patient,
                     email: this.email,
                     timeslotId: this.timeslotId,
@@ -74,7 +74,7 @@ import { Api } from '../../Api.js'
         async cancelAppointment(appointment) {
           try {
             const {id, email} = appointment;
-            await Api.delete(`/appointments/booking/${id}`, {
+            await Api.delete(`/v1/appointments/booking/${id}`, {
               data: {email},
             });
 
@@ -86,7 +86,7 @@ import { Api } from '../../Api.js'
         },
         async getTimeslots() {
             try {
-              const response = await Api.get('/timeslots/available')
+              const response = await Api.get('/v1/timeslots/available')
               this.timeslots = response.data.timeslots
             } catch (error) {
                 this.message = `Error: ${error}`

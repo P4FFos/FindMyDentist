@@ -4,7 +4,7 @@ import Register from './views/patient/registration.vue'
 import Login from './views/patient/login.vue'
 
 const routes = [
-  { path: '/', name: 'appointmentBooking', component: appointmentBooking },
+  { path: '/booking', name: 'appointmentBooking', component: appointmentBooking },
   { path: '/registration', name: 'Register', component: Register },
   { path: '/login', name: 'Login', component: Login }
 ]
