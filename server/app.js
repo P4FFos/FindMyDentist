@@ -43,8 +43,8 @@ app.use(cors());
 app.use(methodOverride('X-HTTP-Method-Override'));
 
 // Import routes
-app.use(appointmentBookingController);
-app.use(timeslotsController);
+app.use('/api/appointments', appointmentBookingController);
+app.use('/api/timeslots', timeslotsController);
 
 app.get('/api', function(req, res) {
     res.json({'message': 'Welcome to the FindMyDentist!'});
