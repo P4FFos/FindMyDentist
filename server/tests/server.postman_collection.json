@@ -334,7 +334,7 @@
 					"response": []
 				},
 				{
-					"name": "Get Patient",
+					"name": "Get all Patients",
 					"event": [
 						{
 							"listen": "test",
@@ -368,6 +368,129 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Dentists test",
+			"item": [
+				{
+					"name": "Create Dentist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Resource is CREATED\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"dentistID\", jsonData._id);",
+									"    pm.expect(jsonData).to.have.property(\"_id\");",
+									"});",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Response contains dentistID\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"_id\");",
+									"});",
+									"pm.test(\"Response contains firstName\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"firstName\", \"Max\");",
+									"});",
+									"pm.test(\"Response contains secondName\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"secondName\", \"When\");",
+									"});",
+									"pm.test(\"Response contains email\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"email\", \"emailMax@gmail.com\");",
+									"});",
+									"pm.test(\"Response contains password\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"password\", \"password\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"firstName\", \"Max\");",
+									"pm.environment.set(\"secondName\", \"When\");",
+									"pm.environment.set(\"email\", \"emailMax@gmail.com\");",
+									"pm.environment.set(\"password\", \"password\");",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"{{firstName}}\",\n    \"secondName\": \"{{secondName}}\",\n    \"email\" : \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{testUrl}}/v1/dentists",
+							"host": [
+								"{{testUrl}}"
+							],
+							"path": [
+								"v1",
+								"dentists"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Detists",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{testUrl}}/v1/dentists/",
+							"host": [
+								"{{testUrl}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"event": [
@@ -391,6 +514,10 @@
 		}
 	],
 	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
 		{
 			"key": "testUrl",
 			"value": "http://localhost:3000/api",

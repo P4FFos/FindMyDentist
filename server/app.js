@@ -12,10 +12,10 @@ const SubscriptionHandler = require('./NotificationService/NotificationHandler')
 var mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
 var port = process.env.PORT || 3000;
 
-
 var appointmentBookingController = require('./controllers/appointments.js');
 var timeslotsController = require('./controllers/timeslots.js');
 var patientController = require('./controllers/patient.js');
+var dentistController = require('./controllers/dentist.js');
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function(err) {
@@ -47,6 +47,7 @@ app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(appointmentBookingController);
 app.use(timeslotsController);
 app.use(patientController);
+app.use(dentistController);
 
 app.get('/api', function(req, res) {
     res.json({'message': 'Welcome to the FindMyDentist!'});
