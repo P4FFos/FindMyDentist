@@ -1,6 +1,10 @@
 <template>
   <div class="register">
     <h1>Register</h1>
+    <div>
+      <button @click="selectUserType('patient')">Patient</button>
+      <button @click="selectUserType('dentist')">Dentist</button>
+    </div>
     <form @submit.prevent="register">
       <label for="firstName">First Name:</label>
       <input type="text" v-model="firstName" required />
@@ -11,11 +15,11 @@
       <label for="email">Email:</label>
       <input type="email" v-model="email" required />
 
-      <label for="phone">Phone:</label>
-      <input type="text" v-model="phone" required />
-
       <label for="password">Password:</label>
       <input type="password" v-model="password" required />
+
+      <label v-if="userType === 'patient'" for="phone">Phone:</label>
+      <input v-if="userType === 'patient'" type="text" v-model="phone" required />
 
       <button type="submit">Register</button>
     </form>
@@ -24,12 +28,13 @@
 </template>
 
 <script>
-import { Api } from '../../Api.js'
+import { Api } from '../Api.js'
 
 export default {
   name: 'Register',
   data() {
     return {
+      userType: 'patient',
       firstName: '',
       secondName: '',
       email: '',
@@ -39,15 +44,22 @@ export default {
     };
   },
   methods: {
+    selectUserType(type) {
+      this.userType = type;
+    },
     async register() {
       try {
-        await Api.post('v1/patients', {
+        const endpoint = this.userType === 'patient' ? 'v1/patients' : 'v1/dentists';
+        const payload = {
           firstName: this.firstName,
           secondName: this.secondName,
           email: this.email,
-          phone: this.phone,
           password: this.password
-        });
+        };
+        if (this.userType === 'patient') {
+          payload.phone = this.phone;
+        }
+        await Api.post(endpoint, payload);
         this.message = 'Registration successful!';
         this.$router.push('/login');
       } catch (error) {
