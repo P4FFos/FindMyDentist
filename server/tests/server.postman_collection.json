@@ -520,7 +520,7 @@
 		},
 		{
 			"key": "testUrl",
-			"value": "",
+			"value": "http://localhost:3000/api",
 			"type": "default"
 		}
 	]
