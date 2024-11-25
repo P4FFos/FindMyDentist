@@ -3,10 +3,12 @@ import AppointmentBooking from './views/patient/AppointmentBookingPage.vue'
 import Register from './views/RegistrationPage.vue'
 import Login from './views/LoginPage.vue'
 import StartPage from "./views/StartPage.vue";
+import  MainPatientPage from "./views/patient/MainPatientPage.vue";
 
 const routes = [
   { path: '/', name: 'Start Page', component: StartPage },
-  { path: '/booking', name: 'Booking Page', component: AppointmentBooking },
+  { path: '/dentist/:dentistId/booking', name: 'Booking Page', component: AppointmentBooking },
+  { path: '/patient_main', name: 'Patient Main Page', component: MainPatientPage },
   { path: '/register', name: 'Registration Page', component: Register },
   { path: '/login', name: 'Login Page', component: Login }
 ]

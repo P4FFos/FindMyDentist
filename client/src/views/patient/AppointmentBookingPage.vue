@@ -36,6 +36,12 @@ import { Api } from '../../Api.js'
 
   export default {
       name: 'appointmentBooking',
+      props: {
+        dentistId: {
+            type: String,
+            required: true
+        }
+      },
       data() {
         return {
           patient: '',
@@ -86,8 +92,9 @@ import { Api } from '../../Api.js'
         },
         async getTimeslots() {
             try {
-              const response = await Api.get('/v1/timeslots/available')
+              const response = await Api.get(`/v1/${this.dentistId}/timeslots/available`)
               this.timeslots = response.data.timeslots
+              this.message =  'timeslot were fetched succesfuly'
             } catch (error) {
                 this.message = `Error: ${error}`
             }

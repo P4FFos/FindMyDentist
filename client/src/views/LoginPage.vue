@@ -40,7 +40,7 @@ export default {
 
         if (patient) {
           localStorage.setItem('patientId', patient._id)
-          this.$router.push('/booking')
+          this.$router.push('/main')
         } else {
           this.message = 'Invalid credentials'
         }
