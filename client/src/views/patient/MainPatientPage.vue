@@ -15,12 +15,13 @@
       </div>
       <div class="main">
         <h1>Find a Dentist</h1>
-        <div class="map">here should be map</div>
+        <div id="map">here should be map</div>
       </div>
     </div>
   </template>
   <script>
   import { Api } from '../../Api.js'
+  import { Loader } from "@googlemaps/js-api-loader"
 
     export default {
         data() {
@@ -36,10 +37,38 @@
                 } catch (error) {
                     this.message = `Error: ${error}`
                 }
+            },
+            async createMarker(map, latitude, longitude) {
+              new google.maps.Marker({
+                position: { lat: latitude, lng: longitude },
+                map: map,
+                title: "Hello San Francisco!",
+              });
             }
         },
         mounted() {
             this.fetchDentist()
+            const loader = new Loader({
+              apiKey: import.meta.env.VITE_MAP_API_KEY,
+              version: "weekly",
+              libraries: ["places"],
+            })
+
+            loader.load().then(() => {
+              const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 57.7089, lng: 11.9746 },
+                zoom: 13,
+                disableDefaultUI: true,
+                styles: [
+                  {
+                    featureType: "all",
+                    elementType: "labels",
+                    stylers: [{ visibility: "off" }],
+                  },
+                ]
+              })
+              this.createMarker(map, 57.7089, 11.9746)
+            })
         }
     }
   </script>
@@ -64,7 +93,7 @@
   align-items: center;
 }
 
-.map {
+#map {
     background-color: #d3d3d3;
     width: 1000px;
     height: 700px;

@@ -10,6 +10,7 @@
     "lint": "eslint --ext .js,.vue --ignore-path ../.gitignore --fix ."
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^1.16.8",
     "axios": "^1.7.7",
     "unplugin-vue-components": "^0.27.4",
     "vue": "^3.5.12",
