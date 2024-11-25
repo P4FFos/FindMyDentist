@@ -16,6 +16,8 @@
       <div class="main">
         <h1>Find a Dentist</h1>
         <div id="map">here should be map</div>
+        <p>Click markers to see what dentist it is!</p>
+        <p>Book an appointment by selecting dentist form the sidebar</p>
       </div>
     </div>
   </template>
@@ -38,12 +40,35 @@
                     this.message = `Error: ${error}`
                 }
             },
-            async createMarker(map, latitude, longitude) {
-              new google.maps.Marker({
+            async createMarker(map, latitude, longitude, dentist) {
+              const marker = new google.maps.Marker({
                 position: { lat: latitude, lng: longitude },
                 map: map,
-                title: "Hello San Francisco!",
-              });
+                title: "Dentist",
+                icon: '../../src/assets/toothMarkerIcon.svg'
+              })
+              const infoWindow = new google.maps.InfoWindow({
+                content: `<h3>${dentist}</h3>`
+              })
+              marker.addListener("click", () => {
+                infoWindow.open(map, marker)
+              })
+            },
+            async initMap() {
+                var options = {
+                    center: { lat: 57.7089, lng: 11.9746 },
+                    zoom: 13,
+                    disableDefaultUI: true,
+                    styles: [
+                      {
+                        featureType: "all",
+                        elementType: "labels",
+                        stylers: [{ visibility: "off" }],
+                      },
+                    ]
+                }
+                const map = new google.maps.Map(document.getElementById("map"), options)
+                this.createMarker(map, 57.7089, 11.9746, 'Wally West')
             }
         },
         mounted() {
@@ -53,21 +78,8 @@
               version: "weekly",
               libraries: ["places"],
             })
-
             loader.load().then(() => {
-              const map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 57.7089, lng: 11.9746 },
-                zoom: 13,
-                disableDefaultUI: true,
-                styles: [
-                  {
-                    featureType: "all",
-                    elementType: "labels",
-                    stylers: [{ visibility: "off" }],
-                  },
-                ]
-              })
-              this.createMarker(map, 57.7089, 11.9746)
+                this.initMap()
             })
         }
     }
