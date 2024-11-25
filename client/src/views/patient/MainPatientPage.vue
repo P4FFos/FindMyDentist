@@ -15,6 +15,7 @@
       </div>
       <div class="main">
         <h1>Find a Dentist</h1>
+        <div class="map">here should be map</div>
       </div>
     </div>
   </template>
@@ -58,8 +59,19 @@
 .main {
   flex: 1;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.map {
+    background-color: #d3d3d3;
+    width: 1000px;
+    height: 700px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
 }
 
 ul {
