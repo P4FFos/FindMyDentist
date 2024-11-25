@@ -7,7 +7,7 @@ const mqttPublicationCenter = require('../mqtt/publicationCenter');
 //-----------------------------------------------------------------GET-------------------------------------------------------------------------------//
 
 // Get all timeslots
-router.get('/api/v1/:dentistID/timeslots', async function (req, res, next) {
+router.get('/api/v1/dentists/:dentistID/timeslots', async function (req, res, next) {
     var dentistID = req.params.dentistID;
     try {
         let timeslots = await Timeslot.findById(dentistID);
@@ -22,7 +22,7 @@ router.get('/api/v1/:dentistID/timeslots', async function (req, res, next) {
 });
 
 // Get all available timeslots
-router.get('/api/v1/:dentistID/timeslots/available', async function (req, res, next) {
+router.get('/api/v1/dentists/:dentistID/timeslots/available', async function (req, res, next) {
     var dentistID = req.params.dentistID;
     try {
       var availableTimeslots = await Timeslot.find({
@@ -51,7 +51,7 @@ router.get('/api/v1/:dentistID/timeslots/available', async function (req, res, n
 });
 
 // Get all unavailable timeslots
-router.get('/api/v1/:dentistID/timeslots/unavailable', async function (req, res, next) {
+router.get('/api/v1/dentists/:dentistID/timeslots/unavailable', async function (req, res, next) {
     var dentistID = req.params.dentistID;
     try {
         var unavailableTimeslots = await Timeslot.find({
@@ -81,7 +81,7 @@ router.get('/api/v1/:dentistID/timeslots/unavailable', async function (req, res,
 //-----------------------------------------------------------------POST-------------------------------------------------------------------------------//
 
 //create a timeslot
-router.post('/api/v1/:dentistID/timeslots', async function (req, res, next) {
+router.post('/api/v1/dentists/:dentistID/timeslots', async function (req, res, next) {
     var dentistID = req.params.dentistID;
     let newTimeslot = new Timeslot(req.body);
 
@@ -102,7 +102,7 @@ router.post('/api/v1/:dentistID/timeslots', async function (req, res, next) {
 //-----------------------------------------------------------------DELETE-------------------------------------------------------------------------------//
 
 // Delete all timeslots
-router.delete('/api/v1/:dentistID/timeslots', async function (req, res, next) {
+router.delete('/api/v1/dentists/:dentistID/timeslots', async function (req, res, next) {
     var dentistID = req.params.dentistID;
     try {
         await Timeslot.collection.drop();

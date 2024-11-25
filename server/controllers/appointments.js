@@ -4,14 +4,9 @@ var router = express.Router();
 const Appointment = require('../models/appointment');
 const mqttPublicationCenter = require('../mqtt/publicationCenter');
 
-/*
-    TODO:
-    implement database interactions for each endpoint using schemas defined in the models;
-    Fix error handling accordingly( change if statements);
-*/
-
 // Book an appointment
-router.post('/api/v1/appointments/booking', async function (req, res, next) {
+router.post('/api/v1/dentists/:dentistID/appointments/booking', async function (req, res, next) {
+    var dentistID = req.params.dentistID;
     const { patient, timeslotId, email: recipientEmail } = req.body;
 
     try{
@@ -22,6 +17,7 @@ router.post('/api/v1/appointments/booking', async function (req, res, next) {
         res.status(404).json({"message": "Cannot book for a null timeslot"});
       }
       const appointment = {
+        dentistId: dentistID,
         patient: patient,
         timeslot: timeslotId,
         isBooked: true
@@ -47,7 +43,8 @@ router.post('/api/v1/appointments/booking', async function (req, res, next) {
 });
 
 // Cancel an appointment
-router.delete('/api/v1/appointments/booking/:appointmentId', async function (req, res, next) {
+router.delete('/api/v1/dentists/:dentistID/appointments/booking/:appointmentId', async function (req, res, next) {
+    var dentistID = req.params.dentistID;
     const appointmentId = req.params.appointmentId;
     const recipientEmail = req.body.email;
 
