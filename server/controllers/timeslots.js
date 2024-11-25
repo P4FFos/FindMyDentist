@@ -10,7 +10,7 @@ const mqttPublicationCenter = require('../mqtt/publicationCenter');
 router.get('/api/v1/dentists/:dentistID/timeslots', async function (req, res, next) {
     var dentistID = req.params.dentistID;
     try {
-        let timeslots = await Timeslot.findById(dentistID);
+        let timeslots = await Timeslot.find({dentistId: dentistID});
         res.status(200).json({
             "message": "Timeslots fetched successfully",
             "timeslots": timeslots
