@@ -46,4 +46,14 @@ router.delete('/api/v1/dentists/:dentistID', async function (req, res, next) {
     }
 });
 
+// delete all dentists
+router.delete('/api/v1/dentists', async function (req, res, next) {
+    try {
+        await Dentist.deleteMany({});
+        res.json({message: 'All dentist accounts deleted successfully'});
+    } catch (error) {
+        return next(error);
+    }
+});
+
 module.exports = router;

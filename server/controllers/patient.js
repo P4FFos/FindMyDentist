@@ -35,4 +35,14 @@ router.get('/api/v1/patients', async function (req, res, next) {
     res.json(patients);
 });
 
+// delete all patients
+router.delete('/api/v1/patients', async function (req, res, next) {
+    try {
+        await Patient.deleteMany({});
+        res.json({message: 'All patients accounts deleted successfully'});
+    } catch (error) {
+        return next(error);
+    }
+});
+
 module.exports = router;
