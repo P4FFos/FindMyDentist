@@ -33,4 +33,17 @@ router.get('/api/v1/dentists', async function (req, res, next) {
     res.json(dentists);
 });
 
+router.delete('/api/v1/dentists/:dentistID', async function (req, res, next) {
+    var dentistID = req.params.dentistID;
+    try {
+        var dentist = await Dentist.findByIdAndDelete(dentistID);
+        if (!dentist) {
+            return res.status(404).json({ "message": "Deck with the provided ID does not exist." });
+        }
+        res.json(dentist);
+    } catch (error) {
+        return next(error);
+    }
+});
+
 module.exports = router;

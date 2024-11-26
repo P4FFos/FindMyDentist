@@ -448,7 +448,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"firstName\": \"{{firstName}}\",\n    \"secondName\": \"{{secondName}}\",\n    \"email\" : \"{{email}}\",\n    \"password\": \"{{password}}\"\n}",
+							"raw": "{\n    \"firstName\": \"{{firstName}}\",\n    \"secondName\": \"{{secondName}}\",\n    \"email\" : \"{{email}}\",\n    \"password\": \"{{password}}\",\n    \"location\": { \"latitude\": 57.689035, \"longitude\": 11.914206}\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -497,6 +497,39 @@
 								"v1",
 								"dentists",
 								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Dentist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}",
+							"host": [
+								"{{testUrl}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{dentistID}}"
 							]
 						}
 					},

@@ -28,7 +28,8 @@
     export default {
         data() {
           return {
-            dentists: []
+            dentists: [],
+            map: null
           };
         },
         methods: {
@@ -41,10 +42,9 @@
                 }
             },
             async createMarker(map, latitude, longitude, dentist) {
-              const marker = new google.maps.Marker({
+              const marker = await new google.maps.Marker({
                 position: { lat: latitude, lng: longitude },
                 map: map,
-                title: "Dentist",
                 icon: '../../src/assets/toothMarkerIcon.svg'
               })
               const infoWindow = new google.maps.InfoWindow({
@@ -67,8 +67,10 @@
                       },
                     ]
                 }
-                const map = new google.maps.Map(document.getElementById("map"), options)
-                this.createMarker(map, 57.7089, 11.9746, 'Wally West')
+                this.map = await new google.maps.Map(document.getElementById("map"), options)
+                for (const dentist of this.dentists) {
+                    this.createMarker(this.map, dentist.location.latitude, dentist.location.longitude, `${dentist.firstName} ${dentist.secondName}`)
+                }
             }
         },
         mounted() {
