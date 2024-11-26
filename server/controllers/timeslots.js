@@ -118,7 +118,7 @@ router.delete('/api/v1/dentists/:dentistID/timeslots/:timeslotID', async functio
     var timeslotID = req.params.timeslotID;
     try {
         await Timeslot.findByIdAndDelete(timeslotID);
-        return res.json({ "message": "Timeslots deleted" });
+        return res.json({ "message": "Timeslot deleted" });
     }
     catch (err) {
         return next(err);
