@@ -46,8 +46,8 @@ export default {
         }
 
         if (dentist) {
-          localStorage.setItem('dentistID', dentist._id)
-          this.$router.push('/')
+          localStorage.setItem('dentistId', dentist._id)
+          this.$router.push(`/dentist/${dentist._id}/managing`)
         } else {
           this.message = 'Invalid credentials'
         }

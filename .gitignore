@@ -108,6 +108,7 @@ typings/
 
 # dotenv environment variables file
 client/.env
+server/.env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
