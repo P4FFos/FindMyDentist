@@ -19,6 +19,12 @@
     <p v-if="message">{{ message }}</p>
 
     <h2>My Appointments:</h2>
+    <ul>
+      <li v-for="appointment in appointments" :key="appointment._id">
+        <p>Appointment with Dr. {{ doctorName }} at {{ appointment.timeslot }}</p>
+        <button @click="cancelAppointment(appointment._id)">Cancel</button>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -36,7 +42,7 @@ export default {
   data() {
     return {
       doctorName: '',
-      patient: '',
+      patient: localStorage.getItem('patientId') || '',
       email: '',
       selectedTimeslot: null,
       availableTimeslots: [],
@@ -47,7 +53,6 @@ export default {
     };
   },
   methods: {
-    //TODO: implement logic for canceling and displaying appointments
     async getTimeslots() {
       try {
         const availableResponse = await Api.get(`/v1/dentists/${this.dentistId}/timeslots/available`);
@@ -60,7 +65,6 @@ export default {
       }
     },
     async getPatientEmail() {
-      this.patient = localStorage.getItem('patientId');
       try {
         const response = await Api.get(`/v1/patients/${this.patient}`);
         this.email = response.data.email;
@@ -77,12 +81,19 @@ export default {
         this.message = `Error: ${error}`;
       }
     },
+    async getAppointments() {
+      try {
+        const response = await Api.get(`/v1/patients/${this.patient}/appointments/booking`);
+        this.appointments = response.data;
+      } catch (error) {
+        this.message = `Error: ${error}`;
+      }
+    },
     selectTimeslot(timeslot) {
       this.selectedTimeslot = timeslot;
     },
     async bookAppointment() {
       try {
-        this.patient = localStorage.getItem('patientId');
         await this.getPatientEmail();
         const response = await Api.post(`/v1/dentists/${this.dentistId}/appointments/booking`, {
           patient: this.patient,
@@ -90,6 +101,18 @@ export default {
           email: this.email
         });
         this.message = response.data.message;
+        await this.getAppointments();
+      } catch (error) {
+        this.message = `Error: ${error.response.data.message}`;
+      }
+    },
+    async cancelAppointment(appointmentId) {
+      try {
+        const response = await Api.delete(`/v1/dentists/${this.dentistId}/appointments/booking/${appointmentId}`, {
+          data: {email: this.email}
+        });
+        this.message = response.data.message;
+        await this.getAppointments();
       } catch (error) {
         this.message = `Error: ${error.response.data.message}`;
       }
@@ -102,9 +125,10 @@ export default {
       }
     }
   },
-  mounted() {
-    this.getTimeslots();
-    this.getDoctorName();
+  async mounted() {
+    await this.getTimeslots();
+    await this.getDoctorName();
+    await this.getAppointments();
   }
 }
 </script>
