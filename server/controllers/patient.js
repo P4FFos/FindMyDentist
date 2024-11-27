@@ -21,6 +21,20 @@ router.post('/api/v1/patients', async function (req, res, next) {
     }
 });
 
+// get specific patient
+router.get('/api/v1/patients/:patientID', async function(req, res, next) {
+    var patientID = req.params.patientID;
+    try {
+        var patient = await Patient.findById(patientID);
+        if (!patient) {
+            return res.status(404).json({"message": "Patient not found"});
+        }
+        res.status(200).json(patient);
+    } catch (error) {
+        return next(error);
+    }
+});
+
 // get all patients
 router.get('/api/v1/patients', async function (req, res, next) {
     var patients;
@@ -33,6 +47,20 @@ router.get('/api/v1/patients', async function (req, res, next) {
         return next(error);
     }
     res.json(patients);
+});
+
+// delete specific patient
+router.delete('/api/v1/patients/:patientID', async function (req, res, next) {
+    var patientID = req.params.patientID;
+    try {
+        var patient = await Patient.findByIdAndDelete(patientID);
+        if (!patient) {
+            return res.status(404).json({ "message": "Patient with the provided ID does not exist." });
+        }
+        res.json(patient);
+    } catch (error) {
+        return next(error);
+    }
 });
 
 // delete all patients

@@ -1,116 +1,92 @@
 <template>
-  <h1>Book an Appointment</h1>
-  <h2>available timeslots:</h2>
-  <li v-for="timeslot in timeslots">
-        <div>
-            <p> - Timeslot id: {{ timeslot }}</p>
-        </div>
-    </li>
-  <div class="booking-form">
-    <h2>Booking:</h2>
-    <form @submit.prevent="bookAppointment(timeslotId)">
-      <label for="patientId">Patient:</label>
-      <input type="text" v-model="patient" required />
-
-      <label for="email">Email:</label>
-      <input type="email" v-model="email" required/>
-
-      <label for="timeslotId">Timeslot ID:</label>
-      <input type="text" v-model="timeslotId" required />
-
-      <button type="submit">Book Appointment</button>
-    </form>
-  </div>
-    <li v-for="appointment in appointments">
-        <div class="appointment">
-            <p>Appointment id: {{ appointment }}</p>
-            <button @click="cancelAppointment(appointment)"> cancel appointment</button>
-        </div>
-    </li>
-
+  <div>
+    <h1>Book an Appointment with Dr. {{ doctorName }}</h1>
+    <h2>Available timeslots:</h2>
+    <ul>
+      <li v-for="timeslot in timeslots" :key="timeslot.id">
+        <p> Timeslot: {{ timeslot.time }}</p>
+        <button @click="selectTimeslot(timeslot)">Select</button>
+      </li>
+    </ul>
+    <button @click="bookAppointment" :disabled="!selectedTimeslot">Book Appointment</button>
     <p v-if="message">{{ message }}</p>
+  </div>
 </template>
 
 <script>
 import { Api } from '../../Api.js'
 
-  export default {
-      name: 'appointmentBooking',
-      props: {
-        dentistId: {
-            type: String,
-            required: true
-        }
-      },
-      data() {
-        return {
-          patient: '',
-          email: '',
-          timeslotId: '',
-          appointmentId: '',
-          appointments: [],
-          timeslots: [],
-          message: ''
-        };
-      },
-      methods: {
-          async bookAppointment(timeslot) {
-            try {
-                if(this.timeslots.includes(timeslot)){
-                    await Api.post('/v1/dentists/${this.dentistId}/appointments/booking', {
-                    patient: this.patient,
-                    email: this.email,
-                    timeslotId: this.timeslotId,
-                    })
-                  this.appointments.push({
-                    id: `apnt_${this.patient}_${this.timeslotId}`,
-                    email: this.email,
-                  });
-                  this.patient = ''
-                    this.timeslotId = ''
-                    this.email = ''
-                    this.message = `Appointment booked successfully! AppointmentId: ${this.appointmentId}`
-                } else {
-                    this.message = `Error: timeslot is unavailable!`
-                }
-            } catch (error) {
-                this.message = `Error: ${error}`
-            }
-          },
-        async cancelAppointment(appointment) {
-          try {
-            const {id, email} = appointment;
-            await Api.delete(`/v1/dentists/${this.dentistId}/appointments/booking/${id}`, {
-              data: {email},
-            });
-
-            this.appointments = this.appointments.filter(appointment => appointment !== appointmentId)
-            this.message = `Appointment ${this.appointmentId} was cancelled!`
-          } catch (error) {
-            this.message = `Error: ${error}`
-          }
-        },
-        async getTimeslots() {
-            try {
-              const response = await Api.get(`/v1/dentists/${this.dentistId}/timeslots/available`)
-              this.timeslots = response.data.timeslots
-              this.message =  'timeslot were fetched succesfuly'
-            } catch (error) {
-                this.message = `Error: ${error}`
-            }
-          }
-      },
-      mounted() {
-        this.getTimeslots()
+export default {
+  name: 'appointmentBooking',
+  props: {
+    dentistId: {
+      type: String,
+      required: true
+    }
+  },
+  data() {
+    return {
+      doctorName: '',
+      patient: '',
+      email: '',
+      selectedTimeslot: null,
+      appointments: [],
+      timeslots: [],
+      message: ''
+    };
+  },
+  methods: {
+    async getTimeslots() {
+      try {
+        const response = await Api.get(`/v1/dentists/${this.dentistId}/timeslots/available`);
+        this.timeslots = response.data.timeslots;
+      } catch (error) {
+        this.message = `Error: ${error}`;
       }
+    },
+    async getPatientEmail() {
+      this.patient = localStorage.getItem('patientId');
+      try {
+        const response = await Api.get(`/v1/patients/${this.patient}`);
+        this.email = response.data.email;
+      } catch (error) {
+        this.message = `Error: ${error}`;
+      }
+    },
+    async getDoctorName() {
+      try {
+        const response = await Api.get(`/v1/dentists/${this.dentistId}`);
+        const dentist = response.data;
+        this.doctorName = `${dentist.firstName} ${dentist.secondName}`;
+      } catch (error) {
+        this.message = `Error: ${error}`;
+      }
+    },
+    selectTimeslot(timeslot) {
+      this.selectedTimeslot = timeslot;
+    },
+    async bookAppointment() {
+      try {
+        this.patient = localStorage.getItem('patientId');
+        await this.getPatientEmail();
+        const response = await Api.post(`/v1/dentists/${this.dentistId}/appointments/booking`, {
+          patient: this.patient,
+          timeslotId: this.selectedTimeslot._id,
+          email: this.email
+        });
+        this.message = response.data.message;
+      } catch (error) {
+        this.message = `Error: ${error.response.data.message}`;
+      }
+    }
+  },
+  mounted() {
+    this.getTimeslots();
+    this.getDoctorName();
   }
+}
 </script>
 
 <style>
-    .appointment {
-        border-width:1px;
-        border-style:solid;
-        border-color:black;
-        margin: 10px;
-    }
+
 </style>

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "b0577bf5-766a-417a-8463-bf559d77953c",
+		"_postman_id": "d8ae3c3f-d4b7-48a5-ab3d-bd2a88e5bf4f",
 		"name": "FindMyDentist",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38409323"
+		"_exporter_id": "38095200"
 	},
 	"item": [
 		{
@@ -53,8 +53,6 @@
 								"exec": [
 									"pm.test(\"Successful POST request\", function () {",
 									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
-									"    var jsonData = pm.response.json();",
-									"    pm.environment.set(\"timeslotID\", jsonData._id);",
 									"});",
 									""
 								],
@@ -100,8 +98,6 @@
 								"exec": [
 									"pm.test(\"Successful POST request\", function () {",
 									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
-									"    var jsonData = pm.response.json();",
-									"    pm.environment.set(\"timeslotID\", jsonData._id);",
 									"});",
 									""
 								],
@@ -207,41 +203,6 @@
 							]
 						},
 						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
-					},
-					"response": []
-				},
-				{
-					"name": "Delete timeslot",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Successful DELETE request\", function () {\r",
-									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);\r",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}/timeslots/{{timeslotID}}",
-							"host": [
-								"{{testUrl}}"
-							],
-							"path": [
-								"v1",
-								"dentists",
-								"{{dentistID}}",
-								"timeslots",
-								"{{timeslotID}}"
-							]
-						}
 					},
 					"response": []
 				},
@@ -419,6 +380,73 @@
 					"response": []
 				},
 				{
+					"name": "Get Patient",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{testUrl}}/v1/patients/{{patientID}}",
+							"host": [
+								"{{testUrl}}"
+							],
+							"path": [
+								"v1",
+								"patients",
+								"{{patientID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Patient",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{testUrl}}/v1/dentists/{{patientID}}",
+							"host": [
+								"{{testUrl}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{patientID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Delete all Patients",
 					"event": [
 						{
@@ -569,6 +597,40 @@
 								"v1",
 								"dentists",
 								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dentist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{testUrl}}/v1/patients/{{dentistID}}",
+							"host": [
+								"{{testUrl}}"
+							],
+							"path": [
+								"v1",
+								"patients",
+								"{{dentistID}}"
 							]
 						}
 					},
