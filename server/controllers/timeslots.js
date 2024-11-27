@@ -83,7 +83,7 @@ router.get('/api/v1/dentists/:dentistID/timeslots/unavailable', async function (
 //create a timeslot
 router.post('/api/v1/dentists/:dentistID/timeslots', async function (req, res, next) {
     var dentistID = req.params.dentistID;
-    let newTimeslot = new Timeslot(req.body);
+    const newTimeslot = new Timeslot(req.body);
 
     try {
         await newTimeslot.save();
@@ -103,7 +103,6 @@ router.post('/api/v1/dentists/:dentistID/timeslots', async function (req, res, n
 
 // Delete all timeslots
 router.delete('/api/v1/dentists/:dentistID/timeslots', async function (req, res, next) {
-    var dentistID = req.params.dentistID;
     try {
         await Timeslot.collection.drop();
         return res.json({ "message": "Timeslots deleted" });
@@ -114,5 +113,17 @@ router.delete('/api/v1/dentists/:dentistID/timeslots', async function (req, res,
 
 });
 
+// Delete timeslot
+router.delete('/api/v1/dentists/:dentistID/timeslots/:timeslotID', async function (req, res, next) {
+    var timeslotID = req.params.timeslotID;
+    try {
+        await Timeslot.findByIdAndDelete(timeslotID);
+        return res.json({ "message": "Timeslot deleted" });
+    }
+    catch (err) {
+        return next(err);
+    }
+
+});
 
 module.exports = router;
