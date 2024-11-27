@@ -3,6 +3,7 @@ const router = express.Router();
 const Dentist = require('../models/dentist.js');
 const Patient = require('../models/patient.js');
 
+// create specific dentist
 router.post('/api/v1/dentists', async function (req, res, next) {
     try {
         const existingDentistEmail = await Dentist.findOne({ email: req.body.email });
@@ -20,6 +21,7 @@ router.post('/api/v1/dentists', async function (req, res, next) {
     }
 });
 
+// get all dentists
 router.get('/api/v1/dentists', async function (req, res, next) {
     var dentists;
     try {
@@ -33,12 +35,27 @@ router.get('/api/v1/dentists', async function (req, res, next) {
     res.json(dentists);
 });
 
+// get specific dentist
+router.get('/api/v1/dentists/:dentistID', async function(req, res, next) {
+    var dentistID = req.params.dentistID;
+    try {
+        var dentist = await Dentist.findById(dentistID);
+        if (!dentist) {
+            return res.status(404).json({"message": "Dentist not found"});
+        }
+        res.status(200).json(dentist);
+    } catch (error) {
+        return next(error);
+    }
+});
+
+// delete specific dentist
 router.delete('/api/v1/dentists/:dentistID', async function (req, res, next) {
     var dentistID = req.params.dentistID;
     try {
         var dentist = await Dentist.findByIdAndDelete(dentistID);
         if (!dentist) {
-            return res.status(404).json({ "message": "Deck with the provided ID does not exist." });
+            return res.status(404).json({ "message": "Dentist with the provided ID does not exist." });
         }
         res.json(dentist);
     } catch (error) {
