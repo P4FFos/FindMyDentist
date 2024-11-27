@@ -3,6 +3,7 @@ var router = express.Router();
 
 const Appointment = require('../models/appointment');
 const mqttPublicationCenter = require('../mqtt/publicationCenter');
+const Timeslot = require("../models/timeslot");
 
 // Book an appointment
 router.post('/api/v1/dentists/:dentistID/appointments/booking', async function (req, res, next) {
@@ -16,6 +17,14 @@ router.post('/api/v1/dentists/:dentistID/appointments/booking', async function (
       if(!timeslotId){
         res.status(404).json({"message": "Cannot book for a null timeslot"});
       }
+
+      const timeslot = await Timeslot.findById(timeslotId);
+      if (!timeslot) {
+          return res.status(404).json({ "message": "Timeslot not found" });
+      }
+      timeslot.isBooked = true;
+      await timeslot.save();
+
       const appointment = {
         dentistId: dentistID,
         patient: patient,

@@ -433,13 +433,13 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{patientID}}",
+							"raw": "{{testUrl}}/v1/patients/{{patientID}}",
 							"host": [
 								"{{testUrl}}"
 							],
 							"path": [
 								"v1",
-								"dentists",
+								"patients",
 								"{{patientID}}"
 							]
 						}
@@ -623,13 +623,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/patients/{{dentistID}}",
+							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}",
 							"host": [
 								"{{testUrl}}"
 							],
 							"path": [
 								"v1",
-								"patients",
+								"dentists",
 								"{{dentistID}}"
 							]
 						}

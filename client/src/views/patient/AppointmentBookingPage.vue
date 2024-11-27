@@ -3,13 +3,22 @@
     <h1>Book an Appointment with Dr. {{ doctorName }}</h1>
     <h2>Available timeslots:</h2>
     <ul>
-      <li v-for="timeslot in timeslots" :key="timeslot.id">
+      <li v-for="timeslot in availableTimeslots" :key="timeslot.id">
         <p> Timeslot: {{ timeslot.time }}</p>
         <button @click="selectTimeslot(timeslot)">Select</button>
       </li>
     </ul>
+    <h2>Unavailable timeslots:</h2>
+    <ul>
+      <li v-for="timeslot in unavailableTimeslots" :key="timeslot.id">
+        <p> Timeslot: {{ timeslot.time }}</p>
+        <button @click="notifyWhenAvailable(timeslot)">Notify me when available</button>
+      </li>
+    </ul>
     <button @click="bookAppointment" :disabled="!selectedTimeslot">Book Appointment</button>
     <p v-if="message">{{ message }}</p>
+
+    <h2>My Appointments:</h2>
   </div>
 </template>
 
@@ -30,16 +39,22 @@ export default {
       patient: '',
       email: '',
       selectedTimeslot: null,
+      availableTimeslots: [],
+      unavailableTimeslots: [],
       appointments: [],
       timeslots: [],
       message: ''
     };
   },
   methods: {
+    //TODO: implement logic for canceling and displaying appointments
     async getTimeslots() {
       try {
-        const response = await Api.get(`/v1/dentists/${this.dentistId}/timeslots/available`);
-        this.timeslots = response.data.timeslots;
+        const availableResponse = await Api.get(`/v1/dentists/${this.dentistId}/timeslots/available`);
+        this.availableTimeslots = availableResponse.data.timeslots;
+
+        const unavailableResponse = await Api.get(`/v1/dentists/${this.dentistId}/timeslots/unavailable`);
+        this.unavailableTimeslots = unavailableResponse.data.timeslots;
       } catch (error) {
         this.message = `Error: ${error}`;
       }
@@ -77,6 +92,13 @@ export default {
         this.message = response.data.message;
       } catch (error) {
         this.message = `Error: ${error.response.data.message}`;
+      }
+    },
+    async notifyWhenAvailable(timeslot) {
+      try {
+        this.message = `You will be notified when timeslot ${timeslot.time} becomes available`;
+      } catch (error) {
+        this.message = `Error: ${error}`;
       }
     }
   },
