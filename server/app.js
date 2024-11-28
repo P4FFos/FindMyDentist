@@ -5,8 +5,6 @@ var path = require('path');
 var cors = require('cors');
 var history = require('connect-history-api-fallback');
 var methodOverride = require('method-override');
-const NotificationSender = require('./NotificationService/NotificationSender');
-const SubscriptionHandler = require('./NotificationService/NotificationHandler');
 
 // Variables
 var mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
@@ -14,8 +12,8 @@ var port = process.env.PORT || 3000;
 
 var appointmentBookingController = require('./controllers/appointments.js');
 var timeslotsController = require('./controllers/timeslots.js');
-var patientController = require('./controllers/patient.js');
-var dentistController = require('./controllers/dentist.js');
+var patientController = require('../patient/controller/patients.js');
+var dentistController = require('../dentist/controller/dentists.js');
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function(err) {
