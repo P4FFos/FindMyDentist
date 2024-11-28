@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-const Timeslot = require('../models/timeslot');
-const mqttPublicationCenter = require('../mqtt/publicationCenter');
+const Timeslot = require('../model/timeslot');
+const mqttPublicationCenter = require('../../mqtt/service/publicationCenter');
 
 //-----------------------------------------------------------------GET-------------------------------------------------------------------------------//
 

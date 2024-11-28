@@ -15,7 +15,8 @@
 </template>
 
 <script>
-import { Api } from '../Api.js'
+// import { Api } from '../Api.js'
+import axios from 'axios'
 
 export default {
   name: 'Login',
@@ -30,11 +31,11 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await Api.get('/v1/patients')
+        const response = await axios.get('http://localhost:3004/api/v1/patients')
         const patients = response.data
         const patient = patients.find(patient => patient.email === this.email && patient.password === this.password)
 
-        const responseDentist = await Api.get('/v1/dentists')
+        const responseDentist = await axios.get('http://localhost:3003/api/v1/dentists')
         const dentists = responseDentist.data
         const dentist = dentists.find(dentist => dentist.email === this.email && dentist.password === this.password)
 

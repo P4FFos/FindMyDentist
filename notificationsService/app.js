@@ -29,6 +29,8 @@ app.use(function(err, req, res, next) {
 app.listen(port, function(err) {
     if (err) throw err;
     console.log(`Notification Service listening on port ${port}, in ${env} mode`);
+    console.log(`Backend: http://localhost:${port}/api/`);
+    console.log(`Frontend (production): http://localhost:${port}/`);
 });
 
 module.exports = app;

@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
-const Appointment = require('../models/appointment');
-const mqttPublicationCenter = require('../mqtt/publicationCenter');
-const Timeslot = require("../models/timeslot");
+const Appointment = require('../model/appointment');
+const mqttPublicationCenter = require('../../mqtt/service/publicationCenter');
+const Timeslot = require("../../timeslotsService/model/timeslot");
 
 // Book an appointment
 router.post('/api/v1/dentists/:dentistID/appointments/booking', async function (req, res, next) {

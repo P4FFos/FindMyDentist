@@ -6,7 +6,7 @@
   },
   "scripts": {
     "start": "node ./app.js",
-    "dev": "nodemon ./app.js",
+    "dev": "nodemon ./database.js",
     "test": "cross-env-shell MONGODB_URI=mongodb://localhost:27017/serverTestDB \"npm run newman-server\"",
     "ci-test": "npm run newman-server",
     "newman-server": "cross-env-shell PORT=3000 \"run-p --race start newman-wait\"",

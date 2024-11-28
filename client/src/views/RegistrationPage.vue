@@ -28,7 +28,8 @@
 </template>
 
 <script>
-import { Api } from '../Api.js'
+// import { Api } from '../Api.js'
+import axios from 'axios'
 
 export default {
   name: 'Register',
@@ -49,7 +50,7 @@ export default {
     },
     async register() {
       try {
-        const endpoint = this.userType === 'patient' ? 'v1/patients' : 'v1/dentists';
+        const endpoint = this.userType === 'patient' ? 'http://localhost:3004/api/v1/patients' : 'http://localhost:3003/api/v1/dentists';
         const payload = {
           firstName: this.firstName,
           secondName: this.secondName,
@@ -59,7 +60,7 @@ export default {
         if (this.userType === 'patient') {
           payload.phone = this.phone;
         }
-        await Api.post(endpoint, payload);
+        await axios.post(endpoint, payload);
         this.message = 'Registration successful!';
         this.$router.push('/login');
       } catch (error) {
