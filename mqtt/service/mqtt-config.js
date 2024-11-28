@@ -16,7 +16,7 @@ const client = mqtt.connect(connectUrl, {
 });
 
 client.on('connect', () => {
-    console.log('Publish Center connected to the broker')
+    console.log('Connected to the broker')
 });
 
 client.on('error', (err) => {

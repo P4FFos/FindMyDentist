@@ -1,5 +1,5 @@
-const NotificationSender = require('../NotificationService/NotificationSender');
-const { subscribeToTopic } = require('../mqtt/subscriptionCenter');
+const NotificationSender = require('./NotificationSender');
+const { subscribeToTopic } = require('../../mqtt/service/subscriptionCenter');
 
 const notificationSender = new NotificationSender();
 

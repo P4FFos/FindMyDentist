@@ -1,4 +1,4 @@
-const client = require('../mqtt-config')
+const client = require('./mqtt-config')
 
 // Publish Message Function
 function publishMessage(topic, payload) {

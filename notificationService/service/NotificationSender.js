@@ -1,4 +1,4 @@
-const NodeMailer = require('../NotificationService/NodeMailer'); // Corrected path
+const NodeMailer = require('./NodeMailer'); // Corrected path
 
 const mailer = new NodeMailer();
 

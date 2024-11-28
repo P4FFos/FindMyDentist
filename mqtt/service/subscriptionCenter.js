@@ -1,4 +1,4 @@
-const client = require('../mqtt-config');
+const client = require('./mqtt-config');
 
 // Subscribe function
 function subscribeToTopic(topic, callback) {
