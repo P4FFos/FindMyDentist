@@ -2,13 +2,19 @@ var express = require('express');
 var mongoose = require('mongoose');
 
 // Variables
-const { connectToDatabase } = require('../config/database.js');
 var port = process.env.PORT || 3003;
 
 var dentistController = require('./controller/dentists.js');
 
+const mongoURI = 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
 // Connect to MongoDB
-connectToDatabase();
+mongoose.connect(mongoURI).catch(function(err) {
+    console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);
+    console.error(err.stack);
+    process.exit(1);
+}).then(function() {
+    console.log(`Connected to MongoDB with URI: ${mongoURI}`); // mistake when forward porting
+});
 
 // Create Express app
 var app = express();

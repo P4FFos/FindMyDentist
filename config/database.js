@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+const mongoURI = process.env.DATABASE_URL || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
 
 // Connect to MongoDB
 const connectToDatabase = async () => {
@@ -13,5 +13,4 @@ const connectToDatabase = async () => {
     });
 };
 
-
-module.exports = { mongoURI, connectToDatabase };
+module.exports = { connectToDatabase };

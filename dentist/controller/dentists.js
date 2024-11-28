@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Dentist = require('../model/dentist.js');
-// const Patient = require('../../server/models/patient.js');
+const Patient = require('../../patient/model/patient.js');
 
 // create specific dentist
 router.post('/api/v1/dentists', async function (req, res, next) {
