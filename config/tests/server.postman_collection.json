@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "d8ae3c3f-d4b7-48a5-ab3d-bd2a88e5bf4f",
+		"_postman_id": "238cd580-b1e0-41e2-ad41-7e38182fdd83",
 		"name": "FindMyDentist",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38095200"
+		"_exporter_id": "38409323"
 	},
 	"item": [
 		{
@@ -29,9 +29,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}/timeslots",
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots",
 							"host": [
-								"{{testUrl}}"
+								"{{timeslotsURL}}"
 							],
 							"path": [
 								"v1",
@@ -74,9 +74,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}/timeslots",
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots",
 							"host": [
-								"{{testUrl}}"
+								"{{timeslotsURL}}"
 							],
 							"path": [
 								"v1",
@@ -119,9 +119,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}/timeslots",
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots",
 							"host": [
-								"{{testUrl}}"
+								"{{timeslotsURL}}"
 							],
 							"path": [
 								"v1",
@@ -154,9 +154,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}/timeslots/available",
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots/available",
 							"host": [
-								"{{testUrl}}"
+								"{{timeslotsURL}}"
 							],
 							"path": [
 								"v1",
@@ -190,9 +190,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}/timeslots/unavailable",
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots/unavailable",
 							"host": [
-								"{{testUrl}}"
+								"{{timeslotsURL}}"
 							],
 							"path": [
 								"v1",
@@ -236,9 +236,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}/timeslots",
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots",
 							"host": [
-								"{{testUrl}}"
+								"{{timeslotsURL}}"
 							],
 							"path": [
 								"v1",
@@ -333,9 +333,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{testUrl}}/v1/patients",
+							"raw": "{{patientURL}}/v1/patients",
 							"host": [
-								"{{testUrl}}"
+								"{{patientURL}}"
 							],
 							"path": [
 								"v1",
@@ -366,9 +366,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/patients/",
+							"raw": "{{patientURL}}/v1/patients/",
 							"host": [
-								"{{testUrl}}"
+								"{{patientURL}}"
 							],
 							"path": [
 								"v1",
@@ -400,9 +400,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/patients/{{patientID}}",
+							"raw": "{{patientURL}}/v1/patients/{{patientID}}",
 							"host": [
-								"{{testUrl}}"
+								"{{patientURL}}"
 							],
 							"path": [
 								"v1",
@@ -433,9 +433,9 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/patients/{{patientID}}",
+							"raw": "{{patientURL}}/v1/patients/{{patientID}}",
 							"host": [
-								"{{testUrl}}"
+								"{{patientURL}}"
 							],
 							"path": [
 								"v1",
@@ -466,9 +466,9 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/patients/",
+							"raw": "{{patientURL}}/v1/patients/",
 							"host": [
-								"{{testUrl}}"
+								"{{patientURL}}"
 							],
 							"path": [
 								"v1",
@@ -556,9 +556,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists",
+							"raw": "{{dentistURL}}/v1/dentists",
 							"host": [
-								"{{testUrl}}"
+								"{{dentistURL}}"
 							],
 							"path": [
 								"v1",
@@ -589,9 +589,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/",
+							"raw": "{{dentistURL}}/v1/dentists/",
 							"host": [
-								"{{testUrl}}"
+								"{{dentistURL}}"
 							],
 							"path": [
 								"v1",
@@ -623,9 +623,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}",
+							"raw": "{{dentistURL}}/v1/dentists/{{dentistID}}",
 							"host": [
-								"{{testUrl}}"
+								"{{dentistURL}}"
 							],
 							"path": [
 								"v1",
@@ -656,9 +656,9 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/{{dentistID}}",
+							"raw": "{{dentistURL}}/v1/dentists/{{dentistID}}",
 							"host": [
-								"{{testUrl}}"
+								"{{dentistURL}}"
 							],
 							"path": [
 								"v1",
@@ -689,9 +689,9 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{testUrl}}/v1/dentists/",
+							"raw": "{{dentistURL}}/v1/dentists/",
 							"host": [
-								"{{testUrl}}"
+								"{{dentistURL}}"
 							],
 							"path": [
 								"v1",
@@ -731,9 +731,24 @@
 			"value": "1"
 		},
 		{
-			"key": "testUrl",
-			"value": "http://localhost:3000/api",
+			"key": "dentistURL",
+			"value": "http://localhost:3003/api",
 			"type": "default"
+		},
+		{
+			"key": "patientURL",
+			"value": "http://localhost:3004/api",
+			"type": "string"
+		},
+		{
+			"key": "timeslotsURL",
+			"value": "http://localhost:3005/api",
+			"type": "string"
+		},
+		{
+			"key": "appointmentsURL",
+			"value": "http://localhost:3006/api",
+			"type": "string"
 		}
 	]
 }
