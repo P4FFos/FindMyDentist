@@ -1,5 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
+var bodyParser = require('body-parser');
 
 // Variables
 var port = process.env.PORT || 3005;
@@ -7,17 +8,22 @@ var port = process.env.PORT || 3005;
 var timeslotsController = require('./controller/timeslots.js');
 
 const mongoURI = 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function(err) {
     console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);
     console.error(err.stack);
     process.exit(1);
 }).then(function() {
-    console.log(`Connected to MongoDB with URI: ${mongoURI}`); // mistake when forward porting
+    console.log(`Connected to MongoDB with URI: ${mongoURI}`);
 });
 
 // Create Express app
 var app = express();
+
+// Use body-parser middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Import routes
 app.use(timeslotsController);

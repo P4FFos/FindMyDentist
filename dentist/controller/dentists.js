@@ -7,9 +7,9 @@ const Patient = require('../../patient/model/patient.js');
 router.post('/api/v1/dentists', async function (req, res, next) {
     try {
         const existingDentistEmail = await Dentist.findOne({ email: req.body.email });
-        const existingPatientEmail = await Patient.findOne({ email: req.body.email });
+        // const existingPatientEmail = await Patient.findOne({ email: req.body.email });
 
-        if (existingDentistEmail || existingPatientEmail) {
+        if (existingDentistEmail /*|| existingPatientEmail*/) {
             return res.status(409).json({ "message": "Dentist Account with this email already exists" });
         }
 

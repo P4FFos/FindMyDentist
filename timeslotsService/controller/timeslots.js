@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const Timeslot = require('../model/timeslot');
+const Dentist = require('../../dentist/model/dentist');
 const mqttPublicationCenter = require('../../mqtt/service/publicationCenter');
 
 //-----------------------------------------------------------------GET-------------------------------------------------------------------------------//

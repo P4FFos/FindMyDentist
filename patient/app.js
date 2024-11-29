@@ -12,13 +12,14 @@ var port = process.env.PORT || 3004;
 var patientController = require('./controller/patients.js');
 
 const mongoURI = 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function(err) {
     console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);
     console.error(err.stack);
     process.exit(1);
 }).then(function() {
-    console.log(`Connected to MongoDB with URI: ${mongoURI}`); // mistake when forward porting
+    console.log(`Connected to MongoDB with URI: ${mongoURI}`);
 });
 
 // Create Express app

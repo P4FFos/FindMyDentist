@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const Patient = require('../model/patient.js');
 const Dentist = require('../../dentist/model/dentist.js');
 
@@ -7,9 +8,9 @@ const Dentist = require('../../dentist/model/dentist.js');
 router.post('/api/v1/patients', async function (req, res, next) {
     try {
         const existingPatientEmail = await Patient.findOne({ email: req.body.email });
-        const existingDentistEmail = await Dentist.findOne({ email: req.body.email });
+        // const existingDentistEmail = await Dentist.findOne({ email: req.body.email });
 
-        if (existingPatientEmail || existingDentistEmail) {
+        if (existingPatientEmail /*|| existingDentistEmail*/) {
             return res.status(409).json({ "message": "Patient Account with this email already exists" });
         }
 
