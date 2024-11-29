@@ -1,76 +1,55 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const mqtt = require('mqtt');
 const Patient = require('../model/patient.js');
 const Dentist = require('../../dentist/model/dentist.js');
 
-// create specific patient
-router.post('/api/v1/patients', async function (req, res, next) {
-    try {
-        const existingPatientEmail = await Patient.findOne({ email: req.body.email });
-        // const existingDentistEmail = await Dentist.findOne({ email: req.body.email });
+const client = mqtt.connect('mqtt://test.mosquitto.org:1883');
 
-        if (existingPatientEmail /*|| existingDentistEmail*/) {
-            return res.status(409).json({ "message": "Patient Account with this email already exists" });
+client.on('connect', () => {
+    console.log('Connected to MQTT broker');
+    client.subscribe('patients/register', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
         }
-
-        const patient = new Patient(req.body);
-        await patient.save();
-        res.status(201).json(patient);
-    } catch (error) {
-        return next(error);
-    }
+    });
+    client.subscribe('patients/login', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
 });
 
-// get specific patient
-router.get('/api/v1/patients/:patientID', async function(req, res, next) {
-    var patientID = req.params.patientID;
-    try {
-        var patient = await Patient.findById(patientID);
-        if (!patient) {
-            return res.status(404).json({"message": "Patient not found"});
-        }
-        res.status(200).json(patient);
-    } catch (error) {
-        return next(error);
-    }
-});
+client.on('message', async (topic, message) => {
+    if (topic === 'patients/register') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const existingPatientEmail = await Patient.findOne({ email: payload.email });
 
-// get all patients
-router.get('/api/v1/patients', async function (req, res, next) {
-    var patients;
-    try {
-        patients = await Patient.find();
-        if (!patients) {
-            return res.status(404).json({ "message": "Patient account with this email does not exist" });
-        }
-    } catch (error) {
-        return next(error);
-    }
-    res.json(patients);
-});
+            if (existingPatientEmail) {
+                client.publish('patients/register/response', JSON.stringify({ status: 'error', message: 'Patient Account with this email already exists' }));
+                return;
+            }
 
-// delete specific patient
-router.delete('/api/v1/patients/:patientID', async function (req, res, next) {
-    var patientID = req.params.patientID;
-    try {
-        var patient = await Patient.findByIdAndDelete(patientID);
-        if (!patient) {
-            return res.status(404).json({ "message": "Patient with the provided ID does not exist." });
+            const patient = new Patient(payload);
+            await patient.save();
+            client.publish('patients/register/response', JSON.stringify({ status: 'success', patient }));
+        } catch (error) {
+            client.publish('patients/register/response', JSON.stringify({ status: 'error', message: error.message }));
         }
-        res.json(patient);
-    } catch (error) {
-        return next(error);
-    }
-});
-
-// delete all patients
-router.delete('/api/v1/patients', async function (req, res, next) {
-    try {
-        await Patient.deleteMany({});
-        res.json({message: 'All patients accounts deleted successfully'});
-    } catch (error) {
-        return next(error);
+    } else if (topic === 'patients/login') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const patient = await Patient.findOne({ email: payload.email, password: payload.password });
+            if (patient) {
+                client.publish('patients/login/response', JSON.stringify({ status: 'success', patient }));
+            } else {
+                client.publish('patients/login/response', JSON.stringify({ status: 'error', message: 'Invalid credentials1' }));
+            }
+        } catch (error) {
+            client.publish('patients/login/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
     }
 });
 

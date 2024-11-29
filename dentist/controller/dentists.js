@@ -1,75 +1,54 @@
 const express = require('express');
 const router = express.Router();
 const Dentist = require('../model/dentist.js');
+const mqtt = require('mqtt');
 const Patient = require('../../patient/model/patient.js');
 
-// create specific dentist
-router.post('/api/v1/dentists', async function (req, res, next) {
-    try {
-        const existingDentistEmail = await Dentist.findOne({ email: req.body.email });
-        // const existingPatientEmail = await Patient.findOne({ email: req.body.email });
+const client = mqtt.connect('mqtt://test.mosquitto.org:1883');
 
-        if (existingDentistEmail /*|| existingPatientEmail*/) {
-            return res.status(409).json({ "message": "Dentist Account with this email already exists" });
+client.on('connect', () => {
+    console.log('Connected to MQTT broker');
+    client.subscribe('dentists/register', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
         }
-
-        const dentist = new Dentist(req.body);
-        await dentist.save();
-        res.status(201).json(dentist);
-    } catch (error) {
-        return next(error);
-    }
+    });
+    client.subscribe('dentists/login', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
 });
 
-// get all dentists
-router.get('/api/v1/dentists', async function (req, res, next) {
-    var dentists;
-    try {
-        dentists = await Dentist.find();
-        if (!dentists) {
-            return res.status(404).json({ "message": "Dentist account with this email does not exist" });
-        }
-    } catch (error) {
-        return next(error);
-    }
-    res.json(dentists);
-});
+client.on('message', async (topic, message) => {
+    if (topic === 'dentists/register') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const existingDentistEmail = await Dentist.findOne({ email: payload.email });
 
-// get specific dentist
-router.get('/api/v1/dentists/:dentistID', async function(req, res, next) {
-    var dentistID = req.params.dentistID;
-    try {
-        var dentist = await Dentist.findById(dentistID);
-        if (!dentist) {
-            return res.status(404).json({"message": "Dentist not found"});
-        }
-        res.status(200).json(dentist);
-    } catch (error) {
-        return next(error);
-    }
-});
+            if (existingDentistEmail) {
+                client.publish('dentists/register/response', JSON.stringify({ status: 'error', message: 'Dentist Account with this email already exists' }));
+                return;
+            }
 
-// delete specific dentist
-router.delete('/api/v1/dentists/:dentistID', async function (req, res, next) {
-    var dentistID = req.params.dentistID;
-    try {
-        var dentist = await Dentist.findByIdAndDelete(dentistID);
-        if (!dentist) {
-            return res.status(404).json({ "message": "Dentist with the provided ID does not exist." });
+            const dentist = new Dentist(payload);
+            await dentist.save();
+            client.publish('dentists/register/response', JSON.stringify({ status: 'success', dentist }));
+        } catch (error) {
+            client.publish('dentists/register/response', JSON.stringify({ status: 'error', message: error.message }));
         }
-        res.json(dentist);
-    } catch (error) {
-        return next(error);
-    }
-});
-
-// delete all dentists
-router.delete('/api/v1/dentists', async function (req, res, next) {
-    try {
-        await Dentist.deleteMany({});
-        res.json({message: 'All dentist accounts deleted successfully'});
-    } catch (error) {
-        return next(error);
+    } else if (topic === 'dentists/login') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const dentist = await Dentist.findOne({ email: payload.email, password: payload.password});
+            if (dentist) {
+                client.publish('dentists/login/response', JSON.stringify({ status: 'success', dentist }));
+            } else {
+                client.publish('dentists/login/response', JSON.stringify({ status: 'error', message: 'Invalid credentials2' }));
+            }
+        } catch (error) {
+            client.publish('dentists/login/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
     }
 });
 

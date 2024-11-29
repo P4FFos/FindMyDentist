@@ -28,8 +28,7 @@
 </template>
 
 <script>
-// import { Api } from '../Api.js'
-import axios from 'axios'
+import mqtt from 'mqtt';
 
 export default {
   name: 'Register',
@@ -49,8 +48,9 @@ export default {
       this.userType = type;
     },
     async register() {
-      try {
-        const endpoint = this.userType === 'patient' ? 'http://localhost:3004/api/v1/patients' : 'http://localhost:3003/api/v1/dentists';
+      const client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+
+      client.on('connect', () => {
         const payload = {
           firstName: this.firstName,
           secondName: this.secondName,
@@ -59,12 +59,38 @@ export default {
         };
         if (this.userType === 'patient') {
           payload.phone = this.phone;
+          client.publish('patients/register', JSON.stringify(payload));
+        } else {
+          client.publish('dentists/register', JSON.stringify(payload));
         }
-        await axios.post(endpoint, payload);
-        this.message = 'Registration successful!';
-        this.$router.push('/login');
-      } catch (error) {
-        this.message = `Error: ${error.response.data.message || error.message}`;
+      });
+
+      client.on('message', (topic, message) => {
+        if (topic === 'patients/register/response') {
+          const response = JSON.parse(message.toString());
+          if (response.status === 'success') {
+            this.message = 'Registration successful!';
+            this.$router.push('/login');
+          } else {
+            this.message = `Error: ${response.message}`;
+          }
+          client.end();
+        } else if (topic === 'dentists/register/response') {
+          const response = JSON.parse(message.toString());
+          if (response.status === 'success') {
+            this.message = 'Registration successful!';
+            this.$router.push('/login');
+          } else {
+            this.message = `Error: ${response.message}`;
+          }
+          client.end();
+        }
+      });
+
+      if (this.userType === 'patient') {
+        client.subscribe('patients/register/response');
+      } else {
+        client.subscribe('dentists/register/response');
       }
     }
   }

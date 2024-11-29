@@ -1,6 +1,10 @@
 <template>
   <div class="login">
     <h1>Login</h1>
+    <div>
+      <button @click="selectUserType('patient')">Patient</button>
+      <button @click="selectUserType('dentist')">Dentist</button>
+    </div>
     <form @submit.prevent="login">
       <label for="email">Email:</label>
       <input type="email" v-model="email" required />
@@ -15,46 +19,60 @@
 </template>
 
 <script>
-// import { Api } from '../Api.js'
-import axios from 'axios'
+import mqtt from 'mqtt';
 
 export default {
   name: 'Login',
   data() {
     return {
+      userType: 'patient',
       email: '',
       password: '',
-      role: 'patient',
       message: ''
     };
   },
   methods: {
+    selectUserType(type) {
+      this.userType = type;
+    },
     async login() {
-      try {
-        const response = await axios.get('http://localhost:3004/api/v1/patients')
-        const patients = response.data
-        const patient = patients.find(patient => patient.email === this.email && patient.password === this.password)
+      const client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
 
-        const responseDentist = await axios.get('http://localhost:3003/api/v1/dentists')
-        const dentists = responseDentist.data
-        const dentist = dentists.find(dentist => dentist.email === this.email && dentist.password === this.password)
-
-        if (patient) {
-          localStorage.setItem('patientId', patient._id)
-          this.$router.push('/patient_main')
-        } else {
-          this.message = 'Invalid credentials'
+      client.on('connect', () => {
+        const payload = {
+          email: this.email,
+          password: this.password
+        };
+        if (this.userType === 'patient') {
+          client.publish('patients/login', JSON.stringify(payload));
+        } else if (this.userType === 'dentist') {
+          client.publish('dentists/login', JSON.stringify(payload));
         }
+      });
 
-        if (dentist) {
-          localStorage.setItem('dentistId', dentist._id)
-          this.$router.push(`/dentist/${dentist._id}/managing`)
-        } else {
-          this.message = 'Invalid credentials'
+      client.on('message', (topic, message) => {
+        const response = JSON.parse(message.toString());
+        if (topic === 'patients/login/response') {
+          if (response.status === 'success') {
+            localStorage.setItem('patientId', response.patient._id);
+            this.$router.push('/patient_main');
+          } else {
+            this.message = `Error: ${response.message}`;
+          }
+        } else if (topic === 'dentists/login/response') {
+          if (response.status === 'success') {
+            localStorage.setItem('dentistId', response.dentist._id);
+            console.log(response.dentist._id);
+            this.$router.push(`/dentist/${response.dentist._id}/managing`);
+          } else {
+            this.message = `Error: ${response.message}`;
+          }
         }
-      } catch (error) {
-        this.message = 'Unable to login. Please try again'
-      }
+        client.end();
+      });
+
+      client.subscribe('patients/login/response');
+      client.subscribe('dentists/login/response');
     }
   }
 }
