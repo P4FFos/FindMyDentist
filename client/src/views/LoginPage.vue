@@ -7,10 +7,10 @@
     </div>
     <form @submit.prevent="login">
       <label for="email">Email:</label>
-      <input type="email" v-model="email" required />
+      <input type="email" v-model="email" required/>
 
       <label for="password">Password:</label>
-      <input type="password" v-model="password" required />
+      <input type="password" v-model="password" required/>
 
       <button type="submit">Login</button>
     </form>
@@ -28,29 +28,25 @@ export default {
       userType: 'patient',
       email: '',
       password: '',
-      message: ''
+      message: '',
+      mqttClient: null
     };
   },
   methods: {
+    // Set the user type
     selectUserType(type) {
       this.userType = type;
     },
-    async login() {
-      const client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
-
-      client.on('connect', () => {
-        const payload = {
-          email: this.email,
-          password: this.password
-        };
-        if (this.userType === 'patient') {
-          client.publish('patients/get/login', JSON.stringify(payload));
-        } else if (this.userType === 'dentist') {
-          client.publish('dentists/get/login', JSON.stringify(payload));
-        }
+    // Setup the MQTT client
+    setupMqttClient() {
+      this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+      this.mqttClient.on('connect', () => {
+        console.log('MQTT connected');
+        this.mqttClient.subscribe('patients/get/login/response');
+        this.mqttClient.subscribe('dentists/get/login/response');
       });
 
-      client.on('message', (topic, message) => {
+      this.mqttClient.on('message', (topic, message) => {
         const response = JSON.parse(message.toString());
         if (topic === 'patients/get/login/response') {
           if (response.status === 'success') {
@@ -62,18 +58,27 @@ export default {
         } else if (topic === 'dentists/get/login/response') {
           if (response.status === 'success') {
             localStorage.setItem('dentistId', response.dentist._id);
-            console.log(response.dentist._id);
             this.$router.push(`/dentist/${response.dentist._id}/managing`);
           } else {
             this.message = `Error: ${response.message}`;
           }
         }
-        client.end();
       });
-
-      client.subscribe('patients/get/login/response');
-      client.subscribe('dentists/get/login/response');
+    },
+    // Connect to the MQTT broker and subscribe to the topics to login
+    async login() {
+      const payload = {
+        email: this.email,
+        password: this.password
+      };
+      if (this.userType === 'patient') {
+        this.mqttClient.publish('patients/get/login', JSON.stringify(payload));
+      } else if (this.userType === 'dentist') {
+        this.mqttClient.publish('dentists/get/login', JSON.stringify(payload));
+      }
     }
+  }, mounted() {
+    this.setupMqttClient();
   }
 }
 </script>

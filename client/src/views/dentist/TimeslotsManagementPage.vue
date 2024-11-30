@@ -1,24 +1,24 @@
 <template>
-    <h1>Manage your timeslots!</h1>
-    <h2>created timeslots:</h2>
-    <li v-for="timeslot in timeslots">
-          <div>
-              <p> - Timeslot: {{ timeslot.date }} {{ timeslot.time }}</p>
-              <button  @click="deleteTimeslot(timeslot)">Delete</button>
-          </div>
-      </li>
-    <h2>Add timeslot:</h2>
-    <form @submit.prevent="createTimeslot">
-      <label for="timeslotDate">Date:</label>
-      <input type="date" v-model="timeslotDate" required />
+  <h1>Manage your timeslots!</h1>
+  <h2>created timeslots:</h2>
+  <li v-for="timeslot in timeslots">
+    <div>
+      <p> - Timeslot: {{ timeslot.date }} {{ timeslot.time }}</p>
+      <button @click="deleteTimeslot(timeslot)">Delete</button>
+    </div>
+  </li>
+  <h2>Add timeslot:</h2>
+  <form @submit.prevent="createTimeslot">
+    <label for="timeslotDate">Date:</label>
+    <input type="date" v-model="timeslotDate" required/>
 
-      <label for="timeslotTime">Time:</label>
-      <input type="time" v-model="timeslotTime" required />
+    <label for="timeslotTime">Time:</label>
+    <input type="time" v-model="timeslotTime" required/>
 
-      <button type="submit">Create</button>
-    </form>
-    <p v-if="message">{{ message }}</p>
-  </template>
+    <button type="submit">Create</button>
+  </form>
+  <p v-if="message">{{ message }}</p>
+</template>
 
 <script>
 import mqtt from 'mqtt';
@@ -36,6 +36,7 @@ export default {
     };
   },
   methods: {
+    // Connect to the MQTT broker and subscribe to the topics
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
       this.mqttClient.on('connect', () => {
@@ -75,12 +76,14 @@ export default {
         }
       });
     },
+    // Publish a message to the MQTT broker to get all timeslots
     getTimeslots() {
       const payload = {
         dentistId: this.dentistId,
       };
       this.mqttClient.publish('timeslots/get/all', JSON.stringify(payload));
     },
+    // Publish a message to the MQTT broker to create a new timeslot
     createTimeslot() {
       const payload = {
         dentistId: this.dentistId,
@@ -90,6 +93,7 @@ export default {
       };
       this.mqttClient.publish('timeslots/create', JSON.stringify(payload));
     },
+    // Publish a message to the MQTT broker to delete a timeslot
     deleteTimeslot(timeslot) {
       const payload = {
         timeslotId: timeslot._id,
@@ -97,6 +101,7 @@ export default {
       this.mqttClient.publish('timeslots/delete', JSON.stringify(payload));
     },
   },
+  // Get the dentist ID from local storage and set up the MQTT client
   mounted() {
     this.dentistId = localStorage.getItem('dentistId') || '';
     this.setupMqttClient();
@@ -105,6 +110,6 @@ export default {
 };
 </script>
 
-  <style>
+<style>
 
-  </style>
+</style>

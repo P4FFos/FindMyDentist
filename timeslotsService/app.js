@@ -5,8 +5,10 @@ var bodyParser = require('body-parser');
 // Variables
 var port = process.env.PORT || 3005;
 
+// Import routes
 var timeslotsController = require('./controller/timeslots.js');
 
+// MongoDB URI
 const mongoURI = 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
 
 // Connect to MongoDB
@@ -50,6 +52,7 @@ app.use(function(err, req, res, next) {
     res.json(err_res);
 });
 
+// Start server
 app.listen(port, function(err) {
     if (err) throw err;
     console.log(`Timeslots listening on port ${port}, in ${env} mode`);

@@ -10,7 +10,7 @@ var app = express();
 var env = app.get('env');
 
 // eslint-disable-next-line no-unused-vars
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     console.error(err.stack);
     var err_res = {
         'message': err.message,
@@ -24,7 +24,7 @@ app.use(function(err, req, res, next) {
     res.json(err_res);
 });
 
-app.listen(port, function(err) {
+app.listen(port, function (err) {
     if (err) throw err;
     console.log(`MQTT listening on port ${port}, in ${env} mode`);
 });

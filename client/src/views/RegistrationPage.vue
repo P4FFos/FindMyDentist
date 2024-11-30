@@ -7,19 +7,19 @@
     </div>
     <form @submit.prevent="register">
       <label for="firstName">First Name:</label>
-      <input type="text" v-model="firstName" required />
+      <input type="text" v-model="firstName" required/>
 
       <label for="secondName">Second Name:</label>
-      <input type="text" v-model="secondName" required />
+      <input type="text" v-model="secondName" required/>
 
       <label for="email">Email:</label>
-      <input type="email" v-model="email" required />
+      <input type="email" v-model="email" required/>
 
       <label for="password">Password:</label>
-      <input type="password" v-model="password" required />
+      <input type="password" v-model="password" required/>
 
       <label v-if="userType === 'patient'" for="phone">Phone:</label>
-      <input v-if="userType === 'patient'" type="text" v-model="phone" required />
+      <input v-if="userType === 'patient'" type="text" v-model="phone" required/>
 
       <button type="submit">Register</button>
     </form>
@@ -40,59 +40,60 @@ export default {
       email: '',
       phone: '',
       password: '',
-      message: ''
+      message: '',
+      mqttClient: null
     };
   },
   methods: {
+    // Set the user type
     selectUserType(type) {
       this.userType = type;
     },
-    async register() {
-      const client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
-
-      client.on('connect', () => {
-        const payload = {
-          firstName: this.firstName,
-          secondName: this.secondName,
-          email: this.email,
-          password: this.password
-        };
-        if (this.userType === 'patient') {
-          payload.phone = this.phone;
-          client.publish('patients/create', JSON.stringify(payload));
-        } else {
-          client.publish('dentists/create', JSON.stringify(payload));
-        }
+    // Setup the MQTT client
+    setupMqttClient() {
+      this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+      this.mqttClient.on('connect', () => {
+        console.log('MQTT connected');
+        this.mqttClient.subscribe('patients/create/response');
+        this.mqttClient.subscribe('dentists/create/response');
       });
 
-      client.on('message', (topic, message) => {
+      this.mqttClient.on('message', (topic, message) => {
+        const response = JSON.parse(message.toString());
         if (topic === 'patients/create/response') {
-          const response = JSON.parse(message.toString());
           if (response.status === 'success') {
             this.message = 'Registration successful!';
             this.$router.push('/login');
           } else {
             this.message = `Error: ${response.message}`;
           }
-          client.end();
         } else if (topic === 'dentists/create/response') {
-          const response = JSON.parse(message.toString());
           if (response.status === 'success') {
             this.message = 'Registration successful!';
             this.$router.push('/login');
           } else {
             this.message = `Error: ${response.message}`;
           }
-          client.end();
         }
       });
-
+    },
+    // Connect to the MQTT broker and publish the registration data
+    async register() {
+      const payload = {
+        firstName: this.firstName,
+        secondName: this.secondName,
+        email: this.email,
+        password: this.password
+      };
       if (this.userType === 'patient') {
-        client.subscribe('patients/create/response');
+        payload.phone = this.phone;
+        this.mqttClient.publish('patients/create', JSON.stringify(payload));
       } else {
-        client.subscribe('dentists/create/response');
+        this.mqttClient.publish('dentists/create', JSON.stringify(payload));
       }
     }
+  }, mounted() {
+    this.setupMqttClient();
   }
 }
 </script>

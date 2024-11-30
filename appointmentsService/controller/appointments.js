@@ -1,12 +1,15 @@
+// Imports
 var express = require('express');
 var router = express.Router();
 
+// Import models
 const Appointment = require('../model/appointment');
 const Timeslot = require("../../timeslotsService/model/timeslot");
 
-const mqtt = require('mqtt');
-const client = mqtt.connect('mqtt://test.mosquitto.org:1883');
+// Import configured MQTT client
+const client = require('../../mqtt/mqtt-config');
 
+// MQTT client connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
     client.subscribe('appointments/create', (err) => {
@@ -26,6 +29,7 @@ client.on('connect', () => {
     });
 });
 
+// MQTT client message handling
 client.on('message', async (topic, message) => {
     if (topic === 'appointments/create') {
         try {
@@ -36,21 +40,24 @@ client.on('message', async (topic, message) => {
             timeslot.isBooked = true;
             await timeslot.save();
 
-            client.publish('appointments/create/response', JSON.stringify({ status: 'success', appointment }));
+            client.publish('appointments/create/response', JSON.stringify({status: 'success', appointment}));
         } catch (error) {
-            client.publish('appointments/create/response', JSON.stringify({ status: 'error', message: error.message }));
+            client.publish('appointments/create/response', JSON.stringify({status: 'error', message: error.message}));
         }
     } else if (topic === 'appointments/get/all') {
         try {
             const payload = JSON.parse(message.toString());
             const appointments = await Appointment.find({patientId: payload.patientId});
             if (appointments) {
-                client.publish('appointments/get/all/response', JSON.stringify({ status: 'success', appointments }));
+                client.publish('appointments/get/all/response', JSON.stringify({status: 'success', appointments}));
             } else {
-                client.publish('appointments/get/all/response', JSON.stringify({ status: 'error', message: 'Appointments cannot be fetched' }));
+                client.publish('appointments/get/all/response', JSON.stringify({
+                    status: 'error',
+                    message: 'Appointments cannot be fetched'
+                }));
             }
         } catch (error) {
-            client.publish('appointments/get/all/response', JSON.stringify({ status: 'error', message: error.message }));
+            client.publish('appointments/get/all/response', JSON.stringify({status: 'error', message: error.message}));
         }
     } else if (topic === 'appointments/delete') {
         try {
@@ -62,12 +69,18 @@ client.on('message', async (topic, message) => {
                 await timeslot.save();
             }
             if (appointment) {
-                client.publish('appointments/delete/response', JSON.stringify({ status: 'success', message: 'Appointment was deleted successfully' }));
+                client.publish('appointments/delete/response', JSON.stringify({
+                    status: 'success',
+                    message: 'Appointment was deleted successfully'
+                }));
             } else {
-                client.publish('appointments/delete/response', JSON.stringify({ status: 'error', message: 'Appointment cannot be deleted' }));
+                client.publish('appointments/delete/response', JSON.stringify({
+                    status: 'error',
+                    message: 'Appointment cannot be deleted'
+                }));
             }
         } catch (error) {
-            client.publish('appointments/delete/response', JSON.stringify({ status: 'error', message: error.message }));
+            client.publish('appointments/delete/response', JSON.stringify({status: 'error', message: error.message}));
         }
     }
 });
