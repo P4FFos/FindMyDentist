@@ -21,7 +21,7 @@
   </template>
 
   <script>
-  import { Api } from '../../Api.js'
+    import mqtt from 'mqtt';
 
     export default {
         name: 'appointmentBooking',
@@ -43,6 +43,9 @@
         },
         methods: {
           async getTimeslots() {
+              const client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+
+              
               try {
                 const response = await Api.get(`/v1/dentists/${this.dentistId}/timeslots`)
                 this.timeslots = response.data.timeslots

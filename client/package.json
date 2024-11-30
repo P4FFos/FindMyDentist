@@ -12,6 +12,7 @@
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.8",
     "axios": "^1.7.7",
+    "mqtt": "^5.10.3",
     "unplugin-vue-components": "^0.27.4",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"

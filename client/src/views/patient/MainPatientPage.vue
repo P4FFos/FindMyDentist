@@ -22,24 +22,50 @@
     </div>
   </template>
   <script>
-  import { Api } from '../../Api.js'
+  import mqtt from 'mqtt';
   import { Loader } from "@googlemaps/js-api-loader"
 
     export default {
         data() {
           return {
             dentists: [],
-            map: null
+            map: null,
+            client: null
           };
         },
         methods: {
             async fetchDentist() {
-                try {
-                  const response = await Api.get('/v1/dentists')
-                  this.dentists = response.data
-                } catch (error) {
-                    this.message = `Error: ${error}`
-                }
+                this.client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+                this.client.on('connect', () => {
+                    this.client.subscribe('dentists/get/all/response', (err) => {
+                        if (err) {
+                            console.error('Subscription error:', err);
+                        }
+                    });
+
+                    this.client.publish('dentists/get/all', JSON.stringify('fetch all dentists'), (err) => {
+                        if (err) {
+                            console.error('Publish error:', err);
+                        }
+                    });
+                });
+
+                this.client.on('message', (topic, message) => {
+                    try {
+                        if (topic === 'dentists/get/all/response') {
+                            const response = JSON.parse(message.toString());
+                            if (response.status === 'success') {
+                                this.dentists = response.dentists;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error processing message:', error.message);
+                    }
+                });
+
+                this.client.on('error', (err) => {
+                    console.error('MQTT error:', err);
+                });
             },
             async createMarker(map, latitude, longitude, dentist) {
               const marker = await new google.maps.Marker({
@@ -76,10 +102,11 @@
         mounted() {
             this.fetchDentist()
             const loader = new Loader({
-              apiKey: import.meta.env.VITE_MAP_API_KEY,
-              version: "weekly",
-              libraries: ["places"],
+                apiKey: import.meta.env.VITE_MAP_API_KEY,
+                version: "weekly",
+                libraries: ["places"],
             })
+
             loader.load().then(() => {
                 this.initMap()
             })

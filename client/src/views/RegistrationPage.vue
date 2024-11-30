@@ -59,14 +59,14 @@ export default {
         };
         if (this.userType === 'patient') {
           payload.phone = this.phone;
-          client.publish('patients/register', JSON.stringify(payload));
+          client.publish('patients/create', JSON.stringify(payload));
         } else {
-          client.publish('dentists/register', JSON.stringify(payload));
+          client.publish('dentists/create', JSON.stringify(payload));
         }
       });
 
       client.on('message', (topic, message) => {
-        if (topic === 'patients/register/response') {
+        if (topic === 'patients/create/response') {
           const response = JSON.parse(message.toString());
           if (response.status === 'success') {
             this.message = 'Registration successful!';
@@ -75,7 +75,7 @@ export default {
             this.message = `Error: ${response.message}`;
           }
           client.end();
-        } else if (topic === 'dentists/register/response') {
+        } else if (topic === 'dentists/create/response') {
           const response = JSON.parse(message.toString());
           if (response.status === 'success') {
             this.message = 'Registration successful!';
@@ -88,9 +88,9 @@ export default {
       });
 
       if (this.userType === 'patient') {
-        client.subscribe('patients/register/response');
+        client.subscribe('patients/create/response');
       } else {
-        client.subscribe('dentists/register/response');
+        client.subscribe('dentists/create/response');
       }
     }
   }

@@ -44,22 +44,22 @@ export default {
           password: this.password
         };
         if (this.userType === 'patient') {
-          client.publish('patients/login', JSON.stringify(payload));
+          client.publish('patients/get', JSON.stringify(payload));
         } else if (this.userType === 'dentist') {
-          client.publish('dentists/login', JSON.stringify(payload));
+          client.publish('dentists/get', JSON.stringify(payload));
         }
       });
 
       client.on('message', (topic, message) => {
         const response = JSON.parse(message.toString());
-        if (topic === 'patients/login/response') {
+        if (topic === 'patients/get/response') {
           if (response.status === 'success') {
             localStorage.setItem('patientId', response.patient._id);
             this.$router.push('/patient_main');
           } else {
             this.message = `Error: ${response.message}`;
           }
-        } else if (topic === 'dentists/login/response') {
+        } else if (topic === 'dentists/get/response') {
           if (response.status === 'success') {
             localStorage.setItem('dentistId', response.dentist._id);
             console.log(response.dentist._id);
@@ -71,8 +71,8 @@ export default {
         client.end();
       });
 
-      client.subscribe('patients/login/response');
-      client.subscribe('dentists/login/response');
+      client.subscribe('patients/get/response');
+      client.subscribe('dentists/get/response');
     }
   }
 }
