@@ -35,37 +35,33 @@
         },
         methods: {
             async fetchDentist() {
-                this.client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+                this.client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt')
                 this.client.on('connect', () => {
                     this.client.subscribe('dentists/get/all/response', (err) => {
                         if (err) {
-                            console.error('Subscription error:', err);
+                            console.error('Subscription error:', err)
                         }
-                    });
+                    })
 
                     this.client.publish('dentists/get/all', JSON.stringify('fetch all dentists'), (err) => {
                         if (err) {
-                            console.error('Publish error:', err);
+                            console.error('Publish error:', err)
                         }
-                    });
-                });
+                    })
+                })
 
                 this.client.on('message', (topic, message) => {
                     try {
                         if (topic === 'dentists/get/all/response') {
-                            const response = JSON.parse(message.toString());
+                            const response = JSON.parse(message.toString())
                             if (response.status === 'success') {
-                                this.dentists = response.dentists;
+                                this.dentists = response.dentists
                             }
                         }
                     } catch (error) {
-                        console.error('Error processing message:', error.message);
+                        console.error('Error processing message:', error.message)
                     }
-                });
-
-                this.client.on('error', (err) => {
-                    console.error('MQTT error:', err);
-                });
+                })
             },
             async createMarker(map, latitude, longitude, dentist) {
               const marker = await new google.maps.Marker({

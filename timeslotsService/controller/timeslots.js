@@ -3,23 +3,27 @@ var router = express.Router();
 
 const Timeslot = require('../model/timeslot');
 const Dentist = require('../../dentist/model/dentist');
-const mqttPublicationCenter = require('../../mqtt/service/publicationCenter');
 
-//-----------------------------------------------------------------GET-------------------------------------------------------------------------------//
+const mqtt = require('mqtt');
+const client = mqtt.connect('mqtt://test.mosquitto.org:1883');
 
-// Get all timeslots
-router.get('/api/v1/dentists/:dentistID/timeslots', async function (req, res, next) {
-    var dentistID = req.params.dentistID;
-    try {
-        let timeslots = await Timeslot.find({dentistId: dentistID});
-        res.status(200).json({
-            "message": "Timeslots fetched successfully",
-            "timeslots": timeslots
-        });
-    }
-    catch (err) {
-        return next(err);
-    }
+client.on('connect', () => {
+    console.log('Connected to MQTT broker');
+    client.subscribe('timeslots/create', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
+    client.subscribe('timeslots/get/all', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
+    client.subscribe('timeslots/delete', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
 });
 
 // Get all available timeslots
@@ -78,53 +82,41 @@ router.get('/api/v1/dentists/:dentistID/timeslots/unavailable', async function (
     }
 });
 
-
-//-----------------------------------------------------------------POST-------------------------------------------------------------------------------//
-
-//create a timeslot
-router.post('/api/v1/dentists/:dentistID/timeslots', async function (req, res, next) {
-    var dentistID = req.params.dentistID;
-    const newTimeslot = new Timeslot(req.body);
-
-    try {
-        await newTimeslot.save();
-        return res.status(201).json(newTimeslot);
+client.on('message', async (topic, message) => {
+    if (topic === 'timeslots/create') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const timeslot = new Timeslot(payload);
+            await timeslot.save();
+            client.publish('timeslots/create/response', JSON.stringify({ status: 'success', timeslot }));
+        } catch (error) {
+            client.publish('timeslots/create/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
+    } else if (topic === 'timeslots/get/all') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const timeslots = await Timeslot.find({dentistId: payload.dentistId});
+            if (timeslots) {
+                client.publish('timeslots/get/all/response', JSON.stringify({ status: 'success', timeslots }));
+            } else {
+                client.publish('timeslots/get/all/response', JSON.stringify({ status: 'error', message: 'Timeslots cannot be fetched' }));
+            }
+        } catch (error) {
+            client.publish('timeslots/get/all/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
+    } else if (topic === 'timeslots/delete') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const timeslot = await Timeslot.findByIdAndDelete(payload.timeslotId);
+            if (timeslot) {
+                client.publish('timeslots/delete/response', JSON.stringify({ status: 'success', message: 'Timeslot was deleted successfully' }));
+            } else {
+                client.publish('timeslots/delete/response', JSON.stringify({ status: 'error', message: 'Timeslots cannot be deleted' }));
+            }
+        } catch (error) {
+            client.publish('timeslots/delete/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
     }
-    catch (err) {
-        return next(err);
-    }
-});
-
-
-//-----------------------------------------------------------------PUT-------------------------------------------------------------------------------//
-
-//-----------------------------------------------------------------PATCH-------------------------------------------------------------------------------//
-
-//-----------------------------------------------------------------DELETE-------------------------------------------------------------------------------//
-
-// Delete all timeslots
-router.delete('/api/v1/dentists/:dentistID/timeslots', async function (req, res, next) {
-    try {
-        await Timeslot.collection.drop();
-        return res.json({ "message": "Timeslots deleted" });
-    }
-    catch (err) {
-        return next(err);
-    }
-
-});
-
-// Delete timeslot
-router.delete('/api/v1/dentists/:dentistID/timeslots/:timeslotID', async function (req, res, next) {
-    var timeslotID = req.params.timeslotID;
-    try {
-        await Timeslot.findByIdAndDelete(timeslotID);
-        return res.json({ "message": "Timeslot deleted" });
-    }
-    catch (err) {
-        return next(err);
-    }
-
 });
 
 module.exports = router;

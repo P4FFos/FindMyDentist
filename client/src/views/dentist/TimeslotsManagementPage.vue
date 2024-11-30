@@ -38,45 +38,112 @@
             timeslots: [],
             timeslotDate: null,
             timeslotTime: '',
-            message: ''
+            message: '',
+            client: null
           };
         },
         methods: {
-          async getTimeslots() {
-              const client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+            async getTimeslots() {
+              this.client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+              this.client.on('connect', () => {
+                  this.client.subscribe('timeslots/get/all/response', (err) => {
+                      if (err) {
+                          console.error('Subscription error:', err);
+                      }
+                  });
 
-              
-              try {
-                const response = await Api.get(`/v1/dentists/${this.dentistId}/timeslots`)
-                this.timeslots = response.data.timeslots
-                this.message =  'timeslot were fetched succesfuly'
-              } catch (error) {
-                  this.message = `Error: ${error}`
-              }
+                  const payload = {
+                    dentistId: this.dentistId
+                  };
+
+                  this.client.publish('timeslots/get/all', JSON.stringify(payload), (err) => {
+                      if (err) {
+                          console.error('Publish error:', err);
+                      }
+                  });
+              })
+              this.client.on('message', (topic, message) => {
+                try {
+                  if (topic === 'timeslots/get/all/response') {
+                      const response = JSON.parse(message.toString())
+                      if (response.status === 'success') {
+                          this.timeslots = response.timeslots
+                          this.message =  'timeslot were fetched succesfuly'
+                      }
+                  }
+                } catch (error) {
+                    this.message = `Error: ${error}`
+                }
+              })
             },
             async createTimeslot() {
-                try {
+                this.client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+                this.client.on('connect', () => {
+                    this.client.subscribe('timeslots/create/response', (err) => {
+                        if (err) {
+                            console.error('Subscription error:', err);
+                        }
+                    });
+
                     const payload = {
                       dentistId: this.dentistId,
                       date: this.timeslotDate,
                       time: this.timeslotTime,
                       isBooked: false
                     };
-                    await Api.post(`/v1/dentists/${this.dentistId}/timeslots`, payload);
-                    this.getTimeslots()
-                    this.message = 'timeslot was created!';
-                } catch (error) {
-                    this.message = `Error creating timeslot: ${error}`
-                }
+
+                    this.client.publish('timeslots/create', JSON.stringify(payload), (err) => {
+                        if (err) {
+                            console.error('Publish error:', err);
+                        }
+                    });
+                })
+                this.client.on('message', (topic, message) => {
+                    try {
+                        if (topic === 'timeslots/create/response') {
+                            const response = JSON.parse(message.toString())
+                            if (response.status === 'success') {
+                                this.getTimeslots()
+                                this.message = 'timeslot was created!';
+                            }
+                        }
+                    } catch (error) {
+                        this.message = `Error creating timeslot: ${error}`
+                    }
+                })
             },
             async deleteTimeslot(timeslot) {
-                try {
-                    await Api.delete(`/v1/dentists/${this.dentistId}/timeslots/${timeslot._id}`)
-                    this.getTimeslots()
-                    this.message =  'timeslot was deleted succesfuly'
-                } catch (error) {
-                    this.message = `Error deleting timeslot: ${error}`
-                }
+                this.client = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+                this.client.on('connect', () => {
+                    this.client.subscribe('timeslots/delete/response', (err) => {
+                        if (err) {
+                            console.error('Subscription error:', err);
+                        }
+                    });
+
+                    const payload = {
+                      timeslotId: timeslot._id
+                    };
+
+                    this.client.publish('timeslots/delete', JSON.stringify(payload), (err) => {
+                        if (err) {
+                            console.error('Publish error:', err);
+                        }
+                    });
+                })
+                this.client.on('message', (topic, message) => {
+                    try {
+                        if (topic === 'timeslots/delete/response') {
+                            const response = JSON.parse(message.toString())
+                            if (response.status === 'success') {
+                                this.getTimeslots()
+                                this.message =  'timeslot was deleted succesfuly'
+                            }
+                        }
+                    } catch (error) {
+                        this.message = `Error deleting timeslot: ${error}`
+                    }
+                })
             }
         },
         mounted() {
