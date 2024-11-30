@@ -2,98 +2,73 @@ var express = require('express');
 var router = express.Router();
 
 const Appointment = require('../model/appointment');
-const mqttPublicationCenter = require('../../mqtt/service/publicationCenter');
 const Timeslot = require("../../timeslotsService/model/timeslot");
 
-// Book an appointment
-router.post('/api/v1/dentists/:dentistID/appointments/booking', async function (req, res, next) {
-    var dentistID = req.params.dentistID;
-    const { patient, timeslotId, email: recipientEmail } = req.body;
+const mqtt = require('mqtt');
+const client = mqtt.connect('mqtt://test.mosquitto.org:1883');
 
-    try{
-      if(!patient){
-        res.status(404).json({"message": "Cannot book for a null patient"});
-      }
-      if(!timeslotId){
-        res.status(404).json({"message": "Cannot book for a null timeslot"});
-      }
-
-      const timeslot = await Timeslot.findById(timeslotId);
-      if (!timeslot) {
-          return res.status(404).json({ "message": "Timeslot not found" });
-      }
-      timeslot.isBooked = true;
-      await timeslot.save();
-
-      const appointment = new Appointment( {
-        dentistId: dentistID,
-        patient: patient,
-        timeslot: timeslotId,
-        isBooked: true
-      });
-      await appointment.save();
-
-      // Publish the appointment booking response
-      mqttPublicationCenter.publishMessage('patients/book/response', JSON.stringify({
-          status: 'success',
-          message: 'Appointment booked successfully',
-          recipientEmail,
-          appointment
-      }));
-
-      res.status(201).json({"message": `Patient ${patient} booked appointment for timeslot ${timeslotId}`});
-    } catch (error) {
-      mqttPublicationCenter.publishMessage('patients/book/response', JSON.stringify({
-          status: 'error',
-          message: 'Server error',
-          error: error.message
-      }));
-      return next(error);
-    }
-});
-
-// Get all patient appointment
-router.get('/api/v1/patients/:patientID/appointments/booking', async function (req, res, next) {
-    var patientID = req.params.patientID;
-    try {
-        var appointments = await Appointment.find({patient: patientID});
-        res.status(200).json(appointments);
-    } catch (error) {
-        return next(error);
-    }
-});
-
-// Cancel an appointment
-router.delete('/api/v1/dentists/:dentistID/appointments/booking/:appointmentId', async function (req, res, next) {
-    var dentistID = req.params.dentistID;
-    const appointmentId = req.params.appointmentId;
-    const recipientEmail = req.body.email;
-
-    try {
-        const appointment = await Appointment.findById(appointmentId);
-        if (!appointment) {
-            return res.status(404).json({ "message": "Appointment not found" });
+client.on('connect', () => {
+    console.log('Connected to MQTT broker');
+    client.subscribe('appointments/create', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
         }
+    });
+    client.subscribe('appointments/get/all', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
+    client.subscribe('appointments/delete', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
+});
 
-        const timeslot = await Timeslot.findById(appointment.timeslot);
-        if (timeslot) {
-            timeslot.isBooked = false;
+client.on('message', async (topic, message) => {
+    if (topic === 'appointments/create') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const timeslot = await Timeslot.findById(payload.timeslotId);
+            const appointment = new Appointment(payload);
+            await appointment.save();
+            timeslot.isBooked = true;
             await timeslot.save();
+
+            client.publish('appointments/create/response', JSON.stringify({ status: 'success', appointment }));
+        } catch (error) {
+            client.publish('appointments/create/response', JSON.stringify({ status: 'error', message: error.message }));
         }
-
-        await Appointment.findByIdAndDelete(appointmentId);
-
-        mqttPublicationCenter.publishMessage('patients/cancel/response', JSON.stringify({
-            status: 'success',
-            message: `appointment ${appointmentId} cancelled successfully`, recipientEmail, appointmentId
-        }));
-        res.status(200).json({"message": `Appointment ${appointmentId} cancelled`});
-    } catch (error) {
-        mqttPublicationCenter.publishMessage('patients/cancel/response', JSON.stringify({
-            status: 'error',
-            message: 'Server error',
-            error: error.message
-        }));
+    } else if (topic === 'appointments/get/all') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const appointments = await Appointment.find({patientId: payload.patientId});
+            if (appointments) {
+                client.publish('appointments/get/all/response', JSON.stringify({ status: 'success', appointments }));
+            } else {
+                client.publish('appointments/get/all/response', JSON.stringify({ status: 'error', message: 'Appointments cannot be fetched' }));
+            }
+        } catch (error) {
+            client.publish('appointments/get/all/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
+    } else if (topic === 'appointments/delete') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const appointment = await Timeslot.findByIdAndDelete(payload.appointmentId);
+            const timeslot = await Timeslot.findById(appointment.timeslotId);
+            if (timeslot) {
+                timeslot.isBooked = false;
+                await timeslot.save();
+            }
+            if (appointment) {
+                client.publish('appointments/delete/response', JSON.stringify({ status: 'success', message: 'Appointment was deleted successfully' }));
+            } else {
+                client.publish('appointments/delete/response', JSON.stringify({ status: 'error', message: 'Appointment cannot be deleted' }));
+            }
+        } catch (error) {
+            client.publish('appointments/delete/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
     }
 });
 

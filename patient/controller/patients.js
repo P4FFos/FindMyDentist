@@ -14,6 +14,11 @@ client.on('connect', () => {
             console.error('Failed to subscribe to topic', err);
         }
     });
+    client.subscribe('patients/get/login', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
     client.subscribe('patients/get', (err) => {
         if (err) {
             console.error('Failed to subscribe to topic', err);
@@ -38,14 +43,26 @@ client.on('message', async (topic, message) => {
         } catch (error) {
             client.publish('patients/create/response', JSON.stringify({ status: 'error', message: error.message }));
         }
-    } else if (topic === 'patients/get') {
+    } else if (topic === 'patients/get/login') {
         try {
             const payload = JSON.parse(message.toString());
             const patient = await Patient.findOne({ email: payload.email, password: payload.password });
             if (patient) {
+                client.publish('patients/get/login/response', JSON.stringify({ status: 'success', patient }));
+            } else {
+                client.publish('patients/get/login/response', JSON.stringify({ status: 'error', message: 'Invalid patient credentials' }));
+            }
+        } catch (error) {
+            client.publish('patients/get/login/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
+    } else if (topic === 'patients/get') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const patient = await Patient.findById(payload.patientId);
+            if (patient) {
                 client.publish('patients/get/response', JSON.stringify({ status: 'success', patient }));
             } else {
-                client.publish('patients/get/response', JSON.stringify({ status: 'error', message: 'Invalid credentials1' }));
+                client.publish('patients/get/response', JSON.stringify({ status: 'error', message: 'Patient cannot be fetched' }));
             }
         } catch (error) {
             client.publish('patients/get/response', JSON.stringify({ status: 'error', message: error.message }));

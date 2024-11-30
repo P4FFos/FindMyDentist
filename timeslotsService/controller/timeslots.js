@@ -19,67 +19,21 @@ client.on('connect', () => {
             console.error('Failed to subscribe to topic', err);
         }
     });
+    client.subscribe('timeslots/get/available', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
+    client.subscribe('timeslots/get/unavailable', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
     client.subscribe('timeslots/delete', (err) => {
         if (err) {
             console.error('Failed to subscribe to topic', err);
         }
     });
-});
-
-// Get all available timeslots
-router.get('/api/v1/dentists/:dentistID/timeslots/available', async function (req, res, next) {
-    var dentistID = req.params.dentistID;
-    try {
-      var availableTimeslots = await Timeslot.find({
-        dentistId: dentistID,
-        isBooked: false
-      });
-
-      mqttPublicationCenter.publishMessage('timeslots/available/response', JSON.stringify({
-        status: 'success',
-        message: 'Available timeslots fetched successfully',
-        availableTimeslots
-      }));
-
-      res.status(200).json({
-        message: "Timeslots fetched successfully",
-        timeslots: availableTimeslots
-      });
-    } catch(error) {
-      mqttPublicationCenter.publishMessage('timeslots/available/response', JSON.stringify({
-          status: 'success',
-          message: 'Server error',
-          error: error.message
-      }));
-      return next(error);
-    }
-});
-
-// Get all unavailable timeslots
-router.get('/api/v1/dentists/:dentistID/timeslots/unavailable', async function (req, res, next) {
-    var dentistID = req.params.dentistID;
-    try {
-        var unavailableTimeslots = await Timeslot.find({
-            dentistId: dentistID,
-            isBooked: true
-        });
-        mqttPublicationCenter.publishMessage('timeslots/unavailable/response', JSON.stringify({
-            status: 'success',
-            message: 'Unavailable timeslots fetched successfully',
-            timeslots: unavailableTimeslots
-        }));
-        res.status(200).json({
-            "message": "Timeslots fetched successfully",
-            "timeslots": unavailableTimeslots
-        });
-    } catch(error) {
-      mqttPublicationCenter.publishMessage('timeslots/unavailable/response', JSON.stringify({
-          status: 'success',
-          message: 'Server error',
-          error: error.message
-      }));
-      return next(error);
-    }
 });
 
 client.on('message', async (topic, message) => {
@@ -103,6 +57,36 @@ client.on('message', async (topic, message) => {
             }
         } catch (error) {
             client.publish('timeslots/get/all/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
+    } else if(topic === 'timeslots/get/available') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const timeslots = await Timeslot.find({
+                dentistId: payload.dentistId,
+                isBooked: false
+            });
+            if (timeslots) {
+                client.publish('timeslots/get/available/response', JSON.stringify({ status: 'success', timeslots }));
+            } else {
+                client.publish('timeslots/get/available/response', JSON.stringify({ status: 'error', message: 'Available timeslots cannot be fetched' }));
+            }
+        } catch (error) {
+            client.publish('timeslots/get/available/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
+    } else if(topic === 'timeslots/get/unavailable') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const timeslots = await Timeslot.find({
+                dentistId: payload.dentistId,
+                isBooked: true
+              });
+            if (timeslots) {
+                client.publish('timeslots/get/unavailable/response', JSON.stringify({ status: 'success', timeslots }));
+            } else {
+                client.publish('timeslots/get/unavailable/response', JSON.stringify({ status: 'error', message: 'Unavailable timeslots cannot be fetched' }));
+            }
+        } catch (error) {
+            client.publish('timeslots/get/unavailable/response', JSON.stringify({ status: 'error', message: error.message }));
         }
     } else if (topic === 'timeslots/delete') {
         try {

@@ -29,109 +29,150 @@
 </template>
 
 <script>
-import { Api } from '../../Api.js'
+import mqtt from 'mqtt';
 
 export default {
   name: 'appointmentBooking',
   props: {
     dentistId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
       doctorName: '',
-      patient: localStorage.getItem('patientId') || '',
+      patientId: localStorage.getItem('patientId') || '',
       email: '',
       selectedTimeslot: null,
       availableTimeslots: [],
       unavailableTimeslots: [],
       appointments: [],
-      timeslots: [],
-      message: ''
+      message: '',
+      mqttClient: null,
     };
   },
   methods: {
-    async getTimeslots() {
-      try {
-        const availableResponse = await Api.get(`/v1/dentists/${this.dentistId}/timeslots/available`);
-        this.availableTimeslots = availableResponse.data.timeslots;
+    setupMqttClient() {
+      this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt')
+      this.mqttClient.on('connect', () => {
+        console.log('MQTT connected')
+        this.mqttClient.subscribe('timeslots/get/available/response')
+        this.mqttClient.subscribe('timeslots/get/unavailable/response')
+        this.mqttClient.subscribe('patients/get/response');
+        this.mqttClient.subscribe('dentists/get/response');
+        this.mqttClient.subscribe('appointments/get/all/response')
+        this.mqttClient.subscribe('appointments/create/response')
+        this.mqttClient.subscribe('appointments/delete/response')
+      });
 
-        const unavailableResponse = await Api.get(`/v1/dentists/${this.dentistId}/timeslots/unavailable`);
-        this.unavailableTimeslots = unavailableResponse.data.timeslots;
-      } catch (error) {
-        this.message = `Error: ${error}`;
-      }
+      this.mqttClient.on('message', (topic, message) => {
+        try {
+          const response = JSON.parse(message.toString())
+          switch (topic) {
+            case 'timeslots/get/available/response':
+              if (response.status === 'success') {
+                this.availableTimeslots = response.timeslots
+                console.log(this.availableTimeslots)
+                this.message = 'Available timeslots were fetched successfully'
+              }
+              break;
+            case 'timeslots/get/unavailable/response':
+              if (response.status === 'success') {
+                this.unavailableTimeslots = response.timeslots
+                console.log(this.unavailableTimeslots)
+                this.message = 'Unavailable timeslots were fetched successfully'
+              }
+              break;
+            case 'patients/get/response':
+              if (response.status === 'success') {
+                this.email = response.email
+              }
+              break;
+            case 'dentists/get/response':
+              if (response.status === 'success') {
+                this.doctorName = `${response.dentist.firstName} ${response.dentist.secondName}`
+              }
+              break;
+            case 'appointments/get/all/response':
+              if (response.status === 'success') {
+                this.appointments = response.appointments
+              }
+              break;
+            case 'appointments/create/response':
+              if (response.status === 'success') {
+                this.message = response.data.message
+                this.getAppointments()
+              }
+              break;
+            case 'appointments/delete/response':
+              if (response.status === 'success') {
+                this.getAppointments()
+              }
+              break;
+            default:
+              console.log('Unhandled topic:', topic)
+          }
+        } catch (error) {
+          console.error('Error handling MQTT message:', error)
+        }
+      });
     },
-    async getPatientEmail() {
-      try {
-        const response = await Api.get(`/v1/patients/${this.patient}`);
-        this.email = response.data.email;
-      } catch (error) {
-        this.message = `Error: ${error}`;
+    getTimeslots() {
+      const availablePayload = {
+        dentistId: this.dentistId,
+        isBooked: false,
+      };
+      this.mqttClient.publish('timeslots/get/available', JSON.stringify(availablePayload))
+
+      const unavailablePayload = {
+        dentistId: this.dentistId,
+        isBooked: true,
       }
+      this.mqttClient.publish('timeslots/get/unavailable', JSON.stringify(unavailablePayload))
     },
-    async getDoctorName() {
-      try {
-        const response = await Api.get(`/v1/dentists/${this.dentistId}`);
-        const dentist = response.data;
-        this.doctorName = `${dentist.firstName} ${dentist.secondName}`;
-      } catch (error) {
-        this.message = `Error: ${error}`;
-      }
+    getPatientEmail() {
+      const payload = { patientId: this.patientId }
+      this.mqttClient.publish('patients/get', JSON.stringify(payload))
     },
-    async getAppointments() {
-      try {
-        const response = await Api.get(`/v1/patients/${this.patient}/appointments/booking`);
-        this.appointments = response.data;
-      } catch (error) {
-        this.message = `Error: ${error}`;
-      }
+    getDoctorName() {
+      const payload = { dentistId: this.dentistId }
+      this.mqttClient.publish('dentists/get', JSON.stringify(payload))
+    },
+    getAppointments() {
+      const payload = { patientId: this.patientId }
+      this.mqttClient.publish('appointments/get/all', JSON.stringify(payload))
     },
     selectTimeslot(timeslot) {
-      this.selectedTimeslot = timeslot;
+      this.selectedTimeslot = timeslot
     },
-    async bookAppointment() {
-      try {
-        await this.getPatientEmail();
-        const response = await Api.post(`/v1/dentists/${this.dentistId}/appointments/booking`, {
-          patient: this.patient,
-          timeslotId: this.selectedTimeslot._id,
-          email: this.email
-        });
-        this.message = response.data.message;
-        await this.getAppointments();
-      } catch (error) {
-        this.message = `Error: ${error.response.data.message}`;
-      }
+    bookAppointment() {
+      const payload = {
+        dentistId: this.dentistId,
+        patientId: this.patientId,
+        timeslotId: this.selectedTimeslot._id,
+        email: this.email,
+      };
+      this.mqttClient.publish('appointments/create', JSON.stringify(payload))
     },
-    async cancelAppointment(appointmentId) {
-      try {
-        const response = await Api.delete(`/v1/dentists/${this.dentistId}/appointments/booking/${appointmentId}`, {
-          data: {email: this.email}
-        });
-        this.message = response.data.message;
-        await this.getAppointments();
-      } catch (error) {
-        this.message = `Error: ${error.response.data.message}`;
-      }
+    cancelAppointment(appointmentId) {
+      const payload = { appointmentId: appointmentId, email: this.email }
+      this.mqttClient.publish('appointments/delete', JSON.stringify(payload))
     },
-    async notifyWhenAvailable(timeslot) {
-      try {
-        this.message = `You will be notified when timeslot ${timeslot.time} becomes available`;
-      } catch (error) {
-        this.message = `Error: ${error}`;
-      }
-    }
+    notifyWhenAvailable(timeslot) {
+      this.message = `You will be notified when timeslot ${timeslot.time} becomes available`
+    },
   },
-  async mounted() {
-    await this.getTimeslots();
-    await this.getDoctorName();
-    await this.getAppointments();
-  }
-}
+  mounted() {
+    this.setupMqttClient()
+    this.getDoctorName()
+    this.getTimeslots()
+    this.getPatientEmail()
+    this.getAppointments()
+  },
+};
 </script>
+
 
 <style>
 

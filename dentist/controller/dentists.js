@@ -13,12 +13,17 @@ client.on('connect', () => {
             console.error('Failed to subscribe to topic', err);
         }
     });
-    client.subscribe('dentists/get', (err) => {
+    client.subscribe('dentists/get/login', (err) => {
         if (err) {
             console.error('Failed to subscribe to topic', err);
         }
     });
     client.subscribe('dentists/get/all', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to topic', err);
+        }
+    });
+    client.subscribe('dentists/get', (err) => {
         if (err) {
             console.error('Failed to subscribe to topic', err);
         }
@@ -42,17 +47,17 @@ client.on('message', async (topic, message) => {
         } catch (error) {
             client.publish('dentists/create/response', JSON.stringify({ status: 'error', message: error.message }));
         }
-    } else if (topic === 'dentists/get') {
+    } else if (topic === 'dentists/get/login') {
         try {
             const payload = JSON.parse(message.toString());
             const dentist = await Dentist.findOne({ email: payload.email, password: payload.password});
             if (dentist) {
-                client.publish('dentists/get/response', JSON.stringify({ status: 'success', dentist }));
+                client.publish('dentists/get/login/response', JSON.stringify({ status: 'success', dentist }));
             } else {
-                client.publish('dentists/get/response', JSON.stringify({ status: 'error', message: 'Invalid credentials2' }));
+                client.publish('dentists/get/login/response', JSON.stringify({ status: 'error', message: 'Invalid dentist credentials' }));
             }
         } catch (error) {
-            client.publish('dentists/get/response', JSON.stringify({ status: 'error', message: error.message }));
+            client.publish('dentists/get/login/response', JSON.stringify({ status: 'error', message: error.message }));
         }
     } else if (topic === 'dentists/get/all') {
         try {
@@ -64,6 +69,18 @@ client.on('message', async (topic, message) => {
             }
         } catch (error) {
             client.publish('dentists/get/all/response', JSON.stringify({ status: 'error', message: error.message }));
+        }
+    } else if (topic === 'dentists/get') {
+        try {
+            const payload = JSON.parse(message.toString());
+            const dentist = await Dentist.findById(payload.dentistId);
+            if (dentist) {
+                client.publish('dentists/get/response', JSON.stringify({ status: 'success', dentist }));
+            } else {
+                client.publish('dentists/get/response', JSON.stringify({ status: 'error', message: 'Dentist cannot be fetched' }));
+            }
+        } catch (error) {
+            client.publish('dentists/get/response', JSON.stringify({ status: 'error', message: error.message }));
         }
     }
 });
