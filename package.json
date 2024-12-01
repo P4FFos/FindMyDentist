@@ -7,9 +7,19 @@
         "dentist": "node dentist/app.js",
         "patient": "node patient/app.js",
         "client": "npm run dev --prefix client",
-        "dev": "concurrently \"npm run appointmentsService\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\""
+        "dev": "concurrently \"npm run appointmentsService\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\"",
+        "test": "cross-env MONGODB_URI=mongodb://localhost:27017/serverTestDB npm run newman-server",
+        "ci-test": "npm run newman-server",
+        "newman-server": "cross-env PORT=3000 run-p --race start newman-wait",
+        "newman-wait": "wait-on http://localhost:3000/api && npm run newman",
+        "newman": "newman run ./tests/server.postman_collection.json --env-var host=http://localhost:3000/api",
+        "dropdb": "node ./tests/dropdb.js"
     },
     "devDependencies": {
-        "concurrently": "^9.1.0"
+        "concurrently": "^9.1.0",
+        "npm-run-all": "^4.1.5"
+    },
+    "dependencies": {
+        "findmydentist": "file:"
     }
 }
