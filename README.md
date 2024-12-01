@@ -43,7 +43,7 @@ We decided to use Quality of Service (QoS) Level 1 for the MQTT broker configura
 ![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/ER%20Diagram.png?ref_type=heads)
 
 # MQTT Diagram 
-![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/MQTTDiagram.png?ref_type=heads)
+![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/MQTTDiagram.png)
 
 # SPEM 2.0 Diagram
 ![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/SPEM%202.0%20diagram.png?ref_type=heads)
