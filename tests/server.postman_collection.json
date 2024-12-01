@@ -1,0 +1,754 @@
+{
+	"info": {
+		"_postman_id": "238cd580-b1e0-41e2-ad41-7e38182fdd83",
+		"name": "FindMyDentist",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38409323"
+	},
+	"item": [
+		{
+			"name": "Timeslots test",
+			"item": [
+				{
+					"name": "Get all timeslots",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots",
+							"host": [
+								"{{timeslotsURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{dentistID}}",
+								"timeslots"
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "Post new available timeslot",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dentistId\": \"{{dentistID}}\",\n  \"date\": \"2024-11-25\",\n  \"time\": \"14:30\",\n  \"isBooked\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots",
+							"host": [
+								"{{timeslotsURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{dentistID}}",
+								"timeslots"
+							]
+						},
+						"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "Post new unavailable timeslot",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful POST request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dentistId\": \"{{dentistID}}\",\n  \"date\": \"2024-11-25\",\n  \"time\": \"15:30\",\n  \"isBooked\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots",
+							"host": [
+								"{{timeslotsURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{dentistID}}",
+								"timeslots"
+							]
+						},
+						"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+					},
+					"response": []
+				},
+				{
+					"name": "Get available timeslots",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots/available",
+							"host": [
+								"{{timeslotsURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{dentistID}}",
+								"timeslots",
+								"available"
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "Get unavailable timeslots",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots/unavailable",
+							"host": [
+								"{{timeslotsURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{dentistID}}",
+								"timeslots",
+								"unavailable"
+							]
+						},
+						"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete all timeslots",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{timeslotsURL}}/v1/dentists/{{dentistID}}/timeslots",
+							"host": [
+								"{{timeslotsURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{dentistID}}",
+								"timeslots"
+							]
+						},
+						"description": "This is a DELETE request, and it is used to delete data that was previously created via a POST request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful DELETE request typically returns a `200 OK`, `202 Accepted`, or `204 No Content` response code."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Patients test",
+			"item": [
+				{
+					"name": "Create Patient",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Resource is CREATED\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"patientID\", jsonData._id);",
+									"    pm.expect(jsonData).to.have.property(\"_id\");",
+									"});",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Response contains patientID\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"_id\");",
+									"});",
+									"pm.test(\"Response contains firstName\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"firstName\", \"Bill\");",
+									"});",
+									"pm.test(\"Response contains secondName\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"secondName\", \"Who\");",
+									"});",
+									"pm.test(\"Response contains email\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"email\", \"email@gmail.com\");",
+									"});",
+									"pm.test(\"Response contains phone\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"phone\", \"+460777777777\");",
+									"});",
+									"pm.test(\"Response contains password\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"password\", \"password\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"firstName\", \"Bill\");",
+									"pm.environment.set(\"secondName\", \"Who\");",
+									"pm.environment.set(\"email\", \"email@gmail.com\");",
+									"pm.environment.set(\"phone\", \"+460777777777\");",
+									"pm.environment.set(\"password\", \"password\");",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"{{firstName}}\",\n    \"secondName\": \"{{secondName}}\",\n    \"email\" : \"{{email}}\",\n    \"phone\": \"{{phone}}\",\n    \"password\": \"{{password}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{patientURL}}/v1/patients",
+							"host": [
+								"{{patientURL}}"
+							],
+							"path": [
+								"v1",
+								"patients"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Patients",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{patientURL}}/v1/patients/",
+							"host": [
+								"{{patientURL}}"
+							],
+							"path": [
+								"v1",
+								"patients",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Patient",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{patientURL}}/v1/patients/{{patientID}}",
+							"host": [
+								"{{patientURL}}"
+							],
+							"path": [
+								"v1",
+								"patients",
+								"{{patientID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Patient",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{patientURL}}/v1/patients/{{patientID}}",
+							"host": [
+								"{{patientURL}}"
+							],
+							"path": [
+								"v1",
+								"patients",
+								"{{patientID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete all Patients",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Content has been deleted\", function(){",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{patientURL}}/v1/patients/",
+							"host": [
+								"{{patientURL}}"
+							],
+							"path": [
+								"v1",
+								"patients",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Dentists test",
+			"item": [
+				{
+					"name": "Create Dentist",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"firstName\", \"Max\");",
+									"pm.environment.set(\"secondName\", \"When\");",
+									"pm.environment.set(\"email\", \"emailMax@gmail.com\");",
+									"pm.environment.set(\"password\", \"password\");",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Resource is CREATED\", function() {",
+									"    pm.response.to.have.status(201);",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"dentistID\", jsonData._id);",
+									"    pm.expect(jsonData).to.have.property(\"_id\");",
+									"});",
+									"",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Response contains dentistID\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"_id\");",
+									"});",
+									"pm.test(\"Response contains firstName\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"firstName\", \"Max\");",
+									"});",
+									"pm.test(\"Response contains secondName\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"secondName\", \"When\");",
+									"});",
+									"pm.test(\"Response contains email\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"email\", \"emailMax@gmail.com\");",
+									"});",
+									"pm.test(\"Response contains password\", function () {",
+									"    var jsonData = pm.response.json(); ",
+									"    pm.expect(jsonData).to.have.property(\"password\", \"password\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"{{firstName}}\",\n    \"secondName\": \"{{secondName}}\",\n    \"email\" : \"{{email}}\",\n    \"password\": \"{{password}}\",\n    \"location\": { \"latitude\": 57.689035, \"longitude\": 11.914206}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{dentistURL}}/v1/dentists",
+							"host": [
+								"{{dentistURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all Detists",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dentistURL}}/v1/dentists/",
+							"host": [
+								"{{dentistURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dentist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{dentistURL}}/v1/dentists/{{dentistID}}",
+							"host": [
+								"{{dentistURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{dentistID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Dentist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful DELETE request\", function () {\r",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{dentistURL}}/v1/dentists/{{dentistID}}",
+							"host": [
+								"{{dentistURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								"{{dentistID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete all Dentists",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Content has been deleted\", function(){",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{dentistURL}}/v1/dentists/",
+							"host": [
+								"{{dentistURL}}"
+							],
+							"path": [
+								"v1",
+								"dentists",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "dentistURL",
+			"value": "http://localhost:3003/api",
+			"type": "default"
+		},
+		{
+			"key": "patientURL",
+			"value": "http://localhost:3004/api",
+			"type": "string"
+		},
+		{
+			"key": "timeslotsURL",
+			"value": "http://localhost:3005/api",
+			"type": "string"
+		},
+		{
+			"key": "appointmentsURL",
+			"value": "http://localhost:3006/api",
+			"type": "string"
+		}
+	]
+}
