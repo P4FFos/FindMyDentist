@@ -1,0 +1,15 @@
+{
+    "name": "findmydentist",
+    "version": "1.0.0",
+    "scripts": {
+        "appointmentsService": "node appointmentsService/app.js",
+        "timeslotsService": "node timeslotsService/app.js",
+        "dentist": "node dentist/app.js",
+        "patient": "node patient/app.js",
+        "client": "npm run dev --prefix client",
+        "dev": "concurrently \"npm run appointmentsService\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\""
+    },
+    "devDependencies": {
+        "concurrently": "^9.1.0"
+    }
+}
