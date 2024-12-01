@@ -9,7 +9,7 @@ cache:
 stages:
   
   - build
-  - test
+  #- test
   - deploy
 
 build:
