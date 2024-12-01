@@ -5,7 +5,10 @@ const dentistSchema = new mongoose.Schema({
     secondName: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    location: { latitude: { type: Number }, longitude: { type: Number }},
+    location: {
+        latitude: { type: Number },
+        longitude: { type: Number }
+    },
     appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
 });
 

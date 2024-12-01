@@ -21,6 +21,12 @@
       <label v-if="userType === 'patient'" for="phone">Phone:</label>
       <input v-if="userType === 'patient'" type="text" v-model="phone" required/>
 
+      <label v-if="userType === 'dentist'" for="latitude">Latitude:</label>
+      <input v-if="userType === 'dentist'" type="text" v-model="latitude" required/>
+
+      <label v-if="userType === 'dentist'" for="longitude">Longitude:</label>
+      <input v-if="userType === 'dentist'" type="text" v-model="longitude" required/>
+
       <button type="submit">Register</button>
     </form>
     <p v-if="message">{{ message }}</p>
@@ -40,6 +46,8 @@ export default {
       email: '',
       phone: '',
       password: '',
+      latitude: '',
+      longitude: '',
       message: '',
       mqttClient: null
     };
@@ -88,7 +96,11 @@ export default {
       if (this.userType === 'patient') {
         payload.phone = this.phone;
         this.mqttClient.publish('patients/create', JSON.stringify(payload));
-      } else {
+      } else if (this.userType === 'dentist') {
+        payload.location = {
+          latitude: this.latitude,
+          longitude: this.longitude
+        };
         this.mqttClient.publish('dentists/create', JSON.stringify(payload));
       }
     }
