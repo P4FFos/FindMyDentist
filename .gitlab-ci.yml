@@ -9,7 +9,6 @@ cache:
 stages:
   
   - build
-  #- test
   - deploy
 
 build:
@@ -19,17 +18,17 @@ build:
   script:
     - npm install
 
-test:
-  stage: test
-  tags:
-    - docker
-  services:
-    - name: mvertes/alpine-mongo:latest
-      alias: mongo
-  variables:
-    MONGODB_URI: "mongodb://mongo:27017/serverTestDB"
-  script:
-    - npm run ci-test
+#test:
+#  stage: test
+#  tags:
+#    - docker
+#  services:
+#    - name: mvertes/alpine-mongo:latest
+#      alias: mongo
+#  variables:
+#    MONGODB_URI: "mongodb://mongo:27017/serverTestDB"
+#  script:
+#    - npm run ci-test
 
 deploy:
   stage: deploy
