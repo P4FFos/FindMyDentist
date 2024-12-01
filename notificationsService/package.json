@@ -12,7 +12,8 @@
     "connect-history-api-fallback": "^2.0.0",
     "express": "^4.21.1",
     "mqtt": "^5.10.3",
-    "nodemailer": "^6.9.16"
+    "nodemailer": "^6.9.16",
+    "notifications_service": "file:"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

@@ -17,6 +17,7 @@
     "dependencies": {
         "connect-history-api-fallback": "^2.0.0",
         "cors": "^2.8.5",
+        "dentist": "file:",
         "express": "^4.21.1",
         "method-override": "^3.0.0",
         "mongoose": "^8.8.1",
