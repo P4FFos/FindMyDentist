@@ -19,6 +19,7 @@
         "concurrently": "^9.1.0"
     },
     "dependencies": {
-        "findmydentist": "file:"
+        "findmydentist": "file:",
+        "mqtt": "^5.10.3"
     }
 }
