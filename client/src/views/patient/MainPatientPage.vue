@@ -30,7 +30,7 @@ export default {
     return {
       dentists: [],
       map: null,
-      client: null
+      mqttClient: null
     };
   },
   methods: {

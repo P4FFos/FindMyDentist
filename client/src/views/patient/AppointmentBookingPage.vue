@@ -4,7 +4,7 @@
     <h2>Available timeslots:</h2>
     <ul>
       <li v-for="timeslot in availableTimeslots" :key="timeslot.id">
-        <p> Timeslot: {{ timeslot.time }}</p>
+        <p> Timeslot: {{ timeslot.date }} {{ timeslot.time }} {{ timeslot.isBooked }}</p>
         <button @click="selectTimeslot(timeslot)">Select</button>
       </li>
     </ul>
@@ -21,7 +21,7 @@
     <h2>My Appointments:</h2>
     <ul>
       <li v-for="appointment in appointments" :key="appointment._id">
-        <p>Appointment with Dr. {{ doctorName }} at {{ appointment.timeslot }}</p>
+        <p>Appointment with Dr. {{ doctorName }} at {{ appointment.time }}</p>
         <button @click="cancelAppointment(appointment._id)">Cancel</button>
       </li>
     </ul>
@@ -100,8 +100,10 @@ export default {
               break;
             case 'appointments/create/response':
               if (response.status === 'success') {
-                this.message = response.data.message
-                this.getAppointments()
+                console.log('appointment was created')
+                this.message = response.message
+                this.getTimeslots();
+                this.getAppointments();
               }
               break;
             case 'appointments/delete/response':
@@ -153,12 +155,15 @@ export default {
     // Publish a message to the MQTT broker to book an appointment
     bookAppointment() {
       const payload = {
+
+        time: this.selectedTimeslot.time,
         dentistId: this.dentistId,
         patientId: this.patientId,
         timeslotId: this.selectedTimeslot._id,
         email: this.email,
-      };
+      }
       this.mqttClient.publish('appointments/create', JSON.stringify(payload))
+      console.log('booking request was sent')
     },
     // Publish a message to the MQTT broker to cancel an appointment
     cancelAppointment(appointmentId) {
