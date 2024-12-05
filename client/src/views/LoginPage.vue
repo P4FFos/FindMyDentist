@@ -37,7 +37,7 @@ export default {
     selectUserType(type) {
       this.userType = type;
     },
-    // Setup the MQTT client
+    // Set up the MQTT client
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
       this.mqttClient.on('connect', () => {
@@ -77,8 +77,16 @@ export default {
         this.mqttClient.publish('dentists/get/login', JSON.stringify(payload));
       }
     }
-  }, mounted() {
+  },
+  mounted() {
     this.setupMqttClient();
+  },
+  beforeDestroy() {
+    if (this.mqttClient) {
+      this.mqttClient.unsubscribe('patients/get/login/response');
+      this.mqttClient.unsubscribe('dentists/get/login/response');
+      this.mqttClient.end();
+    }
   }
 }
 </script>

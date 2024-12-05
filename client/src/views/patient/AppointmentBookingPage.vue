@@ -183,6 +183,18 @@ export default {
     this.getPatientEmail()
     this.getAppointments()
   },
+  beforeDestroy() {
+    if (this.mqttClient) {
+      this.mqttClient.unsubscribe('timeslots/get/available/response')
+      this.mqttClient.unsubscribe('timeslots/get/unavailable/response')
+      this.mqttClient.unsubscribe('patients/get/response');
+      this.mqttClient.unsubscribe('dentists/get/response');
+      this.mqttClient.unsubscribe('appointments/get/all/response')
+      this.mqttClient.unsubscribe('appointments/create/response')
+      this.mqttClient.unsubscribe('appointments/delete/response')
+      this.mqttClient.end();
+    }
+  }
 };
 </script>
 
