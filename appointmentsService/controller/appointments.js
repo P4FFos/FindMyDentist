@@ -12,90 +12,95 @@ const client = require('../../mqtt/mqtt-config');
 // MQTT client connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
-    client.subscribe('appointments/create', (err) => {
-        if (err) {
-            console.error('Failed to subscribe to topic', err);
-        }
-    });
-    client.subscribe('appointments/get/all', (err) => {
-        if (err) {
-            console.error('Failed to subscribe to topic', err);
-        }
-    });
-    client.subscribe('appointments/delete', (err) => {
-        if (err) {
-            console.error('Failed to subscribe to topic', err);
-        }
-    });
+    client.subscribe('appointments/create');
+    client.subscribe('appointments/get/all');
+    client.subscribe('appointments/delete');
 });
 
 // MQTT client message handling
 client.on('message', async (topic, message) => {
-    if (topic === 'appointments/create') {
-        try {
-            const payload = JSON.parse(message.toString());
-            console.log(payload);
-            const timeslot = Timeslot.findById(payload.timeslotId);
-
-            if (timeslot && !timeslot.isBooked) {
-                const appointment = new Appointment(payload);
-                await appointment.save();
-
-                // timeslot.isBooked = true;
-                // timeslot.save();
-                client.publish('timeslots/update', JSON.stringify({ timeslotId: payload.timeslotId, isBooked: true }));
-                console.log(timeslot.isBooked);
-                client.publish('appointments/create/response', JSON.stringify({ status: 'success', appointment }));
-            } else {
-                client.publish('appointments/create/response', JSON.stringify({
-                    status: 'error',
-                    message: 'Timeslot is already booked or unavailable'
-                }));
-            }
-        } catch (error) {
-            client.publish('appointments/create/response', JSON.stringify({ status: 'error', message: error.message }));
+    try {
+        const payload = JSON.parse(message.toString());
+        switch (topic) {
+            case 'appointments/create':
+                await handleAppointmentCreate(payload);
+                break;
+            case 'appointments/get/all':
+                await handleGetAllAppointments(payload);
+                break;
+            case 'appointments/delete':
+                await handleAppointmentDelete(payload);
+                break;
         }
-    } else if (topic === 'appointments/get/all') {
-        try {
-            const payload = JSON.parse(message.toString());
-            const appointments = await Appointment.find({ patientId: payload.patientId });
-            if (appointments) {
-                client.publish('appointments/get/all/response', JSON.stringify({ status: 'success', appointments }));
-            } else {
-                client.publish('appointments/get/all/response', JSON.stringify({
-                    status: 'error',
-                    message: 'Appointments cannot be fetched'
-                }));
-            }
-        } catch (error) {
-            client.publish('appointments/get/all/response', JSON.stringify({ status: 'error', message: error.message }));
-        }
-    } else if (topic === 'appointments/delete') {
-        try {
-            const payload = JSON.parse(message.toString());
-            const appointment = await Appointment.findByIdAndDelete(payload.appointmentId);
-
-            if (appointment) {
-                const timeslot = await Timeslot.findById(appointment.timeslotId);
-                if (timeslot) {
-                    timeslot.isBooked = false;
-                    await timeslot.save();
-                }
-
-                client.publish('appointments/delete/response', JSON.stringify({
-                    status: 'success',
-                    message: 'Appointment was deleted successfully'
-                }));
-            } else {
-                client.publish('appointments/delete/response', JSON.stringify({
-                    status: 'error',
-                    message: 'Appointment cannot be deleted'
-                }));
-            }
-        } catch (error) {
-            client.publish('appointments/delete/response', JSON.stringify({ status: 'error', message: error.message }));
-        }
+    } catch (error) {
+        console.error('Error handling message:', error);
     }
 });
+
+// Create an appointment
+async function handleAppointmentCreate(payload) {
+    try {
+        const timeslot = await Timeslot.findById(payload.timeslotId);
+
+        if (timeslot && !timeslot.isBooked) {
+            const appointment = new Appointment(payload);
+            await appointment.save();
+
+            client.publish('timeslots/update', JSON.stringify({timeslotId: payload.timeslotId, isBooked: true}));
+            client.publish('appointments/create/response', JSON.stringify({status: 'success', appointment}));
+        } else {
+            client.publish('appointments/create/response', JSON.stringify({
+                status: 'error',
+                message: 'Timeslot is already booked or unavailable'
+            }));
+        }
+    } catch (error) {
+        client.publish('appointments/create/response', JSON.stringify({status: 'error', message: error.message}));
+    }
+}
+
+// Get all appointments of a patient
+async function handleGetAllAppointments(payload) {
+    try {
+        const appointments = await Appointment.find({patientId: payload.patientId});
+        if (appointments) {
+            client.publish('appointments/get/all/response', JSON.stringify({status: 'success', appointments}));
+        } else {
+            client.publish('appointments/get/all/response', JSON.stringify({
+                status: 'error',
+                message: 'Appointments cannot be fetched'
+            }));
+        }
+    } catch (error) {
+        client.publish('appointments/get/all/response', JSON.stringify({status: 'error', message: error.message}));
+    }
+}
+
+// Delete an appointment
+async function handleAppointmentDelete(payload) {
+    try {
+        const appointment = await Appointment.findByIdAndDelete(payload.appointmentId);
+
+        if (appointment) {
+            const timeslot = await Timeslot.findById(appointment.timeslotId);
+            if (timeslot) {
+                timeslot.isBooked = false;
+                await timeslot.save();
+            }
+
+            client.publish('appointments/delete/response', JSON.stringify({
+                status: 'success',
+                message: 'Appointment was deleted successfully'
+            }));
+        } else {
+            client.publish('appointments/delete/response', JSON.stringify({
+                status: 'error',
+                message: 'Appointment cannot be deleted'
+            }));
+        }
+    } catch (error) {
+        client.publish('appointments/delete/response', JSON.stringify({status: 'error', message: error.message}));
+    }
+}
 
 module.exports = router;

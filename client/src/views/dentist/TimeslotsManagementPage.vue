@@ -107,6 +107,14 @@ export default {
     this.setupMqttClient();
     this.getTimeslots();
   },
+  beforeDestroy() {
+    if (this.mqttClient) {
+      this.mqttClient.unsubscribe('timeslots/get/all/response');
+      this.mqttClient.unsubscribe('timeslots/create/response');
+      this.mqttClient.unsubscribe('timeslots/delete/response');
+      this.mqttClient.end();
+    }
+  }
 };
 </script>
 

@@ -34,7 +34,7 @@ export default {
     };
   },
   methods: {
-    // Setup the MQTT client
+    // Set up the MQTT client
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
       this.mqttClient.on('connect', () => {
@@ -100,6 +100,12 @@ export default {
     this.fetchDentist();
     this.initMap();
   },
+  beforeDestroy() {
+    if (this.mqttClient) {
+      this.mqttClient.unsubscribe('dentists/get/all/response');
+      this.mqttClient.end();
+    }
+  }
 };
 </script>
 
