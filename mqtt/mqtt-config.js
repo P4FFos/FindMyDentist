@@ -1,12 +1,11 @@
 const mqtt = require("mqtt");
 
 const protocol = 'mqtt';
-const host = 'test.mosquitto.org';
+const host = 'localhost';
 const port = '1883';
-const clientId = `mqtt_${Math.random().toString(16).slice(3)}`; //random id for the current client
+const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
 
 const connectUrl = `${protocol}://${host}:${port}`;
-
 
 const client = mqtt.connect(connectUrl, {
     clientId,
@@ -24,3 +23,5 @@ client.on('error', (err) => {
 });
 
 module.exports = client;
+
+// to make local mqtt work, you need to run it on your machine individually

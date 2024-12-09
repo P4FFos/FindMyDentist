@@ -39,7 +39,7 @@ export default {
     },
     // Set up the MQTT client
     setupMqttClient() {
-      this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+      this.mqttClient = mqtt.connect('ws://localhost:8080/mqtt');
       this.mqttClient.on('connect', () => {
         console.log('MQTT connected');
         this.mqttClient.subscribe('patients/get/login/response');

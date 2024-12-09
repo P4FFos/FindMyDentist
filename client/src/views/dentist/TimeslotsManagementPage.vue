@@ -8,8 +8,11 @@
           <span v-if="timeslot.appointment">
             (Booked by {{ timeslot.appointment.patientName }})
           </span>
-          <span v-else style="color: green;">(Available)</span>
+          <span v-else>(Not Booked)</span>
         </p>
+        <button v-if="timeslot.appointment" @click="cancelAppointment(timeslot.appointment._id)">
+          Cancel Appointment
+        </button>
         <button @click="deleteTimeslot(timeslot)" :disabled="timeslot.appointment">
           Delete
         </button>
@@ -47,13 +50,14 @@ export default {
   methods: {
     // Connect to the MQTT broker and subscribe to the topics
     setupMqttClient() {
-      this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt');
+      this.mqttClient = mqtt.connect('ws://localhost:8080/mqtt');
       this.mqttClient.on('connect', () => {
         console.log('MQTT connected');
         this.mqttClient.subscribe('timeslots/get/all/response');
         this.mqttClient.subscribe('appointments/dentist/get/all/response');
         this.mqttClient.subscribe('timeslots/create/response');
         this.mqttClient.subscribe('timeslots/delete/response');
+        this.mqttClient.subscribe('appointments/delete/response');
       });
 
       this.mqttClient.on('message', (topic, message) => {
@@ -82,6 +86,11 @@ export default {
               if (response.status === 'success') {
                 this.getTimeslots();
                 this.message = 'Timeslot was deleted successfully.';
+              }
+            case 'appointments/delete/response':
+              if (response.status === 'success') {
+                this.getTimeslots();
+                this.getAppointments();
               }
               break;
             default:
@@ -137,7 +146,11 @@ export default {
             : null,
         };
       });
-    }
+    },
+    cancelAppointment(appointmentId) {
+      const payload = { appointmentId: appointmentId };
+      this.mqttClient.publish('appointments/delete', JSON.stringify(payload));
+    },
   },
   // Get the dentist ID from local storage and set up the MQTT client
   mounted() {
