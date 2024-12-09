@@ -1,12 +1,20 @@
 <template>
   <h1>Manage your timeslots!</h1>
   <h2>created timeslots:</h2>
-  <li v-for="timeslot in timeslots">
-    <div>
-      <p> - Timeslot: {{ timeslot.date }} {{ timeslot.time }}</p>
-      <button @click="deleteTimeslot(timeslot)">Delete</button>
-    </div>
-  </li>
+    <li v-for="timeslot in enrichedTimeslots" :key="timeslot._id">
+      <div>
+        <p>
+          - Timeslot: {{ timeslot.date }} {{ timeslot.time }}
+          <span v-if="timeslot.appointment">
+            (Booked by {{ timeslot.appointment.patientName }})
+          </span>
+          <span v-else style="color: green;">(Available)</span>
+        </p>
+        <button @click="deleteTimeslot(timeslot)" :disabled="timeslot.appointment">
+          Delete
+        </button>
+      </div>
+    </li>
   <h2>Add timeslot:</h2>
   <form @submit.prevent="createTimeslot">
     <label for="timeslotDate">Date:</label>
@@ -29,6 +37,7 @@ export default {
     return {
       dentistId: '',
       timeslots: [],
+      appointments: [],
       timeslotDate: null,
       timeslotTime: '',
       message: '',
@@ -42,6 +51,7 @@ export default {
       this.mqttClient.on('connect', () => {
         console.log('MQTT connected');
         this.mqttClient.subscribe('timeslots/get/all/response');
+        this.mqttClient.subscribe('appointments/dentist/get/all/response');
         this.mqttClient.subscribe('timeslots/create/response');
         this.mqttClient.subscribe('timeslots/delete/response');
       });
@@ -54,6 +64,12 @@ export default {
               if (response.status === 'success') {
                 this.timeslots = response.timeslots;
                 this.message = 'Timeslots were fetched successfully.';
+              }
+              break;
+            case 'appointments/dentist/get/all/response':
+              if (response.status === 'success') {
+                this.appointments = response.appointments;
+                this.message = 'Appointments were fetched successfully.';
               }
               break;
             case 'timeslots/create/response':
@@ -83,6 +99,11 @@ export default {
       };
       this.mqttClient.publish('timeslots/get/all', JSON.stringify(payload));
     },
+    // Publish a message to the MQTT broker to get all dentist appointments
+    getAppointments() {
+      const payload = {dentistId: this.dentistId}
+      this.mqttClient.publish('appointments/dentist/get/all', JSON.stringify(payload))
+    },
     // Publish a message to the MQTT broker to create a new timeslot
     createTimeslot() {
       const payload = {
@@ -100,16 +121,35 @@ export default {
       };
       this.mqttClient.publish('timeslots/delete', JSON.stringify(payload));
     },
+    addAppointments() {
+      this.getAppointments();
+      return this.timeslots.map((timeslot) => {
+        const appointment = this.appointments.find(
+          (appt) => appt.timeslotId === timeslot._id
+        );
+        return {
+          ...timeslot,
+          appointment: appointment
+            ? {
+                ...appointment,
+                patientName: appointment.patientName,
+              }
+            : null,
+        };
+      });
+    }
   },
   // Get the dentist ID from local storage and set up the MQTT client
   mounted() {
     this.dentistId = localStorage.getItem('dentistId') || '';
     this.setupMqttClient();
     this.getTimeslots();
+    this.addAppointments();
   },
   beforeDestroy() {
     if (this.mqttClient) {
       this.mqttClient.unsubscribe('timeslots/get/all/response');
+      this.mqttClient.unsubscribe('appointments/dentist/get/all/response');
       this.mqttClient.unsubscribe('timeslots/create/response');
       this.mqttClient.unsubscribe('timeslots/delete/response');
       this.mqttClient.end();
