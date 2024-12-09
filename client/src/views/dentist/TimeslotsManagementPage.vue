@@ -50,7 +50,7 @@ export default {
   methods: {
     // Connect to the MQTT broker and subscribe to the topics
     setupMqttClient() {
-      this.mqttClient = mqtt.connect('ws://localhost:8080/mqtt');
+      this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
         console.log('MQTT connected');
         this.mqttClient.subscribe('timeslots/get/all/response');

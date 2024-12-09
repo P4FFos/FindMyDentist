@@ -23,5 +23,3 @@ client.on('error', (err) => {
 });
 
 module.exports = client;
-
-// to make local mqtt work, you need to run it on your machine individually
