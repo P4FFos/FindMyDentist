@@ -16,7 +16,6 @@
       </li>
     </ul>
     <button @click="bookAppointment" :disabled="!selectedTimeslot">Book Appointment</button>
-    <p v-if="message">{{ message }}</p>
 
     <h2>My Appointments:</h2>
     <ul>
@@ -25,6 +24,8 @@
         <button @click="cancelAppointment(appointment._id)">Cancel</button>
       </li>
     </ul>
+
+    <p v-if="message">{{ message }}</p>
   </div>
 </template>
 
@@ -101,7 +102,7 @@ export default {
             case 'appointments/create/response':
               if (response.status === 'success') {
                 console.log('appointment was created')
-                this.message = response.message
+                this.message = 'Appointment was created successfully'
                 this.getTimeslots();
                 this.getAppointments();
               }
@@ -109,6 +110,7 @@ export default {
             case 'appointments/delete/response':
               if (response.status === 'success') {
                 this.getAppointments()
+                this.message = 'Appointment was deleted successfully'
               }
               break;
             default:
