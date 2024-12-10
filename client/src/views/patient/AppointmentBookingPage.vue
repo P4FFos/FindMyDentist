@@ -43,6 +43,7 @@ export default {
     return {
       doctorName: '',
       patientId: localStorage.getItem('patientId') || '',
+      patient: null,
       email: '',
       selectedTimeslot: null,
       availableTimeslots: [],
@@ -55,7 +56,7 @@ export default {
   methods: {
     // Connect to the MQTT broker and subscribe to the topics
     setupMqttClient() {
-      this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt')
+      this.mqttClient = mqtt.connect('ws://localhost:8080')
       this.mqttClient.on('connect', () => {
         console.log('MQTT connected')
         this.mqttClient.subscribe('timeslots/get/available/response')
@@ -85,7 +86,8 @@ export default {
               break;
             case 'patients/get/response':
               if (response.status === 'success') {
-                this.email = response.email
+                this.patient = response.patient
+                this.email = this.patient.email
               }
               break;
             case 'dentists/get/response':
@@ -108,7 +110,7 @@ export default {
               break;
             case 'appointments/delete/response':
               if (response.status === 'success') {
-                this.getAppointments()
+                this.getAppointments();
               }
               break;
             default:
@@ -134,7 +136,7 @@ export default {
       this.mqttClient.publish('timeslots/get/unavailable', JSON.stringify(unavailablePayload))
     },
     // Publish a message to the MQTT broker to get the patient email
-    getPatientEmail() {
+    getPatientData() {
       const payload = {patientId: this.patientId}
       this.mqttClient.publish('patients/get', JSON.stringify(payload))
     },
@@ -154,8 +156,9 @@ export default {
     },
     // Publish a message to the MQTT broker to book an appointment
     bookAppointment() {
-      const payload = {
 
+      const payload = {
+        patientName: `${this.patient.firstName} ${this.patient.secondName}`,
         time: this.selectedTimeslot.time,
         dentistId: this.dentistId,
         patientId: this.patientId,
@@ -169,6 +172,8 @@ export default {
     cancelAppointment(appointmentId) {
       const payload = {appointmentId: appointmentId, email: this.email}
       this.mqttClient.publish('appointments/delete', JSON.stringify(payload))
+      this.getTimeslots();
+      this.getAppointments();
     },
     // Notify the patient when a timeslot becomes available
     notifyWhenAvailable(timeslot) {
@@ -180,7 +185,7 @@ export default {
     this.setupMqttClient()
     this.getDoctorName()
     this.getTimeslots()
-    this.getPatientEmail()
+    this.getPatientData()
     this.getAppointments()
   },
   beforeDestroy() {

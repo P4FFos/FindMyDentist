@@ -15,6 +15,7 @@ client.on('connect', () => {
     client.subscribe('appointments/create');
     client.subscribe('appointments/get/all');
     client.subscribe('appointments/delete');
+    client.subscribe('appointments/dentist/get/all');
 });
 
 // MQTT client message handling
@@ -28,6 +29,9 @@ client.on('message', async (topic, message) => {
             case 'appointments/get/all':
                 await handleGetAllAppointments(payload);
                 break;
+            case 'appointments/dentist/get/all':
+                await handleGetAllDentistAppointments(payload);
+                break;
             case 'appointments/delete':
                 await handleAppointmentDelete(payload);
                 break;
@@ -40,8 +44,7 @@ client.on('message', async (topic, message) => {
 // Create an appointment
 async function handleAppointmentCreate(payload) {
     try {
-        const timeslot = await Timeslot.findById(payload.timeslotId);
-
+        const timeslot = Timeslot.findById(payload.timeslotId);
         if (timeslot && !timeslot.isBooked) {
             const appointment = new Appointment(payload);
             await appointment.save();
@@ -73,6 +76,23 @@ async function handleGetAllAppointments(payload) {
         }
     } catch (error) {
         client.publish('appointments/get/all/response', JSON.stringify({status: 'error', message: error.message}));
+    }
+}
+
+// Get all appointments for a dentist
+async function handleGetAllDentistAppointments(payload) {
+    try {
+        const appointments = await Appointment.find({dentistId: payload.dentistId});
+        if (appointments) {
+            client.publish('appointments/dentist/get/all/response', JSON.stringify({status: 'success', appointments}));
+        } else {
+            client.publish('appointments/dentist/get/all/response', JSON.stringify({
+                status: 'error',
+                message: 'Appointments cannot be fetched'
+            }));
+        }
+    } catch (error) {
+        client.publish('appointments/dentist/get/all/response', JSON.stringify({status: 'error', message: error.message}));
     }
 }
 
