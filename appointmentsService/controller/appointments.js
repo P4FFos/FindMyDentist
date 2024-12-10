@@ -44,8 +44,7 @@ client.on('message', async (topic, message) => {
 // Create an appointment
 async function handleAppointmentCreate(payload) {
     try {
-        const timeslot = await Timeslot.findById(payload.timeslotId);
-
+        const timeslot = Timeslot.findById(payload.timeslotId);
         if (timeslot && !timeslot.isBooked) {
             const appointment = new Appointment(payload);
             await appointment.save();
