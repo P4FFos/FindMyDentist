@@ -44,8 +44,7 @@ client.on('message', async (topic, message) => {
 // Create an appointment
 async function handleAppointmentCreate(payload) {
     try {
-        const timeslot = await Timeslot.findById(payload.timeslotId);
-
+        const timeslot = Timeslot.findById(payload.timeslotId);
         if (timeslot && !timeslot.isBooked) {
             const appointment = new Appointment(payload);
             await appointment.save();
@@ -103,11 +102,7 @@ async function handleAppointmentDelete(payload) {
         const appointment = await Appointment.findByIdAndDelete(payload.appointmentId);
 
         if (appointment) {
-            const timeslot = await Timeslot.findById(appointment.timeslotId);
-            if (timeslot) {
-                timeslot.isBooked = false;
-                await timeslot.save();
-            }
+            client.publish('timeslots/update', JSON.stringify({timeslotId: payload.timeslotId, isBooked: false}));
 
             client.publish('appointments/delete/response', JSON.stringify({
                 status: 'success',

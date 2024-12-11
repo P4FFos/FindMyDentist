@@ -16,16 +16,15 @@
       </li>
     </ul>
     <button @click="bookAppointment" :disabled="!selectedTimeslot">Book Appointment</button>
+    <p v-if="message">{{ message }}</p>
 
     <h2>My Appointments:</h2>
     <ul>
       <li v-for="appointment in appointments" :key="appointment._id">
         <p>Appointment with Dr. {{ doctorName }} at {{ appointment.time }}</p>
-        <button @click="cancelAppointment(appointment._id)">Cancel</button>
+        <button @click="cancelAppointment(appointment._id, appointment.timeslotId)">Cancel</button>
       </li>
     </ul>
-
-    <p v-if="message">{{ message }}</p>
   </div>
 </template>
 
@@ -44,6 +43,7 @@ export default {
     return {
       doctorName: '',
       patientId: localStorage.getItem('patientId') || '',
+      patient: null,
       email: '',
       selectedTimeslot: null,
       availableTimeslots: [],
@@ -61,6 +61,9 @@ export default {
         console.log('MQTT connected')
         this.mqttClient.subscribe('timeslots/get/available/response')
         this.mqttClient.subscribe('timeslots/get/unavailable/response')
+        this.mqttClient.subscribe('timeslots/create/response');
+        this.mqttClient.subscribe('timeslots/delete/response');
+        this.mqttClient.subscribe('timeslots/update/response');
         this.mqttClient.subscribe('patients/get/response');
         this.mqttClient.subscribe('dentists/get/response');
         this.mqttClient.subscribe('appointments/get/all/response')
@@ -84,9 +87,28 @@ export default {
                 this.message = 'Unavailable timeslots were fetched successfully'
               }
               break;
+            case 'timeslots/create/response':
+              if (response.status === 'success') {
+                this.getTimeslots()
+                this.message = 'Available timeslots were fetched successfully'
+              }
+              break;
+            case 'timeslots/delete/response':
+              if (response.status === 'success') {
+                this.getTimeslots()
+                this.message = 'Available timeslots were fetched successfully'
+              }
+              break;
+            case 'timeslots/update/response':
+              if (response.status === 'success') {
+                this.getTimeslots()
+                this.message = 'Available timeslots were fetched successfully'
+              }
+              break;
             case 'patients/get/response':
               if (response.status === 'success') {
-                this.email = response.email
+                this.patient = response.patient
+                this.email = this.patient.email
               }
               break;
             case 'dentists/get/response':
@@ -102,15 +124,14 @@ export default {
             case 'appointments/create/response':
               if (response.status === 'success') {
                 console.log('appointment was created')
-                this.message = 'Appointment was created successfully'
+                this.message = response.message
                 this.getTimeslots();
                 this.getAppointments();
               }
               break;
             case 'appointments/delete/response':
               if (response.status === 'success') {
-                this.getAppointments()
-                this.message = 'Appointment was deleted successfully'
+                this.getAppointments();
               }
               break;
             default:
@@ -136,7 +157,7 @@ export default {
       this.mqttClient.publish('timeslots/get/unavailable', JSON.stringify(unavailablePayload))
     },
     // Publish a message to the MQTT broker to get the patient email
-    getPatientEmail() {
+    getPatientData() {
       const payload = {patientId: this.patientId}
       this.mqttClient.publish('patients/get', JSON.stringify(payload))
     },
@@ -156,8 +177,9 @@ export default {
     },
     // Publish a message to the MQTT broker to book an appointment
     bookAppointment() {
-      const payload = {
 
+      const payload = {
+        patientName: `${this.patient.firstName} ${this.patient.secondName}`,
         time: this.selectedTimeslot.time,
         dentistId: this.dentistId,
         patientId: this.patientId,
@@ -168,9 +190,11 @@ export default {
       console.log('booking request was sent')
     },
     // Publish a message to the MQTT broker to cancel an appointment
-    cancelAppointment(appointmentId) {
-      const payload = {appointmentId: appointmentId, email: this.email}
+    cancelAppointment(appointmentId, timeslotId) {
+      const payload = { appointmentId: appointmentId, timeslotId: timeslotId, email: this.email};
       this.mqttClient.publish('appointments/delete', JSON.stringify(payload))
+      this.getTimeslots();
+      this.getAppointments();
     },
     // Notify the patient when a timeslot becomes available
     notifyWhenAvailable(timeslot) {
@@ -182,13 +206,16 @@ export default {
     this.setupMqttClient()
     this.getDoctorName()
     this.getTimeslots()
-    this.getPatientEmail()
+    this.getPatientData()
     this.getAppointments()
   },
   beforeDestroy() {
     if (this.mqttClient) {
       this.mqttClient.unsubscribe('timeslots/get/available/response')
       this.mqttClient.unsubscribe('timeslots/get/unavailable/response')
+      this.mqttClient.unsubscribe('timeslots/create/response');
+      this.mqttClient.unsubscribe('timeslots/delete/response');
+      this.mqttClient.unsubscribe('timeslots/update/response');
       this.mqttClient.unsubscribe('patients/get/response');
       this.mqttClient.unsubscribe('dentists/get/response');
       this.mqttClient.unsubscribe('appointments/get/all/response')
