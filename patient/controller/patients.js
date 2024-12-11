@@ -43,7 +43,7 @@ async function handlePatientCreate(payload) {
         if (existingPatientEmail) {
             client.publish('patients/create/response', JSON.stringify({
                 status: 'error',
-                message: 'Patient Account with this email already exists'
+                message: 'Patient Account with this email already exists. Try again with a different email'
             }));
             return;
         }
@@ -64,7 +64,7 @@ async function handlePatientLogin(payload) {
         } else {
             client.publish('patients/get/login/response', JSON.stringify({
                 status: 'error',
-                message: 'Invalid patient credentials'
+                message: 'Invalid patient credentials. Try again'
             }));
         }
     } catch (error) {
@@ -81,7 +81,7 @@ async function handleGetPatient(payload) {
         } else {
             client.publish('patients/get/response', JSON.stringify({
                 status: 'error',
-                message: 'Patient cannot be fetched'
+                message: 'Patient is not found (404). Try again'
             }));
         }
     } catch (error) {

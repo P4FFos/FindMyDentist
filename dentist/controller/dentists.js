@@ -47,7 +47,7 @@ async function handleDentistCreate(payload) {
         if (existingDentistEmail) {
             client.publish('dentists/create/response', JSON.stringify({
                 status: 'error',
-                message: 'Dentist Account with this email already exists'
+                message: 'Dentist Account with this email already exists. Try again with a different email'
             }));
             return;
         }
@@ -68,7 +68,7 @@ async function handleDentistLogin(payload) {
         } else {
             client.publish('dentists/get/login/response', JSON.stringify({
                 status: 'error',
-                message: 'Invalid dentist credentials'
+                message: 'Invalid dentist credentials. Try again'
             }));
         }
     } catch (error) {
@@ -95,7 +95,7 @@ async function handleGetDentist(payload) {
         } else {
             client.publish('dentists/get/response', JSON.stringify({
                 status: 'error',
-                message: 'Dentist cannot be fetched'
+                message: 'Dentist is not found (404). Try again'
             }));
         }
     } catch (error) {
