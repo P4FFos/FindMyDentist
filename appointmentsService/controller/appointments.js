@@ -102,11 +102,7 @@ async function handleAppointmentDelete(payload) {
         const appointment = await Appointment.findByIdAndDelete(payload.appointmentId);
 
         if (appointment) {
-            const timeslot = await Timeslot.findById(appointment.timeslotId);
-            if (timeslot) {
-                timeslot.isBooked = false;
-                await timeslot.save();
-            }
+            client.publish('timeslots/update', JSON.stringify({timeslotId: payload.timeslotId, isBooked: false}));
 
             client.publish('appointments/delete/response', JSON.stringify({
                 status: 'success',

@@ -22,7 +22,7 @@
     <ul>
       <li v-for="appointment in appointments" :key="appointment._id">
         <p>Appointment with Dr. {{ doctorName }} at {{ appointment.time }}</p>
-        <button @click="cancelAppointment(appointment._id)">Cancel</button>
+        <button @click="cancelAppointment(appointment._id, appointment.timeslotId)">Cancel</button>
       </li>
     </ul>
   </div>
@@ -61,6 +61,9 @@ export default {
         console.log('MQTT connected')
         this.mqttClient.subscribe('timeslots/get/available/response')
         this.mqttClient.subscribe('timeslots/get/unavailable/response')
+        this.mqttClient.subscribe('timeslots/create/response');
+        this.mqttClient.subscribe('timeslots/delete/response');
+        this.mqttClient.subscribe('timeslots/update/response');
         this.mqttClient.subscribe('patients/get/response');
         this.mqttClient.subscribe('dentists/get/response');
         this.mqttClient.subscribe('appointments/get/all/response')
@@ -82,6 +85,24 @@ export default {
               if (response.status === 'success') {
                 this.unavailableTimeslots = response.timeslots
                 this.message = 'Unavailable timeslots were fetched successfully'
+              }
+              break;
+            case 'timeslots/create/response':
+              if (response.status === 'success') {
+                this.getTimeslots()
+                this.message = 'Available timeslots were fetched successfully'
+              }
+              break;
+            case 'timeslots/delete/response':
+              if (response.status === 'success') {
+                this.getTimeslots()
+                this.message = 'Available timeslots were fetched successfully'
+              }
+              break;
+            case 'timeslots/update/response':
+              if (response.status === 'success') {
+                this.getTimeslots()
+                this.message = 'Available timeslots were fetched successfully'
               }
               break;
             case 'patients/get/response':
@@ -169,8 +190,8 @@ export default {
       console.log('booking request was sent')
     },
     // Publish a message to the MQTT broker to cancel an appointment
-    cancelAppointment(appointmentId) {
-      const payload = {appointmentId: appointmentId, email: this.email}
+    cancelAppointment(appointmentId, timeslotId) {
+      const payload = { appointmentId: appointmentId, timeslotId: timeslotId, email: this.email};
       this.mqttClient.publish('appointments/delete', JSON.stringify(payload))
       this.getTimeslots();
       this.getAppointments();
@@ -192,6 +213,9 @@ export default {
     if (this.mqttClient) {
       this.mqttClient.unsubscribe('timeslots/get/available/response')
       this.mqttClient.unsubscribe('timeslots/get/unavailable/response')
+      this.mqttClient.unsubscribe('timeslots/create/response');
+      this.mqttClient.unsubscribe('timeslots/delete/response');
+      this.mqttClient.unsubscribe('timeslots/update/response');
       this.mqttClient.unsubscribe('patients/get/response');
       this.mqttClient.unsubscribe('dentists/get/response');
       this.mqttClient.unsubscribe('appointments/get/all/response')

@@ -11,20 +11,12 @@ const client = require('../../mqtt/mqtt-config');
 // MQTT client connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
-    const topics = [
-        'timeslots/create',
-        'timeslots/get/all',
-        'timeslots/get/available',
-        'timeslots/get/unavailable',
-        'timeslots/delete'
-    ];
-    topics.forEach(topic => {
-        client.subscribe(topic, (err) => {
-            if (err) {
-                console.error(`Failed to subscribe to topic ${topic}`, err);
-            }
-        });
-    });
+    client.subscribe('timeslots/update');
+    client.subscribe('timeslots/create');
+    client.subscribe('timeslots/get/all');
+    client.subscribe('timeslots/get/available');
+    client.subscribe('timeslots/get/unavailable');
+    client.subscribe('timeslots/delete');
 });
 
 // MQTT client message handling
