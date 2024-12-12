@@ -39,7 +39,6 @@ import mqtt from 'mqtt';
     data() {
       return {
         dentistId: '',
-        patientId: localStorage.getItem('patientId') || '',
         patientName: '',
         timeslots: [],
         appointments: [],
@@ -120,12 +119,6 @@ import mqtt from 'mqtt';
                   this.message = `An appointment was canceled`;
                 }
                 break;
-              case 'patients/get/response':
-                if (response.status === 'success') {
-                  this.patient = response.patient
-                  this.email = this.patient.email
-                }
-                break;
               default:
                 console.log('Unhandled topic:', topic);
             }
@@ -159,11 +152,6 @@ import mqtt from 'mqtt';
         const payload = { timeslotId: timeslot._id };
         this.mqttClient.publish('timeslots/delete', JSON.stringify(payload));
       },
-      // Publish a message to the MQTT broker to get the patient email
-      getPatientData() {
-        const payload = {patientId: this.patientId}
-        this.mqttClient.publish('patients/get', JSON.stringify(payload))
-      },
       // Publish a message to the MQTT broker to cancel patients appointment
       cancelAppointment(appointmentId, timeslotId,) {
         const payload = { appointmentId, timeslotId, recipientEmail: this.email };
@@ -178,7 +166,6 @@ import mqtt from 'mqtt';
       this.setupMqttClient();
       this.getTimeslots();
       this.getAppointments();
-      this.getPatientData();
     },
     beforeDestroy() {
       if (this.mqttClient) {

@@ -20,21 +20,18 @@ client.on('message', async (topic, message) => {
         case 'appointments/delete/response':
             if (response.status === 'success') {
                 const { recipientEmail } = response;
-                console.log('Appointment deleted:', recipientEmail);
                 await notificationSender.sendCancellationNotification(recipientEmail);
             }
             break;
         case 'appointments/create/response':
             if (response.status === 'success') {
-                const { recipientEmail } = response;
-                console.log('Appointment created:', recipientEmail);
+                const recipientEmail = response.appointment.patientEmail;
                 await notificationSender.sendAppointmentConfirmation(recipientEmail);
             }
             break;
         case 'timeslots/update/response':
             if (response.status === 'success') {
                 const notificationRequests = await Notification.find({ timeslotId: response.timeslotId });
-                console.log('Timeslot updated:', response.timeslotId);
 
                 for (const notificationRequest of notificationRequests) {
                     if (response.timeslotId === notificationRequest.timeslotId) {
@@ -43,6 +40,7 @@ client.on('message', async (topic, message) => {
                     }
                 }
             }
+            break;
     }
 });
 

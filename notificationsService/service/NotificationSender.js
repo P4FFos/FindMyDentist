@@ -26,7 +26,6 @@ class NotificationSender {
     }
 
     async sendTimeslotUpdateNotification(recipientEmail) {
-        console.log("recepient email", recipientEmail)
         const subject = 'New timeslot is available';
         const text = `Timeslot has been updated and is now available`;
         try {

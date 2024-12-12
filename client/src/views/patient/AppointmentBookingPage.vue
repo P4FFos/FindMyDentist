@@ -188,7 +188,7 @@ export default {
         dentistId: this.dentistId,
         patientId: this.patientId,
         timeslotId: this.selectedTimeslot._id,
-        recipientEmail: this.email
+        patientEmail: this.email
       }
       this.mqttClient.publish('appointments/create', JSON.stringify(payload))
     },
@@ -206,7 +206,6 @@ export default {
         timeslotId: timeslot._id,
         email: this.email
       };
-      console.log("published payload", payload)
       this.mqttClient.publish('notifications/create', JSON.stringify(payload))
       timeslot.notificationRequested = true;
     },
