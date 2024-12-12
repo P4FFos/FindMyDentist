@@ -15,12 +15,13 @@ button {
 }
 
 b-button {
-    color: #1888AE;
+    margin: 1rem;
 }
 
 
 input {
-    background-color: #DEDBCC;
+    background-color: #0000;
+    padding: 0.5rem;
     border-radius: 7px;
     border: 2px solid #6A6A6A;
     font-family: 'IriaSans', sans-serif;
