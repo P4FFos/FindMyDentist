@@ -1,3 +1,32 @@
 body {
     background-color: #0000;
+    color: black;
+}
+
+button {
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0.75rem 2rem;
+    margin: 1rem;
+    border: 2px solid black;
+    background: none;
+    color: black;
+    cursor: pointer;
+}
+
+b-button {
+    color: #1888AE;
+}
+
+
+input {
+    background-color: #DEDBCC;
+    border-radius: 7px;
+    border: 2px solid #6A6A6A;
+    font-family: 'IriaSans', sans-serif;
+}
+
+h1 {
+    font-family: 'Georgia', serif;
+    font-weight: bold;
 }
