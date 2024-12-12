@@ -3,7 +3,6 @@ var router = express.Router();
 
 const NotificationSender = require('./NotificationSender');
 const notificationSender = new NotificationSender();
-const Timeslot = require('../../timeslotsService/model/timeslot');
 const Notification = require('../model/NotificationRequest');
 const client = require('../../mqtt/mqtt-config');
 
@@ -34,15 +33,14 @@ client.on('message', async (topic, message) => {
             break;
         case 'timeslots/update/response':
             if (response.status === 'success') {
+                const notificationRequests = await Notification.find({ timeslotId: response.timeslotId });
                 console.log('Timeslot updated:', response.timeslotId);
-                const timeslot = Timeslot.findById(response.timeslotId);
-                console.log("timeslot1", timeslot)
-                const notificationRequest = await Notification.find({timeslotId: response.timeslotId});
-                console.log("timeslot2", notificationRequest)
 
-                if (timeslot._id === notificationRequest.timeslotId && timeslot.isBooked === false) {
-                    await notificationSender.sendTimeslotUpdateNotification(notificationRequest.email);
-                    console.log("function invoked")
+                for (const notificationRequest of notificationRequests) {
+                    if (response.timeslotId === notificationRequest.timeslotId) {
+                        await notificationSender.sendTimeslotUpdateNotification(notificationRequest.email);
+                        await Notification.deleteOne({ _id: notificationRequest._id });
+                    }
                 }
             }
     }

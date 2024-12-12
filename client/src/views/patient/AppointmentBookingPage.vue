@@ -13,7 +13,7 @@
     <ul>
       <li v-for="timeslot in unavailableTimeslots" :key="timeslot.id">
         <p> Timeslot: {{ timeslot.time }}</p>
-        <button @click="notifyWhenAvailable(timeslot)">Notify me when available</button>
+        <button @click="notifyWhenAvailable(timeslot)" :disabled="timeslot.notificationRequested">Notify me when available</button>
       </li>
     </ul>
     <h2>My Appointments:</h2>
@@ -82,7 +82,10 @@ export default {
               break;
             case 'timeslots/get/unavailable/response':
               if (response.status === 'success') {
-                this.unavailableTimeslots = response.timeslots
+                this.unavailableTimeslots = response.timeslots.map(timeslot => ({
+                  ...timeslot,
+                  notificationRequested: false
+                }));
               }
               break;
             case 'timeslots/create/response':
@@ -205,6 +208,7 @@ export default {
       };
       console.log("published payload", payload)
       this.mqttClient.publish('notifications/create', JSON.stringify(payload))
+      timeslot.notificationRequested = true;
     },
   },
   // Fetch the doctor name, patient email, timeslots, and appointments

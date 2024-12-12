@@ -167,7 +167,6 @@ import mqtt from 'mqtt';
       // Publish a message to the MQTT broker to cancel patients appointment
       cancelAppointment(appointmentId, timeslotId,) {
         const payload = { appointmentId, timeslotId, recipientEmail: this.email };
-        console.log(payload);
         this.mqttClient.publish('appointments/delete', JSON.stringify(payload));
         this.getTimeslots();
         this.getAppointments();
