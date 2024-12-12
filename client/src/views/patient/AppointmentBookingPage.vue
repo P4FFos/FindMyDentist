@@ -68,6 +68,7 @@ export default {
         this.mqttClient.subscribe('appointments/get/all/response')
         this.mqttClient.subscribe('appointments/create/response')
         this.mqttClient.subscribe('appointments/delete/response')
+        this.mqttClient.subscribe('notifications/create/response')
       });
 
       this.mqttClient.on('message', (topic, message) => {
@@ -130,6 +131,11 @@ export default {
                 this.getAppointments();
               }
               break;
+            case 'notifications/create/response':
+              if (response.status === 'success') {
+                this.message = 'You will be notified when the timeslot becomes available'
+              }
+              break;
             default:
               console.log('Unhandled topic:', topic)
           }
@@ -179,7 +185,7 @@ export default {
         dentistId: this.dentistId,
         patientId: this.patientId,
         timeslotId: this.selectedTimeslot._id,
-        email: this.email,
+        recipientEmail: this.email
       }
       this.mqttClient.publish('appointments/create', JSON.stringify(payload))
     },
@@ -192,7 +198,13 @@ export default {
     },
     // Notify the patient when a timeslot becomes available
     notifyWhenAvailable(timeslot) {
-      this.message = `You will be notified when timeslot ${timeslot.time} becomes available`
+      const payload = {
+        patientId: this.patientId,
+        timeslotId: timeslot._id,
+        email: this.email
+      };
+      console.log("published payload", payload)
+      this.mqttClient.publish('notifications/create', JSON.stringify(payload))
     },
   },
   // Fetch the doctor name, patient email, timeslots, and appointments

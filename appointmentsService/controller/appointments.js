@@ -50,7 +50,10 @@ async function handleAppointmentCreate(payload) {
             await appointment.save();
 
             client.publish('timeslots/update', JSON.stringify({timeslotId: payload.timeslotId, isBooked: true}));
-            client.publish('appointments/create/response', JSON.stringify({status: 'success', appointment}));
+            client.publish('appointments/create/response', JSON.stringify({
+                status: 'success', appointment,
+                recipientEmail: payload.recipientEmail
+            }));
         } else {
             client.publish('appointments/create/response', JSON.stringify({
                 status: 'error',
@@ -106,7 +109,8 @@ async function handleAppointmentDelete(payload) {
 
             client.publish('appointments/delete/response', JSON.stringify({
                 status: 'success',
-                message: 'Appointment was deleted successfully'
+                message: 'Appointment was deleted successfully',
+                recipientEmail: payload.recipientEmail
             }));
         } else {
             client.publish('appointments/delete/response', JSON.stringify({
