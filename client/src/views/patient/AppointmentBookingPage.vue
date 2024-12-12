@@ -8,6 +8,7 @@
         <button @click="selectTimeslot(timeslot)">Select</button>
       </li>
     </ul>
+    <button @click="bookAppointment" :disabled="!selectedTimeslot">Book Appointment</button>
     <h2>Unavailable timeslots:</h2>
     <ul>
       <li v-for="timeslot in unavailableTimeslots" :key="timeslot.id">
@@ -15,9 +16,6 @@
         <button @click="notifyWhenAvailable(timeslot)">Notify me when available</button>
       </li>
     </ul>
-    <button @click="bookAppointment" :disabled="!selectedTimeslot">Book Appointment</button>
-    <p v-if="message">{{ message }}</p>
-
     <h2>My Appointments:</h2>
     <ul>
       <li v-for="appointment in appointments" :key="appointment._id">
@@ -25,6 +23,7 @@
         <button @click="cancelAppointment(appointment._id, appointment.timeslotId)">Cancel</button>
       </li>
     </ul>
+    <p v-if="message">{{ message }}</p>
   </div>
 </template>
 
@@ -78,31 +77,28 @@ export default {
             case 'timeslots/get/available/response':
               if (response.status === 'success') {
                 this.availableTimeslots = response.timeslots
-                this.message = 'Available timeslots were fetched successfully'
               }
               break;
             case 'timeslots/get/unavailable/response':
               if (response.status === 'success') {
                 this.unavailableTimeslots = response.timeslots
-                this.message = 'Unavailable timeslots were fetched successfully'
               }
               break;
             case 'timeslots/create/response':
               if (response.status === 'success') {
                 this.getTimeslots()
-                this.message = 'Available timeslots were fetched successfully'
+                this.message = 'Doctor has just added a new timeslot'
               }
               break;
             case 'timeslots/delete/response':
               if (response.status === 'success') {
                 this.getTimeslots()
-                this.message = 'Available timeslots were fetched successfully'
+                this.message = 'Doctor has just deleted a timeslot'
               }
               break;
             case 'timeslots/update/response':
               if (response.status === 'success') {
                 this.getTimeslots()
-                this.message = 'Available timeslots were fetched successfully'
               }
               break;
             case 'patients/get/response':
@@ -123,14 +119,14 @@ export default {
               break;
             case 'appointments/create/response':
               if (response.status === 'success') {
-                console.log('appointment was created')
-                this.message = response.message
+                this.message = 'Appointment was created successfully'
                 this.getTimeslots();
                 this.getAppointments();
               }
               break;
             case 'appointments/delete/response':
               if (response.status === 'success') {
+                this.message = 'Appointment was canceled successfully'
                 this.getAppointments();
               }
               break;
@@ -177,7 +173,6 @@ export default {
     },
     // Publish a message to the MQTT broker to book an appointment
     bookAppointment() {
-
       const payload = {
         patientName: `${this.patient.firstName} ${this.patient.secondName}`,
         time: this.selectedTimeslot.time,
@@ -187,7 +182,6 @@ export default {
         email: this.email,
       }
       this.mqttClient.publish('appointments/create', JSON.stringify(payload))
-      console.log('booking request was sent')
     },
     // Publish a message to the MQTT broker to cancel an appointment
     cancelAppointment(appointmentId, timeslotId) {

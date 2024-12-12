@@ -84,39 +84,37 @@ import mqtt from 'mqtt';
               case 'timeslots/get/all/response':
                 if (response.status === 'success') {
                   this.timeslots = response.timeslots;
-                  this.message = 'Timeslots were fetched successfully.';
                 }
                 break;
               case 'appointments/dentist/get/all/response':
                 if (response.status === 'success') {
                   this.appointments = response.appointments;
-                  this.message = 'Appointments were fetched successfully.';
                 }
                 break;
               case 'timeslots/create/response':
                 if (response.status === 'success') {
                   this.getTimeslots();
-                  this.message = 'Timeslot was created successfully.';
+                  this.message = 'Timeslot was created successfully';
                 }
                 break;
               case 'timeslots/delete/response':
                 if (response.status === 'success') {
                   this.getTimeslots();
-                  this.message = 'Timeslot was deleted successfully.';
+                  this.message = 'Timeslot was deleted successfully';
                 }
                 break;
               case 'appointments/create/response':
                 if (response.status === 'success') {
                   this.getTimeslots();
                   this.getAppointments();
-                  this.message = 'Appointment was created successfully.';
+                  this.message = 'Patient has booked an appointment';
                 }
                 break;
               case 'appointments/delete/response':
                 if (response.status === 'success') {
                   this.getTimeslots();
                   this.getAppointments();
-                  this.message = 'Appointment was canceled successfully.';
+                  this.message = `An appointment was canceled`;
                 }
                 break;
               default:
