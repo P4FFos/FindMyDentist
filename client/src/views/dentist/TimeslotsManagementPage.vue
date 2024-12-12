@@ -46,6 +46,7 @@ import mqtt from 'mqtt';
         timeslotTime: '',
         message: '',
         mqttClient: null,
+        email: ''
       };
     },
     computed: {
@@ -70,11 +71,12 @@ import mqtt from 'mqtt';
         this.mqttClient.on('connect', () => {
           console.log('MQTT connected');
           this.mqttClient.subscribe('timeslots/get/all/response');
-          this.mqttClient.subscribe('appointments/dentist/get/all/response');
           this.mqttClient.subscribe('timeslots/create/response');
           this.mqttClient.subscribe('timeslots/delete/response');
+          this.mqttClient.subscribe('appointments/dentist/get/all/response');
           this.mqttClient.subscribe('appointments/create/response');
           this.mqttClient.subscribe('appointments/delete/response');
+          this.mqttClient.subscribe('patients/get/response');
         });
 
         this.mqttClient.on('message', (topic, message) => {
@@ -151,8 +153,8 @@ import mqtt from 'mqtt';
         this.mqttClient.publish('timeslots/delete', JSON.stringify(payload));
       },
       // Publish a message to the MQTT broker to cancel patients appointment
-      cancelAppointment(appointmentId, timeslotId) {
-        const payload = { appointmentId, timeslotId };
+      cancelAppointment(appointmentId, timeslotId,) {
+        const payload = { appointmentId, timeslotId, recipientEmail: this.email };
         this.mqttClient.publish('appointments/delete', JSON.stringify(payload));
         this.getTimeslots();
         this.getAppointments();

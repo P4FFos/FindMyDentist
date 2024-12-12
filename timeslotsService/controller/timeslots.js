@@ -55,7 +55,10 @@ async function handleTimeslotUpdate(payload) {
         if (timeslot) {
             timeslot.isBooked = payload.isBooked;
             await timeslot.save();
-            client.publish('timeslots/update/response', JSON.stringify({ status: 'success' }));
+            client.publish('timeslots/update/response', JSON.stringify({
+                status: 'success',
+                timeslotId: timeslot._id
+            }));
         } else {
             client.publish('timeslots/update/response', JSON.stringify({
                 status: 'error',

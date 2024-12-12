@@ -5,6 +5,7 @@ const appointmentSchema = new mongoose.Schema({
   patientId: { type: String, required: true },
   timeslotId: { type: String, required: true },
   patientName: { type: String, required: true },
+  patientEmail: { type: String, required: true },
   time: { type: String, required: true },
 });
 

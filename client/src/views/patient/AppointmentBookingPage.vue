@@ -13,7 +13,7 @@
     <ul>
       <li v-for="timeslot in unavailableTimeslots" :key="timeslot.id">
         <p> Timeslot: {{ timeslot.time }}</p>
-        <button @click="notifyWhenAvailable(timeslot)">Notify me when available</button>
+        <button @click="notifyWhenAvailable(timeslot)" :disabled="timeslot.notificationRequested">Notify me when available</button>
       </li>
     </ul>
     <h2>My Appointments:</h2>
@@ -68,6 +68,7 @@ export default {
         this.mqttClient.subscribe('appointments/get/all/response')
         this.mqttClient.subscribe('appointments/create/response')
         this.mqttClient.subscribe('appointments/delete/response')
+        this.mqttClient.subscribe('notifications/create/response')
       });
 
       this.mqttClient.on('message', (topic, message) => {
@@ -81,7 +82,10 @@ export default {
               break;
             case 'timeslots/get/unavailable/response':
               if (response.status === 'success') {
-                this.unavailableTimeslots = response.timeslots
+                this.unavailableTimeslots = response.timeslots.map(timeslot => ({
+                  ...timeslot,
+                  notificationRequested: false
+                }));
               }
               break;
             case 'timeslots/create/response':
@@ -128,6 +132,11 @@ export default {
               if (response.status === 'success') {
                 this.message = 'Appointment was canceled successfully'
                 this.getAppointments();
+              }
+              break;
+            case 'notifications/create/response':
+              if (response.status === 'success') {
+                this.message = 'You will be notified when the timeslot becomes available'
               }
               break;
             default:
@@ -179,7 +188,7 @@ export default {
         dentistId: this.dentistId,
         patientId: this.patientId,
         timeslotId: this.selectedTimeslot._id,
-        email: this.email,
+        patientEmail: this.email
       }
       this.mqttClient.publish('appointments/create', JSON.stringify(payload))
     },
@@ -192,7 +201,13 @@ export default {
     },
     // Notify the patient when a timeslot becomes available
     notifyWhenAvailable(timeslot) {
-      this.message = `You will be notified when timeslot ${timeslot.time} becomes available`
+      const payload = {
+        patientId: this.patientId,
+        timeslotId: timeslot._id,
+        email: this.email
+      };
+      this.mqttClient.publish('notifications/create', JSON.stringify(payload))
+      timeslot.notificationRequested = true;
     },
   },
   // Fetch the doctor name, patient email, timeslots, and appointments
