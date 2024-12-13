@@ -1,34 +1,37 @@
 <template>
-  <h1>Manage your timeslots!</h1>
-  <h2>created timeslots:</h2>
-    <li v-for="timeslot in enrichedTimeslots" :key="timeslot._id">
-      <div>
-        <p>
-          - Timeslot: {{ timeslot.date }} {{ timeslot.time }}
-          <span v-if="timeslot.appointment">
-            (Booked by {{ timeslot.appointment.patientName }})
-          </span>
-          <span v-else>(Not Booked)</span>
-        </p>
-        <button v-if="timeslot.appointment" @click="cancelAppointment(timeslot.appointment._id, timeslot._id)">
-          Cancel Appointment
-        </button>
-        <button @click="deleteTimeslot(timeslot)" :disabled="timeslot.appointment">
-          Delete
-        </button>
-      </div>
-    </li>
-  <h2>Add timeslot:</h2>
-  <form @submit.prevent="createTimeslot">
-    <label for="timeslotDate">Date:</label>
-    <input type="date" v-model="timeslotDate" required/>
+  <div class="main">
+  <h1 class="appointment-title">Manage your timeslots:</h1>
+    <ul class="timeslots">
+      <li v-for="timeslot in enrichedTimeslots" :key="timeslot._id">
+              <p>
+              - Timeslot: {{ timeslot.date }} {{ timeslot.time }}
+              <span v-if="timeslot.appointment">
+                  (Booked by {{ timeslot.appointment.patientName }})
+              </span>
+              <span v-else>(Not Booked)</span>
+                <div>
+                  <b-button v-if="timeslot.appointment" @click="cancelAppointment(timeslot.appointment._id, timeslot._id)" class="button">
+                    Cancel Appointment
+                  </b-button>
+                  <b-button @click="deleteTimeslot(timeslot)" :disabled="timeslot.appointment" class="button">
+                    Delete
+                  </b-button>
+                </div>
+              </p>
+      </li>
+    </ul>
+    <h2>Add timeslot:</h2>
+    <form @submit.prevent="createTimeslot" class="mt-3 d-flex flex-column w-30">
+      <label for="timeslotDate">Date:</label>
+      <input type="date" v-model="timeslotDate" required/>
 
-    <label for="timeslotTime">Time:</label>
-    <input type="time" v-model="timeslotTime" required/>
+      <label for="timeslotTime">Time:</label>
+      <input type="time" v-model="timeslotTime" required/>
 
-    <button type="submit">Create</button>
-  </form>
-  <p v-if="message">{{ message }}</p>
+      <button type="submit">Create</button>
+    </form>
+    <p v-if="message">{{ message }}</p>
+  </div>
 </template>
 
 <script>
@@ -179,8 +182,43 @@ import mqtt from 'mqtt';
       }
     },
   };
-  </script>
+</script>
 
 <style>
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
 
+    ul {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-left: 0;
+    }
+    .w-30 {
+            width: 28%;
+        }
+    @media (max-width: 767px) {
+        .appointment-title {
+           text-align: center;
+        }
+        .w-30 {
+            width: 70%;
+        }
+        p {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .timeslots {
+            padding-left: 0;
+        }
+    }
 </style>
