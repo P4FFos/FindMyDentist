@@ -167,6 +167,9 @@ export default {
   list-style: none;
   padding: 0;
 }
+.sidebar li {
+    width: 100%;
+}
 .dentist-item {
   margin-bottom: 10px;
 }
