@@ -5,15 +5,16 @@ import random
 import time
 
 # MQTT settings
-MQTT_BROKER = "test.mosquitto.org"
-MQTT_PORT = 1883
-MQTT_KEEP_ALIVE_INTERVAL = 60
+BROKER = "test.mosquitto.org"
+PORT = 1883
+KEEP_ALIVE_INTERVAL = 60
 
 # MQTT Topics
-MQTT_PATIENT_CREATE_TOPIC = "patients/create"
-MQTT_PATIENT_CREATE_RESPONSE_TOPIC = "patients/create/response"
+PATIENT_CREATE_TOPIC = "patients/create"
+PATIENT_CREATE_RESPONSE_TOPIC = "patients/create/response"
+DENTISTS_GET_ALL_TOPIC = "dentists/get/all"
+DENTISTS_GET_ALL_RESPONSE_TOPIC = "dentists/get/all/response"
 
-# Locust User class for registration
 class RegisterUser(HttpUser):
     wait_time = between(1, 5)
 
@@ -22,7 +23,7 @@ class RegisterUser(HttpUser):
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
-        self.client.connect(MQTT_BROKER, MQTT_PORT, MQTT_KEEP_ALIVE_INTERVAL)
+        self.client.connect(BROKER, PORT, KEEP_ALIVE_INTERVAL)
         self.client.loop_start()
         self.response_received = False
         self.response_data = None
@@ -30,7 +31,8 @@ class RegisterUser(HttpUser):
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
             print("Connected to MQTT broker")
-            client.subscribe(MQTT_PATIENT_CREATE_RESPONSE_TOPIC)
+            client.subscribe(PATIENT_CREATE_RESPONSE_TOPIC)
+            client.subscribe(DENTISTS_GET_ALL_RESPONSE_TOPIC)
         else:
             print(f"Failed to connect to MQTT broker: {rc}")
 
@@ -61,7 +63,7 @@ class RegisterUser(HttpUser):
 
         start_time = time.time()
         self.response_received = False
-        self.client.publish(MQTT_PATIENT_CREATE_TOPIC, json.dumps(patient_data))
+        self.client.publish(PATIENT_CREATE_TOPIC, json.dumps(patient_data))
         print(f"Published patient registration: {patient_data}")
 
         timeout = 5
@@ -89,6 +91,43 @@ class RegisterUser(HttpUser):
             self.environment.events.request.fire(
                 request_type="MQTT",
                 name="register_patient",
+                response_time=(time.time() - start_time) * 1000,
+                response_length=0,
+                exception=Exception(f"Error response: {self.response_data}"),
+            )
+
+    @task
+    def get_all_dentists(self):
+        """Simulate retrieving all dentists."""
+        start_time = time.time()
+        self.response_received = False
+        self.client.publish(DENTISTS_GET_ALL_TOPIC, json.dumps({}))
+        print("Published request to get all dentists")
+
+        timeout = 5
+        while not self.response_received:
+            if time.time() - start_time > timeout:
+                self.environment.events.request_failure.fire(
+                    request_type="MQTT",
+                    name="get_all_dentists",
+                    response_time=(time.time() - start_time) * 1000,
+                    exception=Exception("Timeout waiting for MQTT response"),
+                )
+                return
+            time.sleep(0.1)
+
+        if self.response_data and self.response_data.get("status") == "success":
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="get_all_dentists",
+                response_time=(time.time() - start_time) * 1000,
+                response_length=len(json.dumps(self.response_data)),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="get_all_dentists",
                 response_time=(time.time() - start_time) * 1000,
                 response_length=0,
                 exception=Exception(f"Error response: {self.response_data}"),
