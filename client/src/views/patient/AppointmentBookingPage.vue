@@ -1,11 +1,10 @@
 <template>
-  <div>
-    <h1>Book an Appointment with Dr. {{ doctorName }}</h1>
+  <div class="main">
+    <h1 class="appointment-title">Book an Appointment with Dr. {{ doctorName }}</h1>
     <h2>Available timeslots:</h2>
     <ul>
       <li v-for="timeslot in availableTimeslots" :key="timeslot.id">
-        <p> Timeslot: {{ timeslot.date }} {{ timeslot.time }} {{ timeslot.isBooked }}</p>
-        <button @click="selectTimeslot(timeslot)">Select</button>
+        <p> Timeslot: {{ timeslot.date }} {{ timeslot.time }} <b-button @click="selectTimeslot(timeslot) " class="button">Select</b-button></p>
       </li>
     </ul>
     <button @click="bookAppointment" :disabled="!selectedTimeslot">Book Appointment</button>
@@ -13,12 +12,12 @@
     <ul>
       <li v-for="timeslot in unavailableTimeslots" :key="timeslot.id">
         <p> Timeslot: {{ timeslot.time }}</p>
-        <button @click="notifyWhenAvailable(timeslot)" :disabled="timeslot.notificationRequested">Notify me when available</button>
+        <b-button @click="notifyWhenAvailable(timeslot)" :disabled="timeslot.notificationRequested">Notify me when available</b-button>
       </li>
     </ul>
     <h2>My Appointments:</h2>
     <ul>
-      <li v-for="appointment in appointments" :key="appointment._id">
+      <li v-for="appointment in appointments" :key="appointment._id" class="appointment-list">
         <p>Appointment with Dr. {{ doctorName }} at {{ appointment.time }}</p>
         <button @click="cancelAppointment(appointment._id, appointment.timeslotId)">Cancel</button>
       </li>
@@ -57,7 +56,6 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080')
       this.mqttClient.on('connect', () => {
-        console.log('MQTT connected')
         this.mqttClient.subscribe('timeslots/get/available/response')
         this.mqttClient.subscribe('timeslots/get/unavailable/response')
         this.mqttClient.subscribe('timeslots/create/response');
@@ -237,5 +235,28 @@ export default {
 </script>
 
 <style>
+    .main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
 
+    ul {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-left: 0;
+    }
+    @media (max-width: 767px) {
+        .appointment-title {
+           margin: 2rem;
+        }
+        li {
+            align-content: center;
+        }
+    }
 </style>
