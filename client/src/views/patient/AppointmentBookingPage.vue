@@ -8,23 +8,22 @@
         <button @click="selectTimeslot(timeslot)">Select</button>
       </li>
     </ul>
+    <button @click="bookAppointment" :disabled="!selectedTimeslot">Book Appointment</button>
     <h2>Unavailable timeslots:</h2>
     <ul>
       <li v-for="timeslot in unavailableTimeslots" :key="timeslot.id">
         <p> Timeslot: {{ timeslot.time }}</p>
-        <button @click="notifyWhenAvailable(timeslot)">Notify me when available</button>
+        <button @click="notifyWhenAvailable(timeslot)" :disabled="timeslot.notificationRequested">Notify me when available</button>
       </li>
     </ul>
-    <button @click="bookAppointment" :disabled="!selectedTimeslot">Book Appointment</button>
-    <p v-if="message">{{ message }}</p>
-
     <h2>My Appointments:</h2>
     <ul>
       <li v-for="appointment in appointments" :key="appointment._id">
         <p>Appointment with Dr. {{ doctorName }} at {{ appointment.time }}</p>
-        <button @click="cancelAppointment(appointment._id)">Cancel</button>
+        <button @click="cancelAppointment(appointment._id, appointment.timeslotId)">Cancel</button>
       </li>
     </ul>
+    <p v-if="message">{{ message }}</p>
   </div>
 </template>
 
@@ -43,6 +42,7 @@ export default {
     return {
       doctorName: '',
       patientId: localStorage.getItem('patientId') || '',
+      patient: null,
       email: '',
       selectedTimeslot: null,
       availableTimeslots: [],
@@ -55,16 +55,20 @@ export default {
   methods: {
     // Connect to the MQTT broker and subscribe to the topics
     setupMqttClient() {
-      this.mqttClient = mqtt.connect('ws://test.mosquitto.org:8080/mqtt')
+      this.mqttClient = mqtt.connect('ws://localhost:8080')
       this.mqttClient.on('connect', () => {
         console.log('MQTT connected')
         this.mqttClient.subscribe('timeslots/get/available/response')
         this.mqttClient.subscribe('timeslots/get/unavailable/response')
+        this.mqttClient.subscribe('timeslots/create/response');
+        this.mqttClient.subscribe('timeslots/delete/response');
+        this.mqttClient.subscribe('timeslots/update/response');
         this.mqttClient.subscribe('patients/get/response');
         this.mqttClient.subscribe('dentists/get/response');
         this.mqttClient.subscribe('appointments/get/all/response')
         this.mqttClient.subscribe('appointments/create/response')
         this.mqttClient.subscribe('appointments/delete/response')
+        this.mqttClient.subscribe('notifications/create/response')
       });
 
       this.mqttClient.on('message', (topic, message) => {
@@ -74,18 +78,37 @@ export default {
             case 'timeslots/get/available/response':
               if (response.status === 'success') {
                 this.availableTimeslots = response.timeslots
-                this.message = 'Available timeslots were fetched successfully'
               }
               break;
             case 'timeslots/get/unavailable/response':
               if (response.status === 'success') {
-                this.unavailableTimeslots = response.timeslots
-                this.message = 'Unavailable timeslots were fetched successfully'
+                this.unavailableTimeslots = response.timeslots.map(timeslot => ({
+                  ...timeslot,
+                  notificationRequested: false
+                }));
+              }
+              break;
+            case 'timeslots/create/response':
+              if (response.status === 'success') {
+                this.getTimeslots()
+                this.message = 'Doctor has just added a new timeslot'
+              }
+              break;
+            case 'timeslots/delete/response':
+              if (response.status === 'success') {
+                this.getTimeslots()
+                this.message = 'Doctor has just deleted a timeslot'
+              }
+              break;
+            case 'timeslots/update/response':
+              if (response.status === 'success') {
+                this.getTimeslots()
               }
               break;
             case 'patients/get/response':
               if (response.status === 'success') {
-                this.email = response.email
+                this.patient = response.patient
+                this.email = this.patient.email
               }
               break;
             case 'dentists/get/response':
@@ -100,15 +123,20 @@ export default {
               break;
             case 'appointments/create/response':
               if (response.status === 'success') {
-                console.log('appointment was created')
-                this.message = response.message
+                this.message = 'Appointment was created successfully'
                 this.getTimeslots();
                 this.getAppointments();
               }
               break;
             case 'appointments/delete/response':
               if (response.status === 'success') {
-                this.getAppointments()
+                this.message = 'Appointment was canceled successfully'
+                this.getAppointments();
+              }
+              break;
+            case 'notifications/create/response':
+              if (response.status === 'success') {
+                this.message = 'You will be notified when the timeslot becomes available'
               }
               break;
             default:
@@ -134,7 +162,7 @@ export default {
       this.mqttClient.publish('timeslots/get/unavailable', JSON.stringify(unavailablePayload))
     },
     // Publish a message to the MQTT broker to get the patient email
-    getPatientEmail() {
+    getPatientData() {
       const payload = {patientId: this.patientId}
       this.mqttClient.publish('patients/get', JSON.stringify(payload))
     },
@@ -155,24 +183,31 @@ export default {
     // Publish a message to the MQTT broker to book an appointment
     bookAppointment() {
       const payload = {
-
+        patientName: `${this.patient.firstName} ${this.patient.secondName}`,
         time: this.selectedTimeslot.time,
         dentistId: this.dentistId,
         patientId: this.patientId,
         timeslotId: this.selectedTimeslot._id,
-        email: this.email,
+        patientEmail: this.email
       }
       this.mqttClient.publish('appointments/create', JSON.stringify(payload))
-      console.log('booking request was sent')
     },
     // Publish a message to the MQTT broker to cancel an appointment
-    cancelAppointment(appointmentId) {
-      const payload = {appointmentId: appointmentId, email: this.email}
+    cancelAppointment(appointmentId, timeslotId) {
+      const payload = { appointmentId: appointmentId, timeslotId: timeslotId, email: this.email};
       this.mqttClient.publish('appointments/delete', JSON.stringify(payload))
+      this.getTimeslots();
+      this.getAppointments();
     },
     // Notify the patient when a timeslot becomes available
     notifyWhenAvailable(timeslot) {
-      this.message = `You will be notified when timeslot ${timeslot.time} becomes available`
+      const payload = {
+        patientId: this.patientId,
+        timeslotId: timeslot._id,
+        email: this.email
+      };
+      this.mqttClient.publish('notifications/create', JSON.stringify(payload))
+      timeslot.notificationRequested = true;
     },
   },
   // Fetch the doctor name, patient email, timeslots, and appointments
@@ -180,13 +215,16 @@ export default {
     this.setupMqttClient()
     this.getDoctorName()
     this.getTimeslots()
-    this.getPatientEmail()
+    this.getPatientData()
     this.getAppointments()
   },
   beforeDestroy() {
     if (this.mqttClient) {
       this.mqttClient.unsubscribe('timeslots/get/available/response')
       this.mqttClient.unsubscribe('timeslots/get/unavailable/response')
+      this.mqttClient.unsubscribe('timeslots/create/response');
+      this.mqttClient.unsubscribe('timeslots/delete/response');
+      this.mqttClient.unsubscribe('timeslots/update/response');
       this.mqttClient.unsubscribe('patients/get/response');
       this.mqttClient.unsubscribe('dentists/get/response');
       this.mqttClient.unsubscribe('appointments/get/all/response')
