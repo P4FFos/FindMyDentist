@@ -11,6 +11,14 @@ const client = require('../../mqtt/mqtt-config');
 // MQTT client connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
+    setInterval(() => {
+        const payload = JSON.stringify({
+            serviceName: 'Timeslots Service',
+            status: 'alive',
+            timestamp: Date.now(),
+        });
+        client.publish('services/heartbeat', payload);
+    }, 1000);
     client.subscribe('timeslots/update');
     client.subscribe('timeslots/create');
     client.subscribe('timeslots/get/all');

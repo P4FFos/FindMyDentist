@@ -15,6 +15,7 @@
 
         <button class="button" type="submit">Login</button>
       </form>
+      <p>Are you an admin?<b-button variant="link" @click="goToAdminPanel" class="login-button">Go here</b-button></p>
       <p v-if="message">{{ message }}</p>
     </div>
   </template>
@@ -38,6 +39,9 @@ export default {
     selectUserType(type) {
       this.userType = type;
       this.message = `You are loging in as a ${type}`;
+    },
+    goToAdminPanel() {
+        this.$router.push("/adminpanel");
     },
     // Set up the MQTT client
     setupMqttClient() {
