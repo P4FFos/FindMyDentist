@@ -1,11 +1,11 @@
 <template>
-  <div class="register">
-    <h1>Register</h1>
-    <div>
-      <button @click="selectUserType('patient')">Patient</button>
-      <button @click="selectUserType('dentist')">Dentist</button>
+  <div  class="d-flex flex-column align-items-center justify-content-center vh-100 text-center ">
+    <h1 class="title">Register</h1>
+    <div class="user-type-selection">
+      <b-button @click="selectUserType('patient')" class="textButton">Patient</b-button>
+      <b-button @click="selectUserType('dentist')" class="textButton">Dentist</b-button>
     </div>
-    <form @submit.prevent="register">
+    <form @submit.prevent="register" class="mt-3 d-flex flex-column w-30">
       <label for="firstName">First Name:</label>
       <input type="text" v-model="firstName" required/>
 
@@ -27,7 +27,7 @@
       <label v-if="userType === 'dentist'" for="longitude">Longitude:</label>
       <input v-if="userType === 'dentist'" type="text" v-model="longitude" required/>
 
-      <button type="submit">Register</button>
+      <button class="button" type="submit">Register</button>
     </form>
     <p v-if="message">{{ message }}</p>
   </div>
@@ -61,7 +61,6 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
-        console.log('MQTT connected');
         this.mqttClient.subscribe('patients/create/response');
         this.mqttClient.subscribe('dentists/create/response');
       });
@@ -119,5 +118,28 @@ export default {
 </script>
 
 <style>
-
+    label {
+        align-self:flex-start;
+        font-weight: bold;
+    }
+    .user-type-selection {
+        color: black;
+    }
+    .button {
+        margin-top: 2rem;
+    }
+    .textButton:hover {
+        background-color: #dbdbd9;
+    }
+    .w-30 {
+        width: 28%;
+    }
+    @media (max-width: 767px) {
+        .title {
+            font-size: 3rem;
+        }
+        .w-30 {
+            width: 70%;
+        }
+    }
 </style>
