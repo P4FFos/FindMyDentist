@@ -12,8 +12,17 @@ const client = require('../../mqtt/mqtt-config');
 // MQTT client connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
+    setInterval(() => {
+        const payload = JSON.stringify({
+            serviceName: 'Appointments Service',
+            status: 'alive',
+            timestamp: Date.now(),
+        });
+        client.publish('services/heartbeat', payload);
+    }, 1000);
     client.subscribe('appointments/create');
     client.subscribe('appointments/get/all');
+    client.subscribe('appointments/system/get/all');
     client.subscribe('appointments/delete');
     client.subscribe('appointments/dentist/get/all');
 });
@@ -25,6 +34,9 @@ client.on('message', async (topic, message) => {
         switch (topic) {
             case 'appointments/create':
                 await handleAppointmentCreate(payload);
+                break;
+            case 'appointments/system/get/all':
+                await handleGetAllSystemAppointments(payload);
                 break;
             case 'appointments/get/all':
                 await handleGetAllAppointments(payload);
@@ -50,6 +62,8 @@ async function handleAppointmentCreate(payload) {
             await appointment.save();
 
             client.publish('timeslots/update', JSON.stringify({timeslotId: payload.timeslotId, isBooked: true}));
+            client.publish('patients/update', JSON.stringify({action: 'add appointment', patientId: payload.patientId,
+                appointment: appointment, appointmentId: appointment._id}));
             client.publish('appointments/create/response', JSON.stringify({
                 status: 'success', appointment,
             }));
@@ -61,6 +75,23 @@ async function handleAppointmentCreate(payload) {
         }
     } catch (error) {
         client.publish('appointments/create/response', JSON.stringify({status: 'error', message: error.message}));
+    }
+}
+
+// Get all system appointments
+async function handleGetAllSystemAppointments(payload) {
+    try {
+        const appointments = await Appointment.find({});
+        if (appointments) {
+            client.publish('appointments/system/get/all/response', JSON.stringify({status: 'success', appointments}));
+        } else {
+            client.publish('appointments/system/get/all/response', JSON.stringify({
+                status: 'error',
+                message: 'Appointments cannot be fetched'
+            }));
+        }
+    } catch (error) {
+        client.publish('appointments/system/get/all/response', JSON.stringify({status: 'error', message: error.message}));
     }
 }
 
@@ -105,7 +136,8 @@ async function handleAppointmentDelete(payload) {
 
         if (appointment) {
             client.publish('timeslots/update', JSON.stringify({timeslotId: payload.timeslotId, isBooked: false}));
-
+            client.publish('patients/update', JSON.stringify({action: 'delete appointment', patientId: payload.patientId,
+                appointment: appointment, appointmentId: payload.appointmentId}));
             client.publish('appointments/delete/response', JSON.stringify({
                 status: 'success',
                 message: 'Appointment was deleted successfully',

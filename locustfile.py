@@ -5,7 +5,7 @@ import random
 import time
 
 # MQTT settings
-BROKER = "test.mosquitto.org"
+BROKER = "localhost"
 PORT = 1883
 KEEP_ALIVE_INTERVAL = 60
 
@@ -132,7 +132,7 @@ class RegisterUser(HttpUser):
                 response_length=0,
                 exception=Exception(f"Error response: {self.response_data}"),
             )
-            
+
 @events.test_stop.add_listener
 def test_stop(environment, **kwargs):
     print("Test finished.")
