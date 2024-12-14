@@ -1,38 +1,37 @@
 <template>
     <div>
-        <h1>Admin Panel</h1>
-        <h2>System Status: {{ systemStatus }}</h2>
-        <ul>
-          <li v-for="(service, name) in servicesStatus" :key="name">
-            <p><strong>{{ name }}</strong>: {{ service.status }} (Last updated: {{ new Date(service.timestamp).toLocaleTimeString() }})</p>
-          </li>
-        </ul>
-        <p>Total Patients count: {{ allPatients.length }}</p>
-        <!-- <p>Logged in Patients count: {{ loggedinPatients.length }}</p> -->
-        <h2>All existing Patients:</h2>
-        <ul>
-         <li v-for="patient in allPatients" :key="patient._id">
-           <h3>Patient:</h3>
-           <p><strong>Name:</strong>  {{ patient.firstName }} {{ patient.secondName }}
-            <strong>E-mail:</strong> {{ patient.email }} <strong>ID:</strong> {{ patient._id }}
-            <strong>Appointments Count:</strong> {{ patient.appointments.length }}</p>
-         </li>
-        </ul>
-        <!-- <h2>Patients currently logged in:</h2>
-        <ul>
-         <li v-for="patient in loggedinPatients" :key="patient._id">
-           <p>  <strong>Patient:</strong> Name: {{ patient.firstName }} {{ patient.secondName }} id: {{ patient._id }}</p>
-         </li>
-        </ul> -->
-        <h2>All System Appointments:</h2>
-        <ul>
-         <li v-for="appointment in systemAppointments" :key="appointment._id">
-           <h3>Appointment:</h3>
-           <p><strong>Patient:</strong> {{ appointment.patientId }}
-            <strong>Dentist:</strong> {{ appointment.dentistId }} <strong>Timeslot:</strong> {{ appointment.timeslotId }}
-            <strong>ID:</strong> {{ appointment._id }}</p>
-         </li>
-        </ul>
+        <div v-if="!isAuthenticated" class="password-protection">
+            <h2>Enter Password</h2>
+            <input
+            type="password"
+            v-model="passwordInput"
+            placeholder="Enter admin password"
+            @keyup.enter="validatePassword"
+            />
+            <button @click="validatePassword">Submit</button>
+        </div>
+        <div v-else  class="adminpanel">
+            <h1>Admin Panel</h1>
+            <h2>System Status: {{ systemStatus }}</h2>
+              <li v-for="(service, name) in servicesStatus" :key="name">
+                <p><strong>{{ name }}</strong>: {{ service.status }} (Last updated: {{ new Date(service.timestamp).toLocaleTimeString() }})</p>
+              </li>
+            <p>Total Patients count: {{ allPatients.length }}</p>
+            <h2>All existing Patients:</h2>
+             <li v-for="patient in allPatients" :key="patient._id">
+               <h3>Patient:</h3>
+               <p><strong>Name:</strong>  {{ patient.firstName }} {{ patient.secondName }}
+                <strong>E-mail:</strong> {{ patient.email }} <strong>ID:</strong> {{ patient._id }}
+                <strong>Appointments Count:</strong> {{ patient.appointments.length }}</p>
+             </li>
+            <h2>All System Appointments:</h2>
+             <li v-for="appointment in systemAppointments" :key="appointment._id">
+               <h3>Appointment:</h3>
+               <p><strong>Patient:</strong> {{ appointment.patientId }}
+                <strong>Dentist:</strong> {{ appointment.dentistId }} <strong>Timeslot:</strong> {{ appointment.timeslotId }}
+                <strong>ID:</strong> {{ appointment._id }}</p>
+             </li>
+        </div>
     </div>
 </template>
 
@@ -49,9 +48,19 @@ export default {
         systemAppointments: [],
         mqttClient: null,
         servicesStatus: {},
+        isAuthenticated: false,
+        correctPassword: 'admin123',
     };
   },
   methods: {
+    validatePassword() {
+      if (this.passwordInput === this.correctPassword) {
+        this.isAuthenticated = true;
+        this.errorMessage = '';
+      } else {
+        this.errorMessage = 'Incorrect password. Please try again.';
+      }
+    },
     // Set up the MQTT client
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
@@ -171,5 +180,9 @@ export default {
 </script>
 
 <style>
-
+    .adminpanel {
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+    }
 </style>
