@@ -16,6 +16,7 @@ FindMyDentist system uses a **Service-Oriented Architecture (SOA)** and **Publis
 - Appointment Handler: Manages the lifecycle of appointments, including confirmation and rescheduling
 
 #### Notification Service
+- Notifications Controller: Saves the notification request to the database
 - NodeMailer: Manages email notifications
 - Notification Handler: Subscribes to topics in order to send notification
 - Notification Sender: Sends notifications based on the topic
