@@ -4,6 +4,7 @@
     "scripts": {
         "appointmentsService": "node appointmentsService/app.js",
         "timeslotsService": "node timeslotsService/app.js",
+        "notificationsService": "node notificationsService/app.js",
         "dentist": "node dentist/app.js",
         "patient": "node patient/app.js",
         "client": "npm run dev --prefix client",

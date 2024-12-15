@@ -16,6 +16,7 @@ FindMyDentist system uses a **Service-Oriented Architecture (SOA)** and **Publis
 - Appointment Handler: Manages the lifecycle of appointments, including confirmation and rescheduling
 
 #### Notification Service
+- Notifications Controller: Saves the notification request to the database
 - NodeMailer: Manages email notifications
 - Notification Handler: Subscribes to topics in order to send notification
 - Notification Sender: Sends notifications based on the topic
@@ -31,8 +32,6 @@ FindMyDentist system uses a **Service-Oriented Architecture (SOA)** and **Publis
 #### An MQTT broker
 Used as a communication middleware component, all subsystems/services subscribe and publish data through it 
 
-#### QoS Level 1
-We decided to use Quality of Service (QoS) Level 1 for the MQTT broker configuration, as it provides a balance between reliability and speed. This level ensures that messages are delivered at least once, addressing our need to avoid data loss (QoS 0) while maintaining fast system responsiveness (unlike QoS 2)
 
 
 
