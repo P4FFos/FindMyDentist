@@ -1,0 +1,95 @@
+const mqtt = require('mqtt');
+const mongoose = require('mongoose');
+
+const mqttUrl = 'mqtt://localhost:1883';
+
+// Set up mongoDB
+beforeAll(async () => {
+    const mongoUri = 'mongodb://localhost:27017/serverTestDB'; 
+    mongoose.connect(mongoUri);
+    mongoose.connection.dropDatabase();
+});
+
+afterAll(async () => {
+    mongoose.connection.dropDatabase();
+    mongoose.disconnect();
+});
+
+describe('MQTT Controller', () => {
+  let mqttClient;
+
+  beforeAll(() => {
+    mqttClient = mqtt.connect(mqttUrl);
+
+    mqttClient.on('connect', () => {
+      console.log(`Connected to MQTT broker at ${mqttUrl}`);
+    });
+  });
+
+  afterAll(() => {
+    mqttClient.end();
+  });
+
+  describe('handlePatientCreate', () => {
+    it('should create a new patient and publish success response', async () => {
+        const payload = {
+          email: 'test@example.com',
+          firstName: 'Stefan',
+          secondName: 'Tram',
+          phone: '0912834213',
+          password: 'ILoveDistributedSystems',
+        };
+
+        mqttClient.subscribe('patients/create/response');
+      
+        
+        const publishPromise = new Promise((resolve) => {
+          mqttClient.once('message', (topic, message) => {
+            if (topic === 'patients/create/response') {
+              resolve(JSON.parse(message.toString()));
+            }
+          });
+        });
+
+        
+        mqttClient.publish('patients/create', JSON.stringify(payload));
+    
+        
+        const response = await publishPromise;
+        
+        expect(response.status).toBe('success');
+        expect(response).toBeTruthy();
+
+        
+        const loginPayload = {
+          email: payload.email,
+          password: payload.password,
+        };
+
+        mqttClient.subscribe('patients/get/login/response');
+
+        const loginPromise = new Promise((resolve) => {
+          mqttClient.once('message', (topic, message) => {
+            if (topic === 'patients/get/login/response') {
+              resolve(JSON.parse(message.toString()));
+            }
+          });
+        });
+
+        mqttClient.publish('patients/get/login', JSON.stringify(loginPayload));
+
+        const loginResponse = await loginPromise;
+
+        expect(loginResponse.status).toBe('success');
+
+        const retrievedPatient = loginResponse.patient;
+        expect(retrievedPatient).toBeTruthy();
+
+        // Verify the retrieved patient details match the created patient
+        expect(retrievedPatient.email).toBe(payload.email);
+        expect(retrievedPatient.firstName).toBe(payload.firstName);
+        expect(retrievedPatient.secondName).toBe(payload.secondName);
+        expect(retrievedPatient.phone).toBe(payload.phone);
+    });
+  });
+});

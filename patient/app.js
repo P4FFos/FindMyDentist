@@ -13,7 +13,7 @@ var port = process.env.PORT || 3004;
 var patientController = require('./controller/patients.js');
 
 // MongoDB URI
-const mongoURI = 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+const mongoURI = 'mongodb://localhost:27017/serverTestDB'; // This is only for testing
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function (err) {
