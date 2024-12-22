@@ -54,12 +54,13 @@ export default {
     };
   },
   methods: {
+    // Validate the password entered by the user
     validatePassword() {
       if (this.passwordInput === this.correctPassword) {
         this.isAuthenticated = true;
       }
     },
-    // Set up the MQTT client
+    // Connect to the MQTT broker and subscribe to the topics
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
@@ -112,13 +113,13 @@ export default {
               this.updateServiceStatus(response);
               break;
             default:
-              console.log('Unhandled topic:', topic)
           }
         } catch (error) {
           console.error('Error handling MQTT message:', error)
         }
       });
     },
+    // Update the status of the services
     updateServiceStatus(heartbeat) {
       if (heartbeat) {
         const {serviceName, status, timestamp} = heartbeat;

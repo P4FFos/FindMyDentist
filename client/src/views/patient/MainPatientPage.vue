@@ -62,7 +62,6 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
-        console.log('MQTT connected');
         this.mqttClient.subscribe('dentists/get/all/response');
       });
 
@@ -100,7 +99,6 @@ export default {
     },
     // Initialize markers on the map
     initMarkers() {
-      console.log('Initializing markers:', this.dentists);
       this.dentists.forEach(dentist => {
         this.createMarker(dentist.location.latitude, dentist.location.longitude, `${dentist.firstName} ${dentist.secondName}`);
       });

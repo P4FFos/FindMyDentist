@@ -145,7 +145,6 @@ export default {
               }
               break;
             default:
-              console.log('Unhandled topic:', topic)
           }
         } catch (error) {
           console.error('Error handling MQTT message:', error)

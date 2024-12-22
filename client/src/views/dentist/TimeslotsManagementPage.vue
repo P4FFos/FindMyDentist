@@ -73,7 +73,6 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
-        console.log('MQTT connected');
         this.mqttClient.subscribe('timeslots/get/all/response');
         this.mqttClient.subscribe('timeslots/create/response');
         this.mqttClient.subscribe('timeslots/delete/response');
@@ -124,7 +123,6 @@ export default {
               }
               break;
             default:
-              console.log('Unhandled topic:', topic);
           }
         } catch (error) {
           console.error('Error handling MQTT message:', error);
@@ -141,8 +139,18 @@ export default {
       const payload = {dentistId: this.dentistId};
       this.mqttClient.publish('appointments/dentist/get/all', JSON.stringify(payload));
     },
+    // Check if the selected date and time are in the past
+    isDateInPast(date, time) {
+      const selectedDateTime = new Date(`${date}T${time}`);
+      const now = new Date();
+      return selectedDateTime < now;
+    },
     // Publish a message to the MQTT broker to create a new timeslot
     createTimeslot() {
+      if (this.isDateInPast(this.timeslotDate, this.timeslotTime)) {
+        this.message = 'Cannot create a timeslot with a past date and time';
+        return;
+      }
       const payload = {
         dentistId: this.dentistId,
         date: this.timeslotDate,
