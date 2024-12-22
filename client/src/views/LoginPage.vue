@@ -1,24 +1,26 @@
 <template>
-    <div class="d-flex flex-column align-items-center justify-content-center vh-100 text-center content">
-      <h1 class="title">Login</h1>
-      <p>Welcome back! Please login to your account</p>
-      <div class="user-type-selection">
-        <b-button @click="selectUserType('patient')" class="textButton">Patient</b-button>
-        <b-button @click="selectUserType('dentist')" class="textButton">Dentist</b-button>
-      </div>
-      <form @submit.prevent="login" class="mt-3 d-flex flex-column w-30">
-        <label for="email">Email:</label>
-        <input type="email" v-model="email" required/>
-
-        <label for="password">Password:</label>
-        <input type="password" v-model="password" required/>
-
-        <button class="button" type="submit">Login</button>
-      </form>
-      <p>Are you an admin?<b-button variant="link" @click="goToAdminPanel" class="login-button">Go here</b-button></p>
-      <p v-if="message">{{ message }}</p>
+  <div class="d-flex flex-column align-items-center justify-content-center vh-100 text-center content">
+    <h1 class="title">Login</h1>
+    <p>Welcome back! Please login to your account</p>
+    <div class="user-type-selection">
+      <b-button @click="selectUserType('patient')" class="textButton">Patient</b-button>
+      <b-button @click="selectUserType('dentist')" class="textButton">Dentist</b-button>
     </div>
-  </template>
+    <form @submit.prevent="login" class="mt-3 d-flex flex-column w-30">
+      <label for="email">Email:</label>
+      <input type="email" v-model="email" required/>
+
+      <label for="password">Password:</label>
+      <input type="password" v-model="password" required/>
+
+      <button class="button" type="submit">Login</button>
+    </form>
+    <p>Are you an admin?
+      <b-button variant="link" @click="goToAdminPanel" class="login-button">Go here</b-button>
+    </p>
+    <p v-if="message">{{ message }}</p>
+  </div>
+</template>
 
 <script>
 import mqtt from 'mqtt';
@@ -38,10 +40,10 @@ export default {
     // Set the user type
     selectUserType(type) {
       this.userType = type;
-      this.message = `You are loging in as a ${type}`;
+      this.message = `You are logging in as a ${type}`;
     },
     goToAdminPanel() {
-        this.$router.push("/adminpanel");
+      this.$router.push("/admin-panel");
     },
     // Set up the MQTT client
     setupMqttClient() {
@@ -97,31 +99,38 @@ export default {
 </script>
 
 <style scoped>
-    p {
-        color: #7E7E7E;
-    }
-    label {
-        align-self:flex-start;
-        font-weight: bold;
-    }
-    .user-type-selection {
-        color: black;
-    }
-    .button {
-        margin-top: 2rem;
-    }
-    .textButton:hover {
-        background-color: #dbdbd9;
-    }
-    .w-30 {
-        width: 28%;
-    }
-    @media (max-width: 767px) {
-        .title {
-            font-size: 3rem;
-        }
-        .w-30 {
-            width: 70%;
-        }
-    }
+p {
+  color: #7E7E7E;
+}
+
+label {
+  align-self: flex-start;
+  font-weight: bold;
+}
+
+.user-type-selection {
+  color: black;
+}
+
+.button {
+  margin-top: 2rem;
+}
+
+.textButton:hover {
+  background-color: #dbdbd9;
+}
+
+.w-30 {
+  width: 28%;
+}
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 3rem;
+  }
+
+  .w-30 {
+    width: 70%;
+  }
+}
 </style>

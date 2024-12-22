@@ -6,7 +6,7 @@ const router = express.Router();
 const Dentist = require('../model/dentist.js');
 
 // MQTT client initialization
-const client = require('../../mqtt/mqtt-config');
+const client = require('../../../mqtt/mqtt-config');
 
 // MQTT client connection
 client.on('connect', () => {

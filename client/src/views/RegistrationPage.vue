@@ -1,5 +1,5 @@
 <template>
-  <div  class="d-flex flex-column align-items-center justify-content-center vh-100 text-center ">
+  <div class="d-flex flex-column align-items-center justify-content-center vh-100 text-center ">
     <h1 class="title">Register</h1>
     <div class="user-type-selection">
       <b-button @click="selectUserType('patient')" class="textButton">Patient</b-button>
@@ -118,28 +118,34 @@ export default {
 </script>
 
 <style>
-    label {
-        align-self:flex-start;
-        font-weight: bold;
-    }
-    .user-type-selection {
-        color: black;
-    }
-    .button {
-        margin-top: 2rem;
-    }
-    .textButton:hover {
-        background-color: #dbdbd9;
-    }
-    .w-30 {
-        width: 28%;
-    }
-    @media (max-width: 767px) {
-        .title {
-            font-size: 3rem;
-        }
-        .w-30 {
-            width: 70%;
-        }
-    }
+label {
+  align-self: flex-start;
+  font-weight: bold;
+}
+
+.user-type-selection {
+  color: black;
+}
+
+.button {
+  margin-top: 2rem;
+}
+
+.textButton:hover {
+  background-color: #dbdbd9;
+}
+
+.w-30 {
+  width: 28%;
+}
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 3rem;
+  }
+
+  .w-30 {
+    width: 70%;
+  }
+}
 </style>
