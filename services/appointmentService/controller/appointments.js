@@ -4,10 +4,10 @@ var router = express.Router();
 
 // Import models
 const Appointment = require('../model/appointment');
-const Timeslot = require("../../timeslotsService/model/timeslot");
+const Timeslot = require("../../timeslotService/model/timeslot");
 
 // Import configured MQTT client
-const client = require('../../mqtt/mqtt-config');
+const client = require('../../../mqtt/mqtt-config');
 
 // MQTT client connection
 client.on('connect', () => {

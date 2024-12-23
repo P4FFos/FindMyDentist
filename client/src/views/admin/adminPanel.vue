@@ -1,67 +1,66 @@
 <template>
-    <div>
-        <div v-if="!isAuthenticated" class="password-protection">
-            <h2>Enter Password</h2>
-            <input
-            type="password"
-            v-model="passwordInput"
-            placeholder="Enter admin password"
-            @keyup.enter="validatePassword"
-            />
-            <button @click="validatePassword">Submit</button>
-        </div>
-        <div v-else  class="adminpanel">
-            <h1>Admin Panel</h1>
-            <h2>System Status: {{ systemStatus }}</h2>
-              <li v-for="(service, name) in servicesStatus" :key="name">
-                <p><strong>{{ name }}</strong>: {{ service.status }} (Last updated: {{ new Date(service.timestamp).toLocaleTimeString() }})</p>
-              </li>
-            <p>Total Patients count: {{ allPatients.length }}</p>
-            <h2>All existing Patients:</h2>
-             <li v-for="patient in allPatients" :key="patient._id">
-               <h3>Patient:</h3>
-               <p><strong>Name:</strong>  {{ patient.firstName }} {{ patient.secondName }}
-                <strong>E-mail:</strong> {{ patient.email }} <strong>ID:</strong> {{ patient._id }}
-                <strong>Appointments Count:</strong> {{ patient.appointments.length }}</p>
-             </li>
-            <h2>All System Appointments:</h2>
-             <li v-for="appointment in systemAppointments" :key="appointment._id">
-               <h3>Appointment:</h3>
-               <p><strong>Patient:</strong> {{ appointment.patientId }}
-                <strong>Dentist:</strong> {{ appointment.dentistId }} <strong>Timeslot:</strong> {{ appointment.timeslotId }}
-                <strong>ID:</strong> {{ appointment._id }}</p>
-             </li>
-        </div>
+  <div>
+    <div v-if="!isAuthenticated" class="password-protection">
+      <h2>Enter Password</h2>
+      <input
+          type="password"
+          v-model="passwordInput"
+          placeholder="Enter admin password"
+          @keyup.enter="validatePassword"
+      />
+      <button @click="validatePassword">Submit</button>
     </div>
+    <div v-else class="admin-panel">
+      <h1>Admin Panel</h1>
+      <h2>System Status: {{ systemStatus }}</h2>
+      <li v-for="(service, name) in servicesStatus" :key="name">
+        <p><strong>{{ name }}</strong>: {{ service.status }} (Last updated:
+          {{ new Date(service.timestamp).toLocaleTimeString() }})</p>
+      </li>
+      <p>Total Patients count: {{ allPatients.length }}</p>
+      <h2>All existing Patients:</h2>
+      <li v-for="patient in allPatients" :key="patient._id">
+        <h3>Patient:</h3>
+        <p><strong>Name:</strong> {{ patient.firstName }} {{ patient.secondName }}
+          <strong>E-mail:</strong> {{ patient.email }} <strong>ID:</strong> {{ patient._id }}
+          <strong>Appointments Count:</strong> {{ patient.appointments.length }}</p>
+      </li>
+      <h2>All System Appointments:</h2>
+      <li v-for="appointment in systemAppointments" :key="appointment._id">
+        <h3>Appointment:</h3>
+        <p><strong>Patient:</strong> {{ appointment.patientId }}
+          <strong>Dentist:</strong> {{ appointment.dentistId }} <strong>Timeslot:</strong> {{ appointment.timeslotId }}
+          <strong>ID:</strong> {{ appointment._id }}</p>
+      </li>
+    </div>
+  </div>
 </template>
 
 <script>
 import mqtt from 'mqtt';
 
 export default {
-  name: 'adminpanel',
+  name: 'admin-panel',
   data() {
     return {
-        systemStatus: '',
-        allPatients: [],
-        loggedinPatients: [],
-        systemAppointments: [],
-        mqttClient: null,
-        servicesStatus: {},
-        isAuthenticated: false,
-        correctPassword: 'admin123',
+      systemStatus: '',
+      allPatients: [],
+      loggedInPatients: [],
+      systemAppointments: [],
+      mqttClient: null,
+      servicesStatus: {},
+      isAuthenticated: false,
+      correctPassword: 'admin123',
     };
   },
   methods: {
+    // Validate the password entered by the user
     validatePassword() {
       if (this.passwordInput === this.correctPassword) {
         this.isAuthenticated = true;
-        this.errorMessage = '';
-      } else {
-        this.errorMessage = 'Incorrect password. Please try again.';
       }
     },
-    // Set up the MQTT client
+    // Connect to the MQTT broker and subscribe to the topics
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
@@ -76,74 +75,74 @@ export default {
 
       this.mqttClient.on('message', (topic, message) => {
         try {
-            const response = JSON.parse(message.toString())
-            switch (topic) {
-              case 'patients/get/all/response':
-                  if (response.status === 'success') {
-                    this.allPatients = response.patients
-                  }
-                  break;
-              case 'patients/create/response':
-                  if (response.status === 'success') {
-                    this.getPatients();
-                  }
-                  break;
-              case 'patients/get/login/response':
-                  if (response.status === 'success') {
-                    this.loggedinPatients.push(response.patient)
-                  }
-                  break;
-              case 'appointments/system/get/all/response':
-                  if (response.status === 'success') {
-                    this.systemAppointments = response.appointments
-                  }
-                  break;
-              case 'appointments/create/response':
-                  if (response.status === 'success') {
-                    this.getPatients();
-                    this.getAppointments();
-                  }
-                  break;
-              case 'appointments/delete/response':
-                  if (response.status === 'success') {
-                    this.getPatients();
-                    this.getAppointments();
-                  }
-                  break;
-              case 'services/heartbeat':
-                  this.updateServiceStatus(response);
-                  break;
-              default:
-                  console.log('Unhandled topic:', topic)
-            }
+          const response = JSON.parse(message.toString())
+          switch (topic) {
+            case 'patients/get/all/response':
+              if (response.status === 'success') {
+                this.allPatients = response.patients
+              }
+              break;
+            case 'patients/create/response':
+              if (response.status === 'success') {
+                this.getPatients();
+              }
+              break;
+            case 'patients/get/login/response':
+              if (response.status === 'success') {
+                this.loggedInPatients.push(response.patient)
+              }
+              break;
+            case 'appointments/system/get/all/response':
+              if (response.status === 'success') {
+                this.systemAppointments = response.appointments
+              }
+              break;
+            case 'appointments/create/response':
+              if (response.status === 'success') {
+                this.getPatients();
+                this.getAppointments();
+              }
+              break;
+            case 'appointments/delete/response':
+              if (response.status === 'success') {
+                this.getPatients();
+                this.getAppointments();
+              }
+              break;
+            case 'services/heartbeat':
+              this.updateServiceStatus(response);
+              break;
+            default:
+          }
         } catch (error) {
-            console.error('Error handling MQTT message:', error)
+          console.error('Error handling MQTT message:', error)
         }
       });
     },
+    // Update the status of the services
     updateServiceStatus(heartbeat) {
-        if(heartbeat){
-          const { serviceName, status, timestamp } = heartbeat;
-          if (!this.servicesStatus[serviceName]) {
-              this.servicesStatus[serviceName] = { status, timestamp };
-          } else {
-              this.servicesStatus[serviceName].status = status;
-              this.servicesStatus[serviceName].timestamp = timestamp;
-          }
-          const serviceCount = Object.keys(this.servicesStatus).length;
-          if(serviceCount < 5){
-              this.systemStatus = '🤔 some service is missing'
-          } else {
-              this.systemStatus = '👍 all services are available'
-          }
+      if (heartbeat) {
+        const {serviceName, status, timestamp} = heartbeat;
+        if (!this.servicesStatus[serviceName]) {
+          this.servicesStatus[serviceName] = {status, timestamp};
         } else {
-            this.systemStatus = '💀 no services are available'
+          this.servicesStatus[serviceName].status = status;
+          this.servicesStatus[serviceName].timestamp = timestamp;
         }
+        const serviceCount = Object.keys(this.servicesStatus).length;
+        if (serviceCount < 5) {
+          this.systemStatus = '🤔 some service is missing'
+        } else {
+          this.systemStatus = '👍 all services are available'
+        }
+      } else {
+        this.systemStatus = '💀 no services are available'
+      }
     },
     // Publish a message to the MQTT broker to get all timeslots
     getPatients() {
-        const payload = {}
-        this.mqttClient.publish('patients/get/all', JSON.stringify(payload))
+      const payload = {}
+      this.mqttClient.publish('patients/get/all', JSON.stringify(payload))
     },
     // Publish a message to the MQTT broker to get all appointments
     getAppointments() {
@@ -157,13 +156,13 @@ export default {
     this.getAppointments();
 
     setInterval(() => {
-    const now = Date.now();
-    for (const service in this.servicesStatus) {
-      if (now - this.servicesStatus[service].timestamp > 5000) {
-        this.servicesStatus[service].status = 'disconnected';
+      const now = Date.now();
+      for (const service in this.servicesStatus) {
+        if (now - this.servicesStatus[service].timestamp > 5000) {
+          this.servicesStatus[service].status = 'disconnected';
+        }
       }
-    }
-  }, 5000);
+    }, 5000);
   },
   beforeDestroy() {
     if (this.mqttClient) {
@@ -180,9 +179,9 @@ export default {
 </script>
 
 <style>
-    .adminpanel {
-        display: flex;
-        flex-direction: column;
-        justify-content: left;
-    }
+.admin-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+}
 </style>

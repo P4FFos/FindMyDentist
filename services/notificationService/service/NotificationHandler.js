@@ -4,7 +4,7 @@ var router = express.Router();
 const NotificationSender = require('./NotificationSender');
 const notificationSender = new NotificationSender();
 const Notification = require('../model/NotificationRequest');
-const client = require('../../mqtt/mqtt-config');
+const client = require('../../../mqtt/mqtt-config');
 
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
