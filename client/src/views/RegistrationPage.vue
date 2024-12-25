@@ -67,6 +67,10 @@ export default {
 
       this.mqttClient.on('message', (topic, message) => {
         const response = JSON.parse(message.toString());
+        if (!this.isValidResponse(response)) {
+          console.error('Invalid response format:', response);
+          return;
+        }
         if (topic === 'patients/create/response') {
           if (response.status === 'success') {
             this.message = 'Registration successful!';
@@ -102,6 +106,16 @@ export default {
         };
         this.mqttClient.publish('dentists/create', JSON.stringify(payload));
       }
+    },
+    // Validate the response format
+    isValidResponse(response) {
+      if (typeof response !== 'object' || response === null) return false;
+      if (!('status' in response)) return false;
+      if (response.status === 'success') {
+        if ('patient' in response && typeof response.patient !== 'object') return false;
+        if ('dentist' in response && typeof response.dentist !== 'object') return false;
+      }
+      return true;
     }
   },
   mounted() {

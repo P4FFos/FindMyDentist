@@ -55,6 +55,10 @@ export default {
 
       this.mqttClient.on('message', (topic, message) => {
         const response = JSON.parse(message.toString());
+        if (!this.isValidResponse(response)) {
+          console.error('Invalid response format:', response);
+          return;
+        }
         if (topic === 'patients/get/login/response') {
           if (response.status === 'success') {
             localStorage.setItem('patientId', response.patient._id);
@@ -83,6 +87,16 @@ export default {
       } else if (this.userType === 'dentist') {
         this.mqttClient.publish('dentists/get/login', JSON.stringify(payload));
       }
+    },
+    // Validate the response format
+    isValidResponse(response) {
+      if (typeof response !== 'object' || response === null) return false;
+      if (!('status' in response)) return false;
+      if (response.status === 'success') {
+        if ('patient' in response && typeof response.patient !== 'object') return false;
+        if ('dentist' in response && typeof response.dentist !== 'object') return false;
+      }
+      return true;
     }
   },
   mounted() {
