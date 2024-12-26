@@ -4,7 +4,7 @@
     <h2>Available timeslots:</h2>
     <ul class="list">
       <li v-for="timeslot in availableTimeslots" :key="timeslot.id">
-        <p> Timeslot: {{  }} {{ timeslot.time }}
+        <p> Timeslot: {{ timeslot.time }}
           <b-button @click="selectTimeslot(timeslot)" class="timeslotButton" :disabled="isTimeslotSelected(timeslot)">Select</b-button>
         </p>
       </li>
@@ -78,7 +78,11 @@ export default {
 
       this.mqttClient.on('message', (topic, message) => {
         try {
-          const response = JSON.parse(message.toString())
+          const response = JSON.parse(message.toString());
+          if (!this.isValidResponse(response)) {
+            console.error('Invalid response format:', response);
+            return;
+          }
           switch (topic) {
             case 'timeslots/get/available/response':
               if (response.status === 'success') {
@@ -182,7 +186,7 @@ export default {
     },
     // Check if a timeslot is selected
     isTimeslotSelected(timeslot) {
-      return this.selectedTimeslot && this.selectedTimeslot.id === timeslot.id;
+      return this.selectedTimeslot && this.selectedTimeslot._id === timeslot._id;
     },
     // Select a timeslot for booking
     selectTimeslot(timeslot) {
@@ -206,6 +210,7 @@ export default {
       this.mqttClient.publish('appointments/delete', JSON.stringify(payload))
       this.getTimeslots();
       this.getAppointments();
+      this.selectedTimeslot = null;
     },
     // Notify the patient when a timeslot becomes available
     notifyWhenAvailable(timeslot) {
@@ -217,6 +222,16 @@ export default {
       this.mqttClient.publish('notifications/create', JSON.stringify(payload))
       timeslot.notificationRequested = true;
     },
+    // Validate the response format
+    isValidResponse(response) {
+      if (typeof response !== 'object' || response === null) return false;
+      if (!('status' in response)) return false;
+      if (response.status === 'success') {
+        if ('timeslots' in response && !Array.isArray(response.timeslots)) return false;
+        if ('appointments' in response && !Array.isArray(response.appointments)) return false;
+      }
+      return true;
+    }
   },
   // Fetch the doctor name, patient email, timeslots, and appointments
   mounted() {

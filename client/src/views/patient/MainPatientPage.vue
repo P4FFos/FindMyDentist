@@ -68,6 +68,10 @@ export default {
       this.mqttClient.on('message', (topic, message) => {
         try {
           const response = JSON.parse(message.toString());
+          if (!this.isValidResponse(response)) {
+            console.error('Invalid response format:', response);
+            return;
+          }
           if (topic === 'dentists/get/all/response' && response.status === 'success') {
             this.dentists = response.dentists;
             this.initMarkers();
@@ -123,6 +127,15 @@ export default {
         }
       }).catch(error => console.error('Error loading Google Maps:', error));
     },
+    // Validate the response format
+    isValidResponse(response) {
+      if (typeof response !== 'object' || response === null) return false;
+      if (!('status' in response)) return false;
+      if (response.status === 'success') {
+        if ('dentists' in response && !Array.isArray(response.dentists)) return false;
+      }
+      return true;
+    }
   },
   mounted() {
     this.setupMqttClient();

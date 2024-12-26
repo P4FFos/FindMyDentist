@@ -85,6 +85,10 @@ export default {
       this.mqttClient.on('message', (topic, message) => {
         try {
           const response = JSON.parse(message.toString());
+          if (!this.isValidResponse(response)) {
+            console.error('Invalid response format:', response);
+            return;
+          }
           switch (topic) {
             case 'timeslots/get/all/response':
               if (response.status === 'success') {
@@ -171,6 +175,15 @@ export default {
       this.getTimeslots();
       this.getAppointments();
     },
+    isValidResponse(response) {
+      if (typeof response !== 'object' || response === null) return false;
+      if (!('status' in response)) return false;
+      if (response.status === 'success') {
+        if ('timeslots' in response && !Array.isArray(response.timeslots)) return false;
+        if ('appointments' in response && !Array.isArray(response.appointments)) return false;
+      }
+      return true;
+    }
   },
   // Get the dentist ID from local storage and set up the MQTT client
   mounted() {
