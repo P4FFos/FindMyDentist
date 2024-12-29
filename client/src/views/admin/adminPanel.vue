@@ -20,7 +20,7 @@
         </li>
         <h3>Logs:</h3>
         <div style="overflow:scroll; height:200px;" class="sub-section">
-          <li v-for="log in systemLogs" class="list-item">
+          <li v-for="log in systemLogs" class="log">
             <p>{{ log }}</p>
           </li>
         </div>
@@ -95,12 +95,15 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
+        this.mqttClient.subscribe('dentists/create/response');
         this.mqttClient.subscribe('patients/get/login/response');
         this.mqttClient.subscribe('patients/create/response');
         this.mqttClient.subscribe('patients/get/all/response');
         this.mqttClient.subscribe('appointments/system/get/all/response')
         this.mqttClient.subscribe('appointments/create/response')
         this.mqttClient.subscribe('appointments/delete/response')
+        this.mqttClient.subscribe('timeslots/create/response');
+        this.mqttClient.subscribe('timeslots/delete/response');
         this.mqttClient.subscribe('services/heartbeat')
       });
 
@@ -113,16 +116,6 @@ export default {
                 this.allPatients = response.patients
               }
               break;
-            case 'patients/create/response':
-              if (response.status === 'success') {
-                this.getPatients();
-              }
-              break;
-            case 'patients/get/login/response':
-              if (response.status === 'success') {
-                this.loggedInPatients.push(response.patient)
-              }
-              break;
             case 'appointments/system/get/all/response':
               if (response.status === 'success') {
                 this.systemAppointments = response.appointments;
@@ -133,11 +126,26 @@ export default {
                 });
               }
               break;
+            case 'dentists/create/response':
+              this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
+              break;
+            case 'patients/create/response':
+              if (response.status === 'success') {
+                this.getPatients();
+                this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
+              }
+              break;
+            case 'patients/get/login/response':
+              if (response.status === 'success') {
+                this.loggedInPatients.push(response.patient)
+                this.systemLogs.push(`${new Date().toLocaleTimeString()} Patient ${response.patient.firstName} ${response.patient.secondName} logged in`);
+              }
+              break;
             case 'appointments/create/response':
               if (response.status === 'success') {
                 this.getPatients();
                 this.getAppointments();
-                this.systemLogs.push(`Topic: ${response.topic} Message ${response.message}`);
+                this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
                 this.$nextTick(() => {
                     if (this.chartInstance) {
                         this.updateChart();
@@ -150,6 +158,7 @@ export default {
                 this.getPatients();
                 this.saveCanceledAppointments(response.appointment);
                 this.getAppointments();
+                this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
                 this.$nextTick(() => {
                     if (this.chartInstance) {
                         this.updateChart();
@@ -157,13 +166,19 @@ export default {
                 });
               }
               break;
+            case 'timeslots/create/response':
+              this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
+              break;
+            case 'timeslots/delete/response':
+              this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
+              break;
             case 'services/heartbeat':
               this.updateServiceStatus(response);
               break;
             default:
           }
         } catch (error) {
-          console.error('Error handling MQTT message:', error)
+          this.systemLogs.push('Error handling MQTT message:', error);
         }
       });
     },
@@ -307,12 +322,16 @@ export default {
   },
   beforeDestroy() {
     if (this.mqttClient) {
-      this.mqttClient.unsubscribe('patients/get/all');
+      this.mqttClient.unsubscribe('dentists/create/response');
+      this.mqttClient.unsubscribe('patients/get/login/response');
       this.mqttClient.unsubscribe('patients/create/response');
-      this.mqttClient.unsubscribe('appointments/system/get/all/response');
-      this.mqttClient.unsubscribe('appointments/create/response');
-      this.mqttClient.unsubscribe('appointments/delete/response');
-      this.mqttClient.unsubscribe('services/heartbeat');
+      this.mqttClient.unsubscribe('patients/get/all/response');
+      this.mqttClient.unsubscribe('appointments/system/get/all/response')
+      this.mqttClient.unsubscribe('appointments/create/response')
+      this.mqttClient.unsubscribe('appointments/delete/response')
+      this.mqttClient.unsubscribe('timeslots/create/response');
+      this.mqttClient.unsubscribe('timeslots/delete/response');
+      this.mqttClient.unsubscribe('services/heartbeat')
       this.mqttClient.end();
     }
   }
@@ -356,5 +375,9 @@ export default {
     border-radius: 20px;
     padding: 0.5rem;
     margin: 0.5rem;
+}
+.log {
+    margin: 0.2rem;
+    margin-left: 0.5rem;
 }
 </style>

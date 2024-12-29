@@ -61,7 +61,11 @@ async function handleDentistCreate(payload) {
         }
         const dentist = new Dentist(payload);
         await dentist.save();
-        client.publish('dentists/create/response', JSON.stringify({ status: 'success', dentist }));
+        client.publish('dentists/create/response', JSON.stringify({
+            status: 'success',
+            message: `Dentist ${dentist._id} was added to the system`,
+            dentist
+        }));
     } catch (error) {
         client.publish('dentists/create/response', JSON.stringify({ status: 'error', message: error.message }));
     }

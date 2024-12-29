@@ -133,7 +133,11 @@ async function handlePatientCreate(payload) {
         }
         const patient = new Patient(payload);
         await patient.save();
-        client.publish('patients/create/response', JSON.stringify({ status: 'success', patient }));
+        client.publish('patients/create/response', JSON.stringify({
+            status: 'success',
+            message: `Patient ${patient._id} was registered`,
+            patient
+        }));
     } catch (error) {
         client.publish('patients/create/response', JSON.stringify({ status: 'error', message: error.message }));
     }
