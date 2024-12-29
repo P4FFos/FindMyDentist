@@ -81,7 +81,7 @@ export default {
           },
         },
       },
-      isAuthenticated: true,
+      isAuthenticated: false,
       correctPassword: 'admin123',
     };
   },
@@ -308,6 +308,9 @@ export default {
 <style scoped>
 .adminPage {
     background-color: #e3e3e3;
+}
+.password-protection {
+    background-color: white;
 }
 .section {
     background-color: white;
