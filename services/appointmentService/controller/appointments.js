@@ -141,6 +141,7 @@ async function handleAppointmentDelete(payload) {
             client.publish('appointments/delete/response', JSON.stringify({
                 status: 'success',
                 message: 'Appointment was deleted successfully',
+                appointment,
                 recipientEmail: appointment.patientEmail
             }));
         } else {
