@@ -72,16 +72,25 @@ export default {
       servicesStatus: {},
       ctx: null,
       chartInstance: null,
+      doughnutChartOptions: {
+        responsive: false,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+        },
+      },
       isAuthenticated: true,
       correctPassword: 'admin123',
     };
   },
   watch: {
     systemAppointments() {
-      this.updateChart();
+      this.updateAppointmentChart();
     },
     cancelledSystemAppointments() {
-      this.updateChart();
+      this.updateAppointmentChart();
     },
   },
   methods: {
@@ -121,7 +130,7 @@ export default {
                 this.systemAppointments = response.appointments;
                 this.$nextTick(() => {
                     if (!this.chartInstance) {
-                        this.initChart();
+                        this.initAppointmentChart();
                     }
                 });
               }
@@ -146,11 +155,6 @@ export default {
                 this.getPatients();
                 this.getAppointments();
                 this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
-                this.$nextTick(() => {
-                    if (this.chartInstance) {
-                        this.updateChart();
-                    }
-                });
               }
               break;
             case 'appointments/delete/response':
@@ -159,11 +163,6 @@ export default {
                 this.saveCanceledAppointments(response.appointment);
                 this.getAppointments();
                 this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
-                this.$nextTick(() => {
-                    if (this.chartInstance) {
-                        this.updateChart();
-                    }
-                });
               }
               break;
             case 'timeslots/create/response':
@@ -182,8 +181,8 @@ export default {
         }
       });
     },
-    // Initialize chart
-    initChart() {
+    // Initialize Appointment chart
+    initAppointmentChart() {
       const canvas = this.$refs.AppointmentsChart;
       if (canvas) {
         canvas.width = 400;
@@ -203,69 +202,37 @@ export default {
               },
             ],
           },
-          options: {
-            responsive: false,
-            maintainAspectRatio: true,
-            plugins: {
-              legend: {
-                position: 'top',
-              },
-            },
-          },
+          options: this.doughnutChartOptions,
         });
       } else {
         console.error('Canvas element not found.');
       }
     },
-    // Update chart data dynamically
-    updateChart() {
+    // Update Appointment chart data dynamically
+    updateAppointmentChart() {
       if (this.chartInstance) {
-        try {
-          const cancelledCount = this.cancelledSystemAppointments.length || 0;
-          const activeCount = this.systemAppointments.length || 0;
+        this.chartInstance.destroy();
 
-          console.log('Cancelled Appointments Count:', cancelledCount);
-          console.log('Active Appointments Count:', activeCount);
-
-          // Destroy the old chart
-          this.chartInstance.destroy();
-
-          this.$nextTick(() => {
-            const canvas = this.$refs.AppointmentsChart;
-            if (canvas) {
-              canvas.width = 400;
-              canvas.height = 400;
-
-              this.ctx = canvas.getContext('2d');
-              this.chartInstance = new Chart(this.ctx, {
-                type: 'doughnut',
-                data: {
-                  labels: ['Cancelled Appointments', 'Active Appointments'],
-                  datasets: [
-                    {
-                      label: 'Appointments',
-                      data: [cancelledCount, activeCount],
-                      backgroundColor: ['#e81e4b', '#1888AE'],
-                      hoverOffset: 8,
-                    },
-                  ],
+        const canvas = this.$refs.AppointmentsChart;
+        if (canvas) {
+            this.ctx = canvas.getContext('2d');
+            this.chartInstance = new Chart(this.ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Cancelled Appointments', 'Active Appointments'],
+                datasets: [
+                {
+                    label: 'Appointments',
+                    data: [this.cancelledSystemAppointments.length, this.systemAppointments.length],
+                    backgroundColor: ['#e81e4b', '#1888AE'],
+                    hoverOffset: 8,
                 },
-                options: {
-                  responsive: false,
-                  maintainAspectRatio: true,
-                  plugins: {
-                    legend: {
-                      position: 'top',
-                    },
-                  },
-                },
-              });
-            } else {
-              console.error('Canvas element not found.');
-            }
-          });
-        } catch (error) {
-          console.error('Error updating chart data:', error);
+                ],
+            },
+            options: this.doughnutChartOptions,
+            });
+        } else {
+            console.error('Canvas element not found.');
         }
       } else {
         console.error('Chart instance is not initialized.');
@@ -363,10 +330,6 @@ export default {
 .chart {
   display: block;
   margin: 0 auto;
-  width: 400px;
-  height: 400px;
-  max-width: 400px;
-  max-height: 400px;
   width: 100%;
   height: 100%;
 }
