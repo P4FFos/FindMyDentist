@@ -10,7 +10,7 @@
               </span>
           <span v-else>(Not Booked)</span>
           <div>
-            <b-button v-if="timeslot.appointment" @click="cancelAppointment(timeslot.appointment._id, timeslot._id)"
+            <b-button v-if="timeslot.appointment" @click="cancelAppointment(timeslot.appointment._id, timeslot._id, timeslot.appointment.patientId)"
                       class="button">
               Cancel Appointment
             </b-button>
@@ -169,8 +169,8 @@ export default {
       this.mqttClient.publish('timeslots/delete', JSON.stringify(payload));
     },
     // Publish a message to the MQTT broker to cancel patients appointment
-    cancelAppointment(appointmentId, timeslotId,) {
-      const payload = {appointmentId, timeslotId, recipientEmail: this.email};
+    cancelAppointment(appointmentId, timeslotId, patientId) {
+      const payload = {appointmentId, timeslotId, patientId, recipientEmail: this.email};
       this.mqttClient.publish('appointments/delete', JSON.stringify(payload));
       this.getTimeslots();
       this.getAppointments();

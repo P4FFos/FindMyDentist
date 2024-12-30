@@ -24,7 +24,7 @@
     <ul class="list">
       <li v-for="appointment in appointments" :key="appointment._id" class="appointment-list">
         <p>Appointment with Dr. {{ doctorName }} at {{ appointment.time }}
-          <button @click="cancelAppointment(appointment._id, appointment.timeslotId)" class="cancelButton">Cancel
+          <button @click="cancelAppointment(appointment._id, appointment.timeslotId, appointment.patientId)" class="cancelButton">Cancel
           </button>
         </p>
       </li>
@@ -205,8 +205,8 @@ export default {
       this.mqttClient.publish('appointments/create', JSON.stringify(payload))
     },
     // Publish a message to the MQTT broker to cancel an appointment
-    cancelAppointment(appointmentId, timeslotId) {
-      const payload = {appointmentId: appointmentId, timeslotId: timeslotId, email: this.email};
+    cancelAppointment(appointmentId, timeslotId, patientId) {
+      const payload = {appointmentId: appointmentId, timeslotId: timeslotId, patientId: patientId, email: this.email};
       this.mqttClient.publish('appointments/delete', JSON.stringify(payload))
       this.getTimeslots();
       this.getAppointments();

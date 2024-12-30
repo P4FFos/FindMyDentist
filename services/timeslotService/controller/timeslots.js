@@ -83,7 +83,11 @@ async function handleTimeslotCreate(payload) {
     try {
         const timeslot = new Timeslot(payload);
         await timeslot.save();
-        client.publish('timeslots/create/response', JSON.stringify({ status: 'success', timeslot }));
+        client.publish('timeslots/create/response', JSON.stringify({
+            status: 'success',
+            message: `Timeslot ${timeslot._id} for dentist ${timeslot.dentistId} was created`,
+            timeslot
+        }));
     } catch (error) {
         client.publish('timeslots/create/response', JSON.stringify({ status: 'error', message: error.message }));
     }
@@ -159,7 +163,7 @@ async function handleTimeslotDelete(payload) {
         if (timeslot) {
             client.publish('timeslots/delete/response', JSON.stringify({
                 status: 'success',
-                message: 'Timeslot was deleted successfully'
+                message: `Timeslot ${timeslot._id} for dentist ${timeslot.dentistId} was deleted `
             }));
         } else {
             client.publish('timeslots/delete/response', JSON.stringify({

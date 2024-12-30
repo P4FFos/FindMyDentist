@@ -65,7 +65,9 @@ async function handleAppointmentCreate(payload) {
             client.publish('patients/update', JSON.stringify({action: 'add appointment', patientId: payload.patientId,
                 appointment: appointment, appointmentId: appointment._id}));
             client.publish('appointments/create/response', JSON.stringify({
-                status: 'success', appointment,
+                status: 'success',
+                message: `Appointment for timeslot: ${appointment.timeslotId} was created`,
+                appointment
             }));
         } else {
             client.publish('appointments/create/response', JSON.stringify({
@@ -140,7 +142,8 @@ async function handleAppointmentDelete(payload) {
                 appointment: appointment, appointmentId: payload.appointmentId}));
             client.publish('appointments/delete/response', JSON.stringify({
                 status: 'success',
-                message: 'Appointment was deleted successfully',
+                message: `Appointment  for timeslot: ${appointment.timeslotId} was deleted`,
+                appointment,
                 recipientEmail: appointment.patientEmail
             }));
         } else {

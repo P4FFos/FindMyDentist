@@ -96,29 +96,27 @@ async function addAppointment({ patientId, appointment }) {
         throw new Error(`Failed to add appointment: ${error.message}`);
     }
 }
+const mongoose = require('mongoose');
 
 // Function to delete an appointment
 async function deleteAppointment({ patientId, appointmentId }) {
     try {
         const updatedPatient = await Patient.findByIdAndUpdate(
             patientId,
-            { $pull: { appointments: { _id: appointmentId } } },
+            { $pull: { appointments: { _id: new mongoose.Types.ObjectId(appointmentId) } } },
             { new: true }
         );
 
-        if (updatedPatient) {
-            client.publish('patients/update/response', JSON.stringify({
-                status: 'success',
-                patient: updatedPatient
-            }));
-        } else {
+        if (!updatedPatient) {
             throw new Error('Patient not found (404)');
         }
+
+        console.log('Appointment successfully deleted', updatedPatient);
     } catch (error) {
+        console.log('failed to delete appointment', error)
         throw new Error(`Failed to delete appointment: ${error.message}`);
     }
 }
-
 
 // Create a patient
 async function handlePatientCreate(payload) {
@@ -133,7 +131,11 @@ async function handlePatientCreate(payload) {
         }
         const patient = new Patient(payload);
         await patient.save();
-        client.publish('patients/create/response', JSON.stringify({ status: 'success', patient }));
+        client.publish('patients/create/response', JSON.stringify({
+            status: 'success',
+            message: `Patient ${patient._id} was registered`,
+            patient
+        }));
     } catch (error) {
         client.publish('patients/create/response', JSON.stringify({ status: 'error', message: error.message }));
     }
