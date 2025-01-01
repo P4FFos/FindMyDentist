@@ -19,8 +19,17 @@ build:
     - rm -rf node_modules/
     - npm install
 
+services:
+  - name: eclipse-mosquitto:latest
+    alias: mqtt
+
 test:
   stage: test
+    
+  before_script:
+    - apt-get update && apt-get install -y mosquitto
+    - mosquitto -c ./mosquitto.conf -d
+    
   tags:
     - docker
   services:
