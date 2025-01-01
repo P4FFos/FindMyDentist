@@ -28,6 +28,8 @@ test:
   services:
     - name: mvertes/alpine-mongo:latest
       alias: mongo
+  variables:
+    MONGODB_URI: "mongodb://localhost:27017/FindMyDentistTestDB"
   script:
     - npm install
     - cd services/patientService && npm install && cd ../..
