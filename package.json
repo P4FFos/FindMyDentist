@@ -11,8 +11,7 @@
         "dev": "concurrently \"npm run appointmentsServizce\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\"",
         "start:testService": "npm run patient",
         "test": "cross-env NODE_ENV=test TEST_DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB TEST_PORT=1883 concurrently \"npm run start:testService\" \"jest\"",
-        "ci-test": "cross-env NODE_ENV=test TEST_DATABASE_URL=$TEST_DATABASE_URL TEST_PORT=$TEST_PORT TEST_MQTT_URL=$TEST_MQTT_URL jest",
-        "ci-dev": "docker-compose up -d && npm run dev"
+        "ci-test": "npm test"
     },
     "dependencies": {
         "@faker-js/faker": "^9.3.0",
