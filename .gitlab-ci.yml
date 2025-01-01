@@ -28,7 +28,6 @@ test:
       alias: mongo
   script:
     - npm install
-    - cd services/patientService && npm install && cd ../..
     - npm test
 
 deploy:
