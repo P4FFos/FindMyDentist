@@ -1,6 +1,9 @@
+require('dotenv').config()
 const mqtt = require('mqtt');
 const mongoose = require('mongoose');
-const mqttUrl = 'mqtt://localhost:1883';
+const mqttUrl = process.env.NODE_ENV === 'CI' 
+  ? "mqtt://test.mosquitto.org:1883"
+  : "mqtt://localhost:1883";
 
 // Set up mongoDB
 beforeAll(async () => {
