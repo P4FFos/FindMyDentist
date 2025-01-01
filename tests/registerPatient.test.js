@@ -1,6 +1,5 @@
 const mqtt = require('mqtt');
 const mongoose = require('mongoose');
-
 const mqttUrl = 'mqtt://localhost:1883';
 
 // Set up mongoDB

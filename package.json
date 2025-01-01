@@ -8,15 +8,17 @@
         "dentist": "node dentist/app.js",
         "patient": "node patient/app.js",
         "client": "npm run dev --prefix client",
-        "dev": "concurrently \"npm run appointmentsService\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\"",
-        "test": "cross-env NODE_ENV=test jest",
-        "ci-test": "npm run newman-server",
+        "dev": "concurrently \"npm run appointmentsServizce\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\"",
+        "start:testService": "npm run patient",
+        "test": "cross-env NODE_ENV=test TEST_DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB TEST_PORT=1883 concurrently \"npm run start:testService\" \"jest\"",
         "dropdb": "node ./tests/dropdb.js"
     },
     "devDependencies": {
-        "concurrently": "^9.1.0"
+        "concurrently": "^9.1.0",
+        "cross-env": "^7.0.3"
     },
     "dependencies": {
+        "dotenv": "^16.4.7",
         "findmydentist": "file:",
         "jest": "^29.7.0",
         "mongoose": "^8.9.0",

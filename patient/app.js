@@ -1,3 +1,4 @@
+require('dotenv').config();
 var express = require('express');
 var mongoose = require('mongoose');
 var morgan = require('morgan');
@@ -7,13 +8,14 @@ var history = require('connect-history-api-fallback');
 var methodOverride = require('method-override');
 
 // Variables
-var port = process.env.PORT || 3004;
+var port = process.env.TEST_PORT || 3004;
 
 // Import routes
 var patientController = require('./controller/patients.js');
 
 // MongoDB URI
-const mongoURI = 'mongodb://localhost:27017/serverTestDB'; // This is only for testing
+const mongoURI = process.env.TEST_DATABASE_URL || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function (err) {
@@ -84,12 +86,11 @@ app.use(function (err, req, res, next) {
     res.json(err_res);
 });
 
-// Start server
 app.listen(port, function (err) {
-    if (err) throw err;
-    console.log(`Patient listening on port ${port}, in ${env} mode`);
-    console.log(`Backend: http://localhost:${port}/api/`);
-    console.log(`Frontend (production): http://localhost:${port}/`);
+  if (err) throw err;
+  console.log(`Patient listening on port ${port}, in ${env} mode`);
+  console.log(`Backend: http://localhost:${port}/api/`);
+  console.log(`Frontend (production): http://localhost:${port}/`);
 });
 
 module.exports = app;
