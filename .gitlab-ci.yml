@@ -29,7 +29,9 @@ test:
     - name: mvertes/alpine-mongo:latest
       alias: mongo
   script:
-     - npm run ci-test
+    - npm install
+    - cd services/patientService && npm install && cd ../..
+    - npm run ci-test
 
 deploy:
   stage: deploy
