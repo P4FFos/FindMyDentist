@@ -32,8 +32,7 @@ test:
     - name: mvertes/alpine-mongo:latest
       alias: mongo
   variables:
-    MQTT_BROKER: test.mosquitto.org
-    MQTT_PORT: 1883
+    CI_MQTT_BROKER: test.mosquitto.org
   script:
     - npm install
     - cd services/patientService && npm install && cd ../..
