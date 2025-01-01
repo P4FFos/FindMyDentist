@@ -16,7 +16,9 @@ build:
   tags:
     - docker
   script:
+    - rm -rf node_modules/
     - npm install
+    - npm list cross-env
 
 test:
   stage: test
