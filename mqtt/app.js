@@ -1,7 +1,7 @@
 var express = require('express');
 
 // Variables
-var port = process.env.TEST_PORT || 3002;
+var port = process.env.PORT || 3002;
 
 // Create Express app
 var app = express();
