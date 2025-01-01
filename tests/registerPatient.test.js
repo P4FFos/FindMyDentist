@@ -4,14 +4,14 @@ const mqttUrl = 'mqtt://localhost:1883';
 
 // Set up mongoDB
 beforeAll(async () => {
-    const mongoUri = 'mongodb://localhost:27017/serverTestDB'; 
-    mongoose.connect(mongoUri);
-    mongoose.connection.dropDatabase();
+  const mongoUri = 'mongodb://localhost:27017/FindMyDentistTestDB'; 
+  await mongoose.connect(mongoUri);
+  await mongoose.connection.collection('patients').deleteMany();
 });
 
 afterAll(async () => {
-    mongoose.connection.dropDatabase();
-    mongoose.disconnect();
+  await mongoose.connection.dropDatabase();
+  await mongoose.disconnect();
 });
 
 describe('MQTT Controller', () => {
