@@ -10,7 +10,7 @@
         "client": "npm run dev --prefix client",
         "dev": "concurrently \"npm run appointmentsServizce\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\"",
         "start:testService": "npm run patient",
-        "test": "cross-env NODE_ENV=test TEST_DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB TEST_PORT=1883 concurrently \"npm run start:testService\" \"jest\"",
+        "test": "NODE_ENV=test TEST_DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB TEST_PORT=1883 concurrently \"npm run start:testService\" \"jest\"",
         "ci-test": "npm test"
     },
     "dependencies": {
