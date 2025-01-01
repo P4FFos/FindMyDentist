@@ -26,15 +26,14 @@ services:
 test:
   stage: test
     
-  before_script:
-    - apt-get update && apt-get install -y mosquitto
-    - mosquitto -c ./mosquitto.conf -d
-    
   tags:
     - docker
   services:
     - name: mvertes/alpine-mongo:latest
       alias: mongo
+  variables:
+    MQTT_BROKER: test.mosquitto.org
+    MQTT_PORT: 1883
   script:
     - npm install
     - cd services/patientService && npm install && cd ../..
