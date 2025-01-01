@@ -14,7 +14,15 @@ var port = process.env.TEST_PORT || 3004;
 var patientController = require('./controller/patients.js');
 
 // MongoDB URI
-const mongoURI = process.env.TEST_DATABASE_URL || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+const mongoURI = defineDB();
+
+function defineDB(){
+    if (process.env.NODE_ENV === 'CI' || 'test') {
+        return "mongodb://localhost:27017/FindMyDentistTestDB"
+      } else {
+        return "mongodb://localhost:27017/FindMyDentistDevelopmentDB";
+      }
+}
 
 
 // Connect to MongoDB

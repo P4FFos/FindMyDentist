@@ -7,7 +7,8 @@ const mqttUrl = process.env.NODE_ENV === 'CI'
 
 // Set up mongoDB
 beforeAll(async () => {
-  const mongoUri = 'mongodb://localhost:27017/FindMyDentistTestDB'; 
+  const mongoUri = "mongodb://localhost:27017/FindMyDentistTestDB"; 
+  
   await mongoose.connect(mongoUri);
   await mongoose.connection.collection('patients').deleteMany();
 });
