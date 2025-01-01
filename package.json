@@ -11,8 +11,7 @@
         "dev": "concurrently \"npm run appointmentsServizce\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\"",
         "start:testService": "npm run patient",
         "test": "cross-env NODE_ENV=test TEST_DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB TEST_PORT=1883 concurrently \"npm run start:testService\" \"jest\"",
-        "dropdb": "node ./tests/dropdb.js",
-        "ci-test": "npm test"
+        "dropdb": "node ./tests/dropdb.js"
     },
     "devDependencies": {
         "concurrently": "^9.1.0",
