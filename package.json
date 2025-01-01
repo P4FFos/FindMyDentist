@@ -13,9 +13,11 @@
         "test": "cross-env NODE_ENV=test TEST_DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB TEST_PORT=1883 concurrently \"npm run start:testService\" \"jest\"",
         "ci-test": "npm test"
     },
-    "dependencies": {
+    "devDependencies": {
         "concurrently": "^9.1.0",
-        "cross-env": "^7.0.3",
+        "cross-env": "^7.0.3"
+    },
+    "dependencies": {
         "dotenv": "^16.4.7",
         "findmydentist": "file:",
         "jest": "^29.7.0",

@@ -18,6 +18,8 @@ build:
   script:
     - rm -rf node_modules/
     - npm install
+    - echo $PATH
+    - npm list cross-env
 
 test:
   stage: test
@@ -30,7 +32,7 @@ test:
     MONGODB_URI: "mongodb://mongo:27017/FindMyDentistTestDB"
     TEST_PORT: 1883
   script:
-    - npm run ci-test
+    - npx cross-env NODE_ENV=test TEST_DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB TEST_PORT=1883 concurrently "npm run start:testService" "jest"
 
 deploy:
   stage: deploy
