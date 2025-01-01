@@ -36,7 +36,7 @@ test:
   script:
     - npm install
     - cd services/patientService && npm install && cd ../..
-    - npm test
+    - npm run ci-test
 
 deploy:
   stage: deploy
