@@ -6,7 +6,7 @@ var router = express.Router();
 const NotificationRequest = require('../model/NotificationRequest');
 
 // MQTT client initialization
-const client = require('../../mqtt/mqtt-config');
+const client = require('../../../mqtt/mqtt-config');
 
 // MQTT client connection
 client.on('connect', () => {

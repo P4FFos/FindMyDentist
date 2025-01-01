@@ -1,5 +1,5 @@
 <template>
-  <div  class="d-flex flex-column align-items-center justify-content-center vh-100 text-center ">
+  <div class="d-flex flex-column align-items-center justify-content-center vh-100 text-center ">
     <h1 class="title">Register</h1>
     <div class="user-type-selection">
       <b-button @click="selectUserType('patient')" class="textButton">Patient</b-button>
@@ -67,6 +67,10 @@ export default {
 
       this.mqttClient.on('message', (topic, message) => {
         const response = JSON.parse(message.toString());
+        if (!this.isValidResponse(response)) {
+          console.error('Invalid response format:', response);
+          return;
+        }
         if (topic === 'patients/create/response') {
           if (response.status === 'success') {
             this.message = 'Registration successful!';
@@ -102,6 +106,16 @@ export default {
         };
         this.mqttClient.publish('dentists/create', JSON.stringify(payload));
       }
+    },
+    // Validate the response format
+    isValidResponse(response) {
+      if (typeof response !== 'object' || response === null) return false;
+      if (!('status' in response)) return false;
+      if (response.status === 'success') {
+        if ('patient' in response && typeof response.patient !== 'object') return false;
+        if ('dentist' in response && typeof response.dentist !== 'object') return false;
+      }
+      return true;
     }
   },
   mounted() {
@@ -118,28 +132,34 @@ export default {
 </script>
 
 <style>
-    label {
-        align-self:flex-start;
-        font-weight: bold;
-    }
-    .user-type-selection {
-        color: black;
-    }
-    .button {
-        margin-top: 2rem;
-    }
-    .textButton:hover {
-        background-color: #dbdbd9;
-    }
-    .w-30 {
-        width: 28%;
-    }
-    @media (max-width: 767px) {
-        .title {
-            font-size: 3rem;
-        }
-        .w-30 {
-            width: 70%;
-        }
-    }
+label {
+  align-self: flex-start;
+  font-weight: bold;
+}
+
+.user-type-selection {
+  color: black;
+}
+
+.button {
+  margin-top: 2rem;
+}
+
+.textButton:hover {
+  background-color: #dbdbd9;
+}
+
+.w-30 {
+  width: 28%;
+}
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 3rem;
+  }
+
+  .w-30 {
+    width: 70%;
+  }
+}
 </style>
