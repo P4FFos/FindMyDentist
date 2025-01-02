@@ -127,7 +127,7 @@ class RegisterUser(HttpUser):
             print(f"Selected patient: {selected_patient}")
             return selected_patient
         else:
-            ("No patient found.")
+            print("No patient found.")
             return None
 
     def get_all_dentists(self):
@@ -241,29 +241,17 @@ class RegisterUser(HttpUser):
             print(f"Booking timeslot: {available_timeslot}")
 
             timeslot_id = available_timeslot['_id']
-            print(f"Timeslot ID: {timeslot_id}")
-
             timeslot_time = available_timeslot['time']
-            print(f"Timeslot TIME: {timeslot_time}")
-
             dentist_id = available_timeslot['dentistId']
-            print(f"Dentist ID: {dentist_id}")
-
             patient = self.get_random_patient()
-            print(f"Selected patient: {patient}")
 
             if not patient:
                 print("Error: No valid patient found.")
                 return
 
             patient_id = patient['_id']
-            print(f"Patient ID: {patient_id}")
-
             patient_name = patient['firstName'] + "" + patient['secondName']
-            print(f"Patient NAME: {patient_name}")
-
             patient_email = patient['email']
-            print(f"Patient EMAIL: {patient_email}")
 
             payload = {
                 "timeslotId": timeslot_id,
