@@ -7,12 +7,7 @@
     "scripts": {
         "start": "node ./app.js",
         "dev": "nodemon ./app.js",
-        "test": "",
-        "ci-test": "npm run newman-server",
-        "newman-server": "cross-env-shell PORT=3000 \"run-p --race start newman-wait\"",
-        "newman-wait": "wait-on http://localhost:3003/api && npm run newman",
-        "newman": "newman run ../server/tests/server.postman_collection.json --env-var host=http://localhost:3003/api",
-        "dropdb": "node ../server/tests/dropdb.js"
+        "test": ""
     },
     "dependencies": {
         "connect-history-api-fallback": "^2.0.0",

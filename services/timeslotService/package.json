@@ -7,12 +7,7 @@
     "scripts": {
         "start": "node ./app.js",
         "dev": "nodemon ./app.js",
-        "test": "",
-        "ci-test": "npm run newman-server",
-        "newman-server": "cross-env-shell PORT=3000 \"run-p --race start newman-wait\"",
-        "newman-wait": "wait-on http://localhost:3000/api && npm run newman",
-        "newman": "newman run ./tests/server.postman_collection.json --env-var host=http://localhost:3000/api",
-        "dropdb": "node ./tests/dropdb.js"
+        "test": ""
     },
     "dependencies": {
         "body-parser": "^1.20.3",
