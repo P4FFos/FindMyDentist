@@ -13,7 +13,7 @@ var port = process.env.PORT || 3004;
 var patientController = require('./controller/patients.js');
 
 // MongoDB URI
-const mongoURI = 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+const mongoURI = process.env.DATABASE_URL || "mongodb://localhost:27017/FindMyDentistDevelopmentDB";
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function (err) {
@@ -84,12 +84,11 @@ app.use(function (err, req, res, next) {
     res.json(err_res);
 });
 
-// Start server
 app.listen(port, function (err) {
-    if (err) throw err;
-    console.log(`Patient listening on port ${port}, in ${env} mode`);
-    console.log(`Backend: http://localhost:${port}/api/`);
-    console.log(`Frontend (production): http://localhost:${port}/`);
+  if (err) throw err;
+  console.log(`Patient listening on port ${port}, in ${env} mode`);
+  console.log(`Backend: http://localhost:${port}/api/`);
+  console.log(`Frontend (production): http://localhost:${port}/`);
 });
 
 module.exports = app;

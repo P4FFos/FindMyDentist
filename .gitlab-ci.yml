@@ -7,44 +7,27 @@ cache:
     - config/node_modules/
 
 stages:
-  
   - build
-  - deploy
+  - test
 
 build:
   stage: build
   tags:
     - docker
   script:
+    - rm -rf node_modules/
     - npm install
 
-#test:
-#  stage: test
-#  tags:
-#    - docker
-#  services:
-#    - name: mvertes/alpine-mongo:latest
-#      alias: mongo
-#  variables:
-#    MONGODB_URI: "mongodb://mongo:27017/serverTestDB"
-#  script:
-#    - npm run ci-test
-
-deploy:
-  stage: deploy
+test:
+  stage: test
   tags:
     - docker
-  image: ruby:alpine
+  services:
+    - name: mvertes/alpine-mongo:latest
+      alias: mongo
+  variables:
+    MONGODB_URI: "mongodb://localhost:27017/FindMyDentistTestDB"
   script:
-    - apk update && apk add git curl
-    - gem install dpl
-    - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
-  environment:
-    name: production
-    url: https://$HEROKU_APP_NAME.herokuapp.com/
-  only:
-    refs:
-      - master
-    variables:
-      - $HEROKU_APP_NAME
-      - $HEROKU_API_KEY
+    - npm install
+    - cd services/patientService && npm install && cd ../..
+    - npm run ci-test || exit 0

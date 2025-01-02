@@ -9,18 +9,19 @@
         "patient": "node services/patientService/app.js",
         "client": "npm run dev --prefix client",
         "dev": "concurrently \"npm run appointmentsService\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\"",
-        "test": "cross-env MONGODB_URI=mongodb://localhost:27017/serverTestDB npm run newman-server",
-        "ci-test": "npm run newman-server",
-        "newman-server": "concurrently \"cross-env PORT=3003 npm run appointmentsService\" \"cross-env PORT=3004 npm run timeslotsService\" \"cross-env PORT=3005 npm run dentist\" \"cross-env PORT=3006 npm run patient\" \"npm run newman-wait\"",
-        "newman-wait": "wait-on http://localhost:3000/api && npm run newman",
-        "newman": "newman run ./tests/server.postman_collection.json --env-var host=http://localhost:3000/api",
-        "dropdb": "node ./tests/dropdb.js"
+        "start:testService": "npm run patient",
+        "test": "cross-env NODE_ENV=test DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB PORT=1883 concurrently --kill-others \"npm run start:testService\" \"jest --forceExit\"",
+        "ci-test": "cross-env NODE_ENV=CI DATABASE_URL=mongodb://mongo:27017/FindMyDentistTestDB PORT=1883 MQTT_URL=mqtt://test.mosquitto.org:1883 concurrently --kill-others \"npm run start:testService\" \"jest --forceExit\""
     },
     "devDependencies": {
-        "concurrently": "^9.1.0"
+        "concurrently": "^9.1.0",
+        "cross-env": "^7.0.3"
     },
     "dependencies": {
+        "dotenv": "^16.4.7",
         "findmydentist": "file:",
+        "jest": "^29.7.0",
+        "mongoose": "^8.9.0",
         "mqtt": "^5.10.3"
     }
 }
