@@ -118,7 +118,11 @@ async function handleGetAvailableTimeslots(payload) {
             isBooked: false
         });
         if (timeslots) {
-            client.publish('timeslots/get/available/response', JSON.stringify({ status: 'success', timeslots }));
+            client.publish('timeslots/get/available/response', JSON.stringify({
+                 status: 'success',
+                 message: `Available timeslots for dentist ${payload.dentistId} were fetched`,
+                 timeslots
+            }));
         } else {
             client.publish('timeslots/get/available/response', JSON.stringify({
                 status: 'error',

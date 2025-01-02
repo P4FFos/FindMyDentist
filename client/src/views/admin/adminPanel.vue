@@ -104,13 +104,15 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
+        this.mqttClient.subscribe('dentists/get/all/response');
         this.mqttClient.subscribe('dentists/create/response');
         this.mqttClient.subscribe('patients/get/login/response');
         this.mqttClient.subscribe('patients/create/response');
         this.mqttClient.subscribe('patients/get/all/response');
-        this.mqttClient.subscribe('appointments/system/get/all/response')
-        this.mqttClient.subscribe('appointments/create/response')
-        this.mqttClient.subscribe('appointments/delete/response')
+        this.mqttClient.subscribe('appointments/system/get/all/response');
+        this.mqttClient.subscribe('appointments/create/response');
+        this.mqttClient.subscribe('appointments/delete/response');
+        this.mqttClient.subscribe('timeslots/get/available/response');
         this.mqttClient.subscribe('timeslots/create/response');
         this.mqttClient.subscribe('timeslots/delete/response');
         this.mqttClient.subscribe('services/heartbeat')
@@ -136,6 +138,9 @@ export default {
               }
               break;
             case 'dentists/create/response':
+              this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
+              break;
+            case 'dentists/get/all/response':
               this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
               break;
             case 'patients/create/response':
@@ -164,6 +169,9 @@ export default {
                 this.getAppointments();
                 this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
               }
+              break;
+            case 'timeslots/get/available/response':
+              this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
               break;
             case 'timeslots/create/response':
               this.systemLogs.push(`${new Date().toLocaleTimeString()} /${topic} [response] status: ${response.status} message: ${response.message}`);
@@ -289,13 +297,15 @@ export default {
   },
   beforeDestroy() {
     if (this.mqttClient) {
+      this.mqttClient.unsubscribe('dentists/get/all/response');
       this.mqttClient.unsubscribe('dentists/create/response');
       this.mqttClient.unsubscribe('patients/get/login/response');
       this.mqttClient.unsubscribe('patients/create/response');
       this.mqttClient.unsubscribe('patients/get/all/response');
-      this.mqttClient.unsubscribe('appointments/system/get/all/response')
-      this.mqttClient.unsubscribe('appointments/create/response')
-      this.mqttClient.unsubscribe('appointments/delete/response')
+      this.mqttClient.unsubscribe('appointments/system/get/all/response');
+      this.mqttClient.unsubscribe('appointments/create/response');
+      this.mqttClient.unsubscribe('appointments/delete/response');
+      this.mqttClient.unsubscribe('timeslots/get/available/response');
       this.mqttClient.unsubscribe('timeslots/create/response');
       this.mqttClient.unsubscribe('timeslots/delete/response');
       this.mqttClient.unsubscribe('services/heartbeat')
