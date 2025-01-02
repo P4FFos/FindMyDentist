@@ -11,7 +11,7 @@
         "dev": "concurrently \"npm run appointmentsServizce\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\"",
         "start:testService": "npm run patient",
         "test": "cross-env NODE_ENV=test DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB PORT=1883 concurrently \"npm run start:testService\" \"jest\"",
-        "ci-test": "cross-env NODE_ENV=CI DATABASE_URL=mongodb://mongo:27017/FindMyDentistTestDB PORT=1883 MQTT_URL=mqtt://test.mosquitto.org:1883 concurrently \"npm run start:testService\" \"jest\""
+        "ci-test": "cross-env NODE_ENV=CI DATABASE_URL=mongodb://mongo:27017/FindMyDentistTestDB PORT=1883 MQTT_URL=mqtt://test.mosquitto.org:1883 concurrently \"npm run start:testService\" \"jest --forceExit\""
     },
     "devDependencies": {
         "concurrently": "^9.1.0",
