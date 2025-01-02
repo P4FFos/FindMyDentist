@@ -6,9 +6,7 @@ const host = 'localhost';
 const port = '1883';
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
 
-const connectUrl = process.env.NODE_ENV === 'CI' 
-  ? "mqtt://test.mosquitto.org:1883"
-  : `${protocol}://${host}:${port}`;
+const connectUrl = process.env.MQTT_URL || `${protocol}://${host}:${port}`;
 
 const client = mqtt.connect(connectUrl, {
     clientId,

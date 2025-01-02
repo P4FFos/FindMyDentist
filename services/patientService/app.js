@@ -1,4 +1,3 @@
-require('dotenv').config();
 var express = require('express');
 var mongoose = require('mongoose');
 var morgan = require('morgan');
@@ -8,22 +7,13 @@ var history = require('connect-history-api-fallback');
 var methodOverride = require('method-override');
 
 // Variables
-var port = process.env.TEST_PORT || 3004;
+var port = process.env.PORT || 3004;
 
 // Import routes
 var patientController = require('./controller/patients.js');
 
 // MongoDB URI
-const mongoURI = defineDB();
-
-function defineDB(){
-    if (process.env.NODE_ENV === 'CI' || 'test') {
-        return "mongodb://localhost:27017/FindMyDentistTestDB"
-      } else {
-        return "mongodb://localhost:27017/FindMyDentistDevelopmentDB";
-      }
-}
-
+const mongoURI = process.env.DATABASE_URL || "mongodb://localhost:27017/FindMyDentistDevelopmentDB";
 
 // Connect to MongoDB
 mongoose.connect(mongoURI).catch(function (err) {

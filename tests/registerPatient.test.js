@@ -1,14 +1,10 @@
-require('dotenv').config()
 const mqtt = require('mqtt');
 const mongoose = require('mongoose');
-const mqttUrl = process.env.NODE_ENV === 'CI' 
-  ? "mqtt://test.mosquitto.org:1883"
-  : "mqtt://localhost:1883";
+const mqttUrl = process.env.MQTT_URL || "mqtt://localhost:1883";
 
 // Set up mongoDB
 beforeAll(async () => {
-  const mongoUri = "mongodb://localhost:27017/FindMyDentistTestDB"; 
-  
+  const mongoUri = process.env.DATABASE_URL || "mongodb://localhost:27017/FindMyDentistTestDB"; 
   await mongoose.connect(mongoUri);
   await mongoose.connection.collection('patients').deleteMany();
 });
