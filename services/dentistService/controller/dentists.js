@@ -92,7 +92,11 @@ async function handleDentistLogin(payload) {
 async function handleGetAllDentists() {
     try {
         const dentists = await Dentist.find();
-        client.publish('dentists/get/all/response', JSON.stringify({ status: 'success', dentists }));
+        client.publish('dentists/get/all/response', JSON.stringify({
+            status: 'success',
+            message: 'Dentists list was fetched',
+            dentists
+         }));
     } catch (error) {
         client.publish('dentists/get/all/response', JSON.stringify({ status: 'error', message: error.message }));
     }
