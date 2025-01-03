@@ -6,9 +6,11 @@ const mqttUrl = process.env.MQTT_URL || "mqtt://localhost:1883";
 beforeAll(async () => {
   const mongoUri = process.env.DATABASE_URL || "mongodb://localhost:27017/FindMyDentistTestDB"; 
   await mongoose.connect(mongoUri);
+  await mongoose.connection.dropDatabase();
 });
 
 afterAll(async () => {
+  await mongoose.connection.dropDatabase();
   await mongoose.disconnect();
 });
 
