@@ -6,8 +6,29 @@ var router = express.Router();
 const Appointment = require('../model/appointment');
 const Timeslot = require("../../timeslotService/model/timeslot");
 
+
 // Import configured MQTT client
 const client = require('../../../mqtt/mqtt-config');
+
+let currentDB = null;
+var AppointmentModel = null;
+var TimeslotsModel= null;
+
+router.setDatabase = function(db) {
+  currentDB = db;
+
+  // Set models
+  setAppointmentModel();
+  setTimeslotsModel();
+};
+
+function setAppointmentModel(){
+  AppointmentModel = currentDB.model('Appointment', Appointment.schema);
+}
+
+function setTimeslotsModel(){
+  TimeslotsModel = currentDB.model('Timeslot', Timeslot.schema);
+}
 
 // MQTT client connection
 client.on('connect', () => {
@@ -56,9 +77,9 @@ client.on('message', async (topic, message) => {
 // Create an appointment
 async function handleAppointmentCreate(payload) {
     try {
-        const timeslot = Timeslot.findById(payload.timeslotId);
+        const timeslot = TimeslotsModel.findById(payload.timeslotId);
         if (timeslot && !timeslot.isBooked) {
-            const appointment = new Appointment(payload);
+            const appointment = new AppointmentModel(payload);
             await appointment.save();
 
             client.publish('timeslots/update', JSON.stringify({timeslotId: payload.timeslotId, isBooked: true}));
@@ -83,7 +104,7 @@ async function handleAppointmentCreate(payload) {
 // Get all system appointments
 async function handleGetAllSystemAppointments(payload) {
     try {
-        const appointments = await Appointment.find({});
+        const appointments = await AppointmentModel.find({});
         if (appointments) {
             client.publish('appointments/system/get/all/response', JSON.stringify({status: 'success', appointments}));
         } else {
@@ -100,7 +121,7 @@ async function handleGetAllSystemAppointments(payload) {
 // Get all appointments of a patient
 async function handleGetAllAppointments(payload) {
     try {
-        const appointments = await Appointment.find({patientId: payload.patientId});
+        const appointments = await AppointmentModel.find({patientId: payload.patientId});
         if (appointments) {
             client.publish('appointments/get/all/response', JSON.stringify({status: 'success', appointments}));
         } else {
@@ -117,7 +138,7 @@ async function handleGetAllAppointments(payload) {
 // Get all appointments for a dentist
 async function handleGetAllDentistAppointments(payload) {
     try {
-        const appointments = await Appointment.find({dentistId: payload.dentistId});
+        const appointments = await AppointmentModel.find({dentistId: payload.dentistId});
         if (appointments) {
             client.publish('appointments/dentist/get/all/response', JSON.stringify({status: 'success', appointments}));
         } else {
@@ -134,7 +155,7 @@ async function handleGetAllDentistAppointments(payload) {
 // Delete an appointment
 async function handleAppointmentDelete(payload) {
     try {
-        const appointment = await Appointment.findByIdAndDelete(payload.appointmentId);
+        const appointment = await AppointmentModel.findByIdAndDelete(payload.appointmentId);
 
         if (appointment) {
             client.publish('timeslots/update', JSON.stringify({timeslotId: payload.timeslotId, isBooked: false}));

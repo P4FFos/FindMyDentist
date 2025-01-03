@@ -1,6 +1,6 @@
 var express = require('express');
-var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
+var database = require('../../database/database.js');
 
 // Variables
 var port = process.env.PORT || 3005;
@@ -8,17 +8,13 @@ var port = process.env.PORT || 3005;
 // Import routes
 var timeslotsController = require('./controller/timeslots.js');
 
-// MongoDB URI
-const mongoURI = 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+// Initialize databases
+(async () => {
+    await database.initConnections();
 
-// Connect to MongoDB
-mongoose.connect(mongoURI).catch(function(err) {
-    console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);
-    console.error(err.stack);
-    process.exit(1);
-}).then(function() {
-    console.log(`Connected to MongoDB with URI: ${mongoURI}`);
-});
+    // Push DB to controllers
+    timeslotsController.setDatabase(database.getCurrentDB());
+})();
 
 // Create Express app
 var app = express();

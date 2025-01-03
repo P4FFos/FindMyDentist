@@ -12,4 +12,6 @@ const dentistSchema = new mongoose.Schema({
     appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
 });
 
-module.exports = mongoose.model('Dentist', dentistSchema);
+const Dentist = mongoose.model('Dentist', dentistSchema);
+
+module.exports = Dentist;

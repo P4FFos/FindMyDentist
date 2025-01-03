@@ -8,6 +8,20 @@ const Dentist = require('../model/dentist.js');
 // MQTT client initialization
 const client = require('../../../mqtt/mqtt-config');
 
+var DentistModel = null;
+var currentDB = null;
+
+router.setDatabase = function(db) {
+    currentDB = db;
+
+    // Set models
+    setDentistModel()
+};
+
+function setDentistModel(){
+    DentistModel = currentDB.model('Dentist', Dentist.schema);
+}
+
 // MQTT client connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
@@ -51,7 +65,7 @@ client.on('message', async (topic, message) => {
 // Create a dentist
 async function handleDentistCreate(payload) {
     try {
-        const existingDentistEmail = await Dentist.findOne({ email: payload.email });
+        const existingDentistEmail = await DentistModel.findOne({ email: payload.email });
         if (existingDentistEmail) {
             client.publish('dentists/create/response', JSON.stringify({
                 status: 'error',
@@ -59,7 +73,7 @@ async function handleDentistCreate(payload) {
             }));
             return;
         }
-        const dentist = new Dentist(payload);
+        const dentist = new DentistModel(payload);
         await dentist.save();
         client.publish('dentists/create/response', JSON.stringify({
             status: 'success',
@@ -74,7 +88,7 @@ async function handleDentistCreate(payload) {
 // Login a dentist
 async function handleDentistLogin(payload) {
     try {
-        const dentist = await Dentist.findOne({ email: payload.email, password: payload.password });
+        const dentist = await DentistModel.findOne({ email: payload.email, password: payload.password });
         if (dentist) {
             client.publish('dentists/get/login/response', JSON.stringify({ status: 'success', dentist }));
         } else {
@@ -91,7 +105,7 @@ async function handleDentistLogin(payload) {
 // Get all dentists
 async function handleGetAllDentists() {
     try {
-        const dentists = await Dentist.find();
+        const dentists = await DentistModel.find();
         client.publish('dentists/get/all/response', JSON.stringify({
             status: 'success',
             message: 'Dentists list was fetched',
@@ -105,7 +119,7 @@ async function handleGetAllDentists() {
 // Get a dentist
 async function handleGetDentist(payload) {
     try {
-        const dentist = await Dentist.findById(payload.dentistId);
+        const dentist = await DentistModel.findById(payload.dentistId);
         if (dentist) {
             client.publish('dentists/get/response', JSON.stringify({ status: 'success', dentist }));
         } else {

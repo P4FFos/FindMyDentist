@@ -8,6 +8,20 @@ const Timeslot = require('../model/timeslot');
 // MQTT client initialization
 const client = require('../../../mqtt/mqtt-config');
 
+let currentDB = null;
+var TimeslotModel = null;
+
+router.setDatabase = function(db) {
+    currentDB = db;
+
+    // Set models
+    setTimeslotModel();
+};
+
+function setTimeslotModel(){
+    TimeslotModel = currentDB.model('TimeSlot', Timeslot.schema);
+}
+
 // MQTT client connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
@@ -59,7 +73,7 @@ client.on('message', async (topic, message) => {
 // Update a timeslot
 async function handleTimeslotUpdate(payload) {
     try {
-        const timeslot = await Timeslot.findById(payload.timeslotId);
+        const timeslot = await TimeslotModel.findById(payload.timeslotId);
         if (timeslot) {
             timeslot.isBooked = payload.isBooked;
             await timeslot.save();
@@ -81,7 +95,7 @@ async function handleTimeslotUpdate(payload) {
 // Create a timeslot
 async function handleTimeslotCreate(payload) {
     try {
-        const timeslot = new Timeslot(payload);
+        const timeslot = new TimeslotModel(payload);
         await timeslot.save();
         client.publish('timeslots/create/response', JSON.stringify({
             status: 'success',
@@ -96,7 +110,7 @@ async function handleTimeslotCreate(payload) {
 // Get all timeslots of a dentist
 async function handleGetAllTimeslots(payload) {
     try {
-        const timeslots = await Timeslot.find({ dentistId: payload.dentistId });
+        const timeslots = await TimeslotModel.find({ dentistId: payload.dentistId });
         if (timeslots) {
             client.publish('timeslots/get/all/response', JSON.stringify({ status: 'success', timeslots }));
         } else {
@@ -113,7 +127,7 @@ async function handleGetAllTimeslots(payload) {
 // Get available timeslots of a dentist
 async function handleGetAvailableTimeslots(payload) {
     try {
-        const timeslots = await Timeslot.find({
+        const timeslots = await TimeslotModel.find({
             dentistId: payload.dentistId,
             isBooked: false
         });
@@ -140,7 +154,7 @@ async function handleGetAvailableTimeslots(payload) {
 // Get unavailable timeslots of a dentist
 async function handleGetUnavailableTimeslots(payload) {
     try {
-        const timeslots = await Timeslot.find({
+        const timeslots = await TimeslotModel.find({
             dentistId: payload.dentistId,
             isBooked: true
         });
@@ -163,7 +177,7 @@ async function handleGetUnavailableTimeslots(payload) {
 // Delete a timeslot
 async function handleTimeslotDelete(payload) {
     try {
-        const timeslot = await Timeslot.findByIdAndDelete(payload.timeslotId);
+        const timeslot = await TimeslotModel.findByIdAndDelete(payload.timeslotId);
         if (timeslot) {
             client.publish('timeslots/delete/response', JSON.stringify({
                 status: 'success',
