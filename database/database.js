@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 
 var mainDBURI = process.env.DATABASE_URL || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+var backupDBURI = process.env.BACKUP_DATABASE_URL || 'mongodb://localhost:27017/FindMyDentistBackupDB';
 
 // MongoDB connections
 let mainDB = null;
+let backupDB = null;
 let currentDB = null;
 
 // Connect to MongoDB
@@ -18,6 +20,22 @@ const initConnections = async () => {
         console.error(err.stack);
         process.exit(1);
     }
+
+    // Connect to backup DB
+    try {
+        backupDB = await mongoose.createConnection(backupDBURI);
+        console.log(`Connected to backup MongoDB Database with URI: ${backupDBURI}`);
+    } catch (error) {
+        console.error(`Failed to connect to backup MongoDB with URI: ${backupDBURI}`);
+    }
+
+    if (!mainDB || !backupDB) {
+        throw new Error('One or more databases are not initialized for synchronization.');
+    } else{
+        // Sync backupDB with mainDB
+        await syncDatabase(backupDB);
+    }
+
 };
 
 const getCurrentDB = () => {
