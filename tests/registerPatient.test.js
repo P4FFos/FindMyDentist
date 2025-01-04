@@ -1,10 +1,15 @@
 const mqtt = require('mqtt');
 const mongoose = require('mongoose');
 const mqttUrl = process.env.MQTT_URL || "mqtt://localhost:1883";
+const mongoUri = process.env.DATABASE_URL || "mongodb://localhost:27017/FindMyDentistTestDB"; 
+
+// A function to wait (predicatbly) for services to start. 
+// The test works the first time and then for some reason always starts ahead before service starts
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms)); 
 
 // Set up mongoDB
 beforeAll(async () => {
-  const mongoUri = process.env.DATABASE_URL || "mongodb://localhost:27017/FindMyDentistTestDB"; 
+  await sleep(1000);
   await mongoose.connect(mongoUri);
   await mongoose.connection.dropDatabase();
 });
@@ -12,7 +17,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await mongoose.connection.dropDatabase();
   await mongoose.disconnect();
-});
+}); 
 
 describe('MQTT Controller', () => {
   let mqttClient;
@@ -23,6 +28,8 @@ describe('MQTT Controller', () => {
     mqttClient.on('connect', () => {
       console.log(`Connected to MQTT broker at ${mqttUrl}`);
     });
+
+
   });
 
   afterAll(() => {
