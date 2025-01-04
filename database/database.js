@@ -38,6 +38,35 @@ const initConnections = async () => {
 
 };
 
+// Copy data from current active database
+const syncDatabase = async (database) => {
+    try {
+
+        // Get all collections
+        const collections = await currentDB.listCollections();
+
+        for (const { name } of collections) {
+            const backupCollection = database.collection(name);
+
+            // Store the documents (in an array) from the collection of the main database
+            const documents = await currentDB.collection(name).find({}).toArray();
+
+            // Clean/remove all documents from the collection of the backup database
+            await backupCollection.deleteMany({});
+            if (documents.length) {
+                // Insert the documents into the backup Collection
+                await backupCollection.insertMany(documents);
+            }
+
+            console.log(`Synchronized collection: ${name}`);
+        }
+
+        console.log(`${database.name} successfully synchronized.`);
+    } catch (error) {
+        console.error(`${database.name} synchronization failed: ${error.message}`);
+    }
+};
+
 const getCurrentDB = () => {
     if (!currentDB) {
         throw new Error('Database not initialized yet!');
