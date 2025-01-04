@@ -62,9 +62,34 @@ const syncDatabase = async (database) => {
         }
 
         console.log(`${database.name} successfully synchronized.`);
+        startHeartbeat();
     } catch (error) {
         console.error(`${database.name} synchronization failed: ${error.message}`);
     }
+};
+
+// Heartbeat check
+const heartbeatCheck = async () => {
+    try {
+        if (mainDB) {
+            await mainDB.db.admin().ping(); // Ping main database if it's available
+            if (currentDB !== mainDB) {
+                syncDatabase(mainDB);
+                currentDB = mainDB;
+                console.log(`Main database is back online. Switching to Main.`);
+            } else{
+                console.log(`Main database is still available`) // For testing/monitoring purposes
+            }
+        }
+    } catch (error) {
+        console.error(`Main database unavailable. Switching to Backup.`);
+        currentDB = backupDB;
+    }
+};
+
+// Ping every 5 seconds
+const startHeartbeat = () => {
+    setInterval(heartbeatCheck, 5000);
 };
 
 const getCurrentDB = () => {
