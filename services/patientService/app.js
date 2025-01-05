@@ -18,6 +18,13 @@ var patientController = require('./controller/patients.js');
 
     // Push DB to controllers
     patientController.setDatabase(database.getCurrentDB());
+    
+    // Listen for database switch events
+    //console.log(`Controller database updated with ${database.getCurrentDB()}`);
+    database.dbEvents.on('dbSwitch', () => {
+        console.log('Database switched. Updating controller...');
+        patientController.setDatabase(database.getCurrentDB());
+    });
 })();
 
 // Create Express app

@@ -1,4 +1,7 @@
 const mongoose = require('mongoose');
+const EventEmitter = require('events');
+class DatabaseEventEmitter extends EventEmitter {}
+const dbEvents = new DatabaseEventEmitter();
 
 var mainDBURI = process.env.DATABASE_URL || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
 var backupDBURI = process.env.BACKUP_DATABASE_URL || 'mongodb://localhost:27017/FindMyDentistBackupDB';
@@ -47,16 +50,21 @@ const heartbeatCheck = async () => {
         if (mainDB) {
             await mainDB.db.admin().ping(); // Ping main database if it's available
             if (currentDB !== mainDB) {
-                syncDatabase(mainDB);
-                currentDB = mainDB;
-                console.log(`Main database is back online. Switching to Main.`);
+                console.log(`Main database is back online. Switching to Main.`)
+                switchDB();
+                dbEvents.emit('dbSwitch', currentDB); // Notify about DB switch
             } else{
                 //console.log(`Main database is still available`) // For testing/monitoring/logging purposes
             }
+            await mainDB.close();
         }
     } catch (error) {
-        console.error(`Main database unavailable. Switching to Backup.`);
-        currentDB = backupDB;
+        if (currentDB != backupDB)
+        {
+            console.error(`Main database unavailable. Switching to Backup.`);
+            switchDB();
+            dbEvents.emit('dbSwitch'); // Notify about DB switch
+        }
     }
 };
 
@@ -64,6 +72,14 @@ const heartbeatCheck = async () => {
 const startHeartbeat = () => {
     setInterval(heartbeatCheck, 5000);
 };
+
+const switchDB = () => {
+    if (currentDB != backupDB){
+        currentDB = backupDB;
+    } else {
+        currentDB = mainDB;
+    }
+}
 
 const getCurrentDB = () => {
     if (!currentDB) {
@@ -74,5 +90,6 @@ const getCurrentDB = () => {
 
 module.exports = {
     initConnections,
-    getCurrentDB
+    getCurrentDB,
+    dbEvents
 };    

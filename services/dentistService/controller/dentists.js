@@ -18,8 +18,18 @@ router.setDatabase = function(db) {
     setDentistModel()
 };
 
-function setDentistModel(){
-    DentistModel = currentDB.model('Dentist', Dentist.schema);
+function setDentistModel() {
+    if (currentDB) {
+        console.log('Setting DentistModel with DB:', currentDB.name);
+        // Check if the model already exists on the connection
+        if (currentDB.models['Dentist']) {
+            DentistModel = currentDB.models['Dentist'];
+        } else {
+            DentistModel = currentDB.model('Dentist', Dentist.schema);
+        }
+    } else {
+        console.error('Error: currentDB is undefined');
+    }
 }
 
 // MQTT client connection

@@ -14,6 +14,13 @@ var timeslotsController = require('./controller/timeslots.js');
 
     // Push DB to controllers
     timeslotsController.setDatabase(database.getCurrentDB());
+
+    // Listen for database switch events
+    // console.log(`Controller database updated with ${database.getCurrentDB()}`);
+    database.dbEvents.on('dbSwitch', () => {
+        console.log('Database switched. Updating controller...');
+        timeslotsController.setDatabase(database.getCurrentDB());
+    });
 })();
 
 // Create Express app

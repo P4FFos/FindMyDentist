@@ -18,8 +18,18 @@ router.setDatabase = function(db) {
     setTimeslotModel();
 };
 
-function setTimeslotModel(){
-    TimeslotModel = currentDB.model('TimeSlot', Timeslot.schema);
+function setTimeslotModel() {
+    if (currentDB) {
+        console.log('Setting TimeslotModel with DB:', currentDB.name);
+        // Check if the model already exists on the connection
+        if (currentDB.models['Timeslot']) {
+            TimeslotModel = currentDB.models['Timeslot'];
+        } else {
+            TimeslotModel = currentDB.model('Timeslot', Timeslot.schema);
+        }
+    } else {
+        console.error('Error: currentDB is undefined');
+    }
 }
 
 // MQTT client connection

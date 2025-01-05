@@ -22,12 +22,32 @@ router.setDatabase = function(db) {
   setTimeslotsModel();
 };
 
-function setAppointmentModel(){
-  AppointmentModel = currentDB.model('Appointment', Appointment.schema);
+function setAppointmentModel() {
+    if (currentDB) {
+        console.log('Setting AppointmentModel with DB:', currentDB.name);
+        // Check if the model already exists on the connection
+        if (currentDB.models['Appointment']) {
+            AppointmentModel = currentDB.models['Appointment'];
+        } else {
+            AppointmentModel = currentDB.model('Appointment', Appointment.schema);
+        }
+    } else {
+        console.error('Error: currentDB is undefined');
+    }
 }
 
-function setTimeslotsModel(){
-  TimeslotsModel = currentDB.model('Timeslot', Timeslot.schema);
+function setTimeslotsModel() {
+    if (currentDB) {
+        // console.log('Setting TimeslotModel with DB:', currentDB.name); Logging
+        // Check if the model already exists on the connection
+        if (currentDB.models['Timeslot']) {
+            TimeslotModel = currentDB.models['Timeslot'];
+        } else {
+            TimeslotModel = currentDB.model('Timeslot', Timeslot.schema);
+        }
+    } else {
+        console.error('Error: currentDB is undefined');
+    }
 }
 
 // MQTT client connection
