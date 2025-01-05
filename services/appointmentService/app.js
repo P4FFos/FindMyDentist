@@ -17,9 +17,9 @@ var appointmentBookingController = require('./controller/appointments.js');
 
     // Listen for database switch events
     // console.log(`Controller database updated with ${database.getCurrentDB()}`);
-    database.dbEvents.on('dbSwitch', () => {
+    database.dbEvents.on('dbSwitch', (newDB) => {
         console.log('Database switched. Updating controller...');
-        appointmentBookingController.setDatabase(database.getCurrentDB());
+        appointmentBookingController.setDatabase(newDB);
     });
 })();
 

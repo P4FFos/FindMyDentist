@@ -1,52 +1,59 @@
-const mongoose = require('mongoose');
-
-// Environment variables for database URIs
-const mainDBURI = process.env.DATABASE_URL || 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
-const backupDBURI = process.env.BACKUP_DATABASE_URL || 'mongodb://localhost:27017/FindMyDentistBackupDB';
+var database = require('../../database/database.js');
 
 // Database connections
 let mainDB = null;
 let backupDB = null;
+let currentDB = null;
 
 // Initialize the service
 const init = async () => {
     try {
-        // Connect to the main database
-        mainDB = await mongoose.createConnection(mainDBURI);
-        console.log(`Connected to main database: ${mainDBURI}`);
-
-        // Connect to the backup database
-        backupDB = await mongoose.createConnection(backupDBURI);
-        console.log(`Connected to backup database: ${backupDBURI}`);
+        await database.initConnections();
+        setDatabases();
         if (!mainDB || !backupDB){
 
         } else{
-            await syncDatabase();
+            await syncDatabase(mainDB, backupDB);
             startRealTimeSync();
         }
+    
+        database.dbEvents.on('dbSwitch', (newDB) => {
+            console.log('Database switched. Updating controller...');
+            currentDB = newDB;
+            if (currentDB != backupDB) {
+                syncDatabase(backupDB, mainDB);
+            }
+        });
+
     } catch (error) {
         console.error('Error initializing sync service:', error.message);
         process.exit(1); // Exit the process on failure
     }
 };
 
+const setDatabases = () => {
+    mainDB  = database.getMainDB();
+    backupDB = database.getBackupDB();
+    currentDB = database.getCurrentDB();
+};
+
 // Function to synchronize databases
-const syncDatabase = async () => {
+const syncDatabase = async (sourceDB, targetDB) => {
     try {
-        const collections = await mainDB.listCollections();
+        const collections = await sourceDB.listCollections();
 
         for (const { name } of collections) {
-            const mainCollection = mainDB.collection(name);
-            const backupCollection = backupDB.collection(name);
+            const sourceCollection = sourceDB.collection(name);
+            const targetupCollection = targetDB.collection(name);
 
             // Fetch all documents from the main collection
-            const documents = await mainCollection.find({}).toArray();
+            const documents = await sourceCollection.find({}).toArray();
 
             // Clean/remove all documents from the backup collection
-            await backupCollection.deleteMany({});
+            await targetupCollection.deleteMany({});
 
             if (documents.length) {
-                await backupCollection.insertMany(documents);
+                await targetupCollection.insertMany(documents);
             }
 
             console.log(`Synchronized collection: ${name}`);
@@ -66,7 +73,7 @@ const startRealTimeSync = async (interval = 5000) => {
             const collections = await mainDB.listCollections();
 
             for (const { name } of collections) {
-                const mainCollection = backupDB.collection(name);
+                const mainCollection = mainDB.collection(name);
                 const backupCollection = backupDB.collection(name);
 
                 // Fetch all documents from the main collection
@@ -80,7 +87,7 @@ const startRealTimeSync = async (interval = 5000) => {
                         { upsert: true } // Insert if it doesn't exist
                     );
                 }
-                // console.log(`Synchronized collection: ${name}`); // For logging/debugging
+                console.log(`Synchronized collection: ${name}`); // For logging/debugging
             }
         } catch (error) {
             console.error('Error during real-time sync polling:', error);

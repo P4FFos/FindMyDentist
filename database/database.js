@@ -56,14 +56,13 @@ const heartbeatCheck = async () => {
             } else{
                 //console.log(`Main database is still available`) // For testing/monitoring/logging purposes
             }
-            await mainDB.close();
         }
     } catch (error) {
         if (currentDB != backupDB)
         {
             console.error(`Main database unavailable. Switching to Backup.`);
             switchDB();
-            dbEvents.emit('dbSwitch'); // Notify about DB switch
+            dbEvents.emit('dbSwitch', currentDB); // Notify about DB switch
         }
     }
 };
@@ -88,8 +87,24 @@ const getCurrentDB = () => {
     return currentDB;
 };
 
+const getMainDB = () => {
+    if (!mainDB) {
+        throw new Error('Database not initialized yet!');
+    }
+    return mainDB;
+};
+
+const getBackupDB = () => {
+    if (!backupDB) {
+        throw new Error('Database not initialized yet!');
+    }
+    return backupDB;
+};
+
 module.exports = {
     initConnections,
     getCurrentDB,
+    getBackupDB,
+    getMainDB,
     dbEvents
 };    

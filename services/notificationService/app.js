@@ -16,6 +16,12 @@ const notificationsSender = require ('./service/NotificationSender.js')
 
     // Push DB to controllers
     notificationsController.setDatabase(database.getCurrentDB());
+    
+    // console.log(`Controller database updated with ${database.getCurrentDB()}`);
+    database.dbEvents.on('dbSwitch', (newDB) => {
+        console.log('Database switched. Updating controller...');
+        notificationsController.setDatabase(newDB);
+    });
 })();
 
 // Create Express app
