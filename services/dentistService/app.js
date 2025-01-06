@@ -1,10 +1,10 @@
 var express = require('express');
-var mongoose = require('mongoose');
 var morgan = require('morgan');
 var path = require('path');
 var cors = require('cors');
 var history = require('connect-history-api-fallback');
 var methodOverride = require('method-override');
+var database = require('../../database/database.js');
 
 // Variables
 var port = process.env.PORT || 3003;
@@ -12,17 +12,20 @@ var port = process.env.PORT || 3003;
 // Import routes
 var dentistController = require('./controller/dentists.js');
 
-// MongoDB URI
-const mongoURI = 'mongodb://localhost:27017/FindMyDentistDevelopmentDB';
+// Initialize databases
+(async () => {
+    await database.initConnections();
 
-// Connect to MongoDB
-mongoose.connect(mongoURI).catch(function (err) {
-    console.error(`Failed to connect to MongoDB with URI: ${mongoURI}`);
-    console.error(err.stack);
-    process.exit(1);
-}).then(function () {
-    console.log(`Connected to MongoDB with URI: ${mongoURI}`);
-});
+    // Push DB to controllers
+    dentistController.setDatabase(database.getCurrentDB());
+
+    // Listen for database switch events
+    //console.log(`Controller database updated with ${database.getCurrentDB()}`);
+    database.dbEvents.on('dbSwitch', (newDB) => {
+        console.log('Database switched. Updating controller...');
+        dentistController.setDatabase(newDB);
+    });
+})();
 
 // Create Express app
 var app = express();

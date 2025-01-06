@@ -8,6 +8,29 @@ const Patient = require('../model/patient.js');
 // MQTT client initialization
 const client = require('../../../mqtt/mqtt-config');
 
+var currentDB = null;
+var PatientModel = null;
+
+router.setDatabase = function(db) {
+    currentDB = db;
+    // Set models
+    setPatientModel();
+};
+
+function setPatientModel() {
+    if (currentDB) {
+        console.log('Setting PatientModel with DB:', currentDB.name);
+        // Check if the model already exists on the connection
+        if (currentDB.models['Patient']) {
+            PatientModel = currentDB.models['Patient'];
+        } else {
+            PatientModel = currentDB.model('Patient', Patient.schema);
+        }
+    } else {
+        console.error('Error: currentDB is undefined');
+    }
+}
+
 // MQTT client connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
@@ -78,7 +101,7 @@ async function handlePatientUpdate(payload) {
 // Function to add an appointment
 async function addAppointment({ patientId, appointment }) {
     try {
-        const updatedPatient = await Patient.findByIdAndUpdate(
+        const updatedPatient = await PatientModel.findByIdAndUpdate(
             patientId,
             { $push: { appointments: appointment } },
             { new: true }
@@ -101,7 +124,7 @@ const mongoose = require('mongoose');
 // Function to delete an appointment
 async function deleteAppointment({ patientId, appointmentId }) {
     try {
-        const updatedPatient = await Patient.findByIdAndUpdate(
+        const updatedPatient = await PatientModel.findByIdAndUpdate(
             patientId,
             { $pull: { appointments: { _id: new mongoose.Types.ObjectId(appointmentId) } } },
             { new: true }
@@ -121,7 +144,7 @@ async function deleteAppointment({ patientId, appointmentId }) {
 // Create a patient
 async function handlePatientCreate(payload) {
     try {
-        const existingPatientEmail = await Patient.findOne({ email: payload.email });
+        const existingPatientEmail = await PatientModel.findOne({ email: payload.email });
         if (existingPatientEmail) {
             client.publish('patients/create/response', JSON.stringify({
                 status: 'error',
@@ -129,7 +152,7 @@ async function handlePatientCreate(payload) {
             }));
             return;
         }
-        const patient = new Patient(payload);
+        const patient = new PatientModel(payload);
         await patient.save();
         client.publish('patients/create/response', JSON.stringify({
             status: 'success',
@@ -144,7 +167,7 @@ async function handlePatientCreate(payload) {
 // Login a patient
 async function handlePatientLogin(payload) {
     try {
-        const patient = await Patient.findOne({ email: payload.email, password: payload.password });
+        const patient = await PatientModel.findOne({ email: payload.email, password: payload.password });
         if (patient) {
             client.publish('patients/get/login/response', JSON.stringify({ status: 'success', patient }));
         } else {
@@ -161,7 +184,7 @@ async function handlePatientLogin(payload) {
 // Get a patient
 async function handleGetPatient(payload) {
     try {
-        const patient = await Patient.findById(payload.patientId);
+        const patient = await PatientModel.findById(payload.patientId);
         if (patient) {
             client.publish('patients/get/response', JSON.stringify({ status: 'success', patient }));
         } else {
@@ -178,7 +201,7 @@ async function handleGetPatient(payload) {
 // Get all patients
 async function handleGetAllPatients() {
     try {
-        const patients = await Patient.find({});
+        const patients = await PatientModel.find({});
         client.publish('patients/get/all/response', JSON.stringify({
             status: 'success',
             patients

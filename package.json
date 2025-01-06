@@ -5,13 +5,14 @@
         "appointmentsService": "node services/appointmentService/app.js",
         "timeslotsService": "node services/timeslotService/app.js",
         "notificationsService": "node services/notificationService/app.js",
-        "dentist": "node services/dentistService/app.js",
-        "patient": "node services/patientService/app.js",
+        "dentistService": "node services/dentistService/app.js",
+        "patientService": "node services/patientService/app.js",
+        "synchService": "node services/synchService/synchDB.js",
         "client": "npm run dev --prefix client",
-        "dev": "concurrently \"npm run appointmentsService\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentist\" \"npm run patient\" \"npm run client\"",
+        "dev": "concurrently \"npm run appointmentsService\" \"npm run timeslotsService\" \"npm run notificationsService\" \"npm run dentistService\" \"npm run patientService\" \"npm run synchService\" \"npm run client\"",
         "start:testService": "npm run patient",
-        "test": "cross-env NODE_ENV=test DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB PORT=1883 concurrently --kill-others \"npm run start:testService\" \"jest --forceExit\"",
-        "ci-test": "cross-env NODE_ENV=CI DATABASE_URL=mongodb://mongo:27017/FindMyDentistTestDB PORT=1883 MQTT_URL=mqtt://test.mosquitto.org:1883 concurrently --kill-others \"npm run start:testService\" \"jest --forceExit\""
+        "test": "cross-env NODE_ENV=test DATABASE_URL=mongodb://localhost:27017/FindMyDentistTestDB BACKUP_DATABASE_URL=mongodb://localhost:27017/FindMyDentistBackupTestDB PORT=1883 concurrently --kill-others \"npm run start:testService\" \"jest --forceExit\"",
+        "ci-test": "cross-env NODE_ENV=CI DATABASE_URL=mongodb://mongo:27017/FindMyDentistTestDB BACKUP_DATABASE_URL=mongodb://mongo:27017/FindMyDentistBackupTestDB PORT=1883 MQTT_URL=mqtt://test.mosquitto.org:1883 concurrently --kill-others \"npm run start:testService\" \"jest --forceExit\""
     },
     "devDependencies": {
         "concurrently": "^9.1.0",
@@ -21,7 +22,7 @@
         "dotenv": "^16.4.7",
         "findmydentist": "file:",
         "jest": "^29.7.0",
-        "mongoose": "^8.9.0",
+        "mongoose": "^8.9.3",
         "mqtt": "^5.10.3"
     }
 }
