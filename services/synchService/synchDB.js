@@ -66,28 +66,30 @@ const syncDatabase = async (sourceDB, targetDB) => {
 };
 
 // Function to start real-time synchronization
-const startRealTimeSync = async (interval = 5000) => {
+const startRealTimeSync = async (interval = 10000) => {
     console.log('Starting real-time sync service...');
     setInterval(async () => {
         try {
-            const collections = await mainDB.listCollections();
+            if (currentDB != backupDB) {
+                const collections = await mainDB.listCollections();
 
-            for (const { name } of collections) {
-                const mainCollection = mainDB.collection(name);
-                const backupCollection = backupDB.collection(name);
-
-                // Fetch all documents from the main collection
-                const documents = await mainCollection.find({}).toArray();
-
-                for (const doc of documents) {
-                    // Upsert each document: update if exists, insert if not
-                    await backupCollection.updateOne(
-                        { _id: doc._id },
-                        { $set: doc },
-                        { upsert: true } // Insert if it doesn't exist
-                    );
+                for (const { name } of collections) {
+                    const mainCollection = mainDB.collection(name);
+                    const backupCollection = backupDB.collection(name);
+    
+                    // Fetch all documents from the main collection
+                    const documents = await mainCollection.find({}).toArray();
+    
+                    for (const doc of documents) {
+                        // Upsert each document: update if exists, insert if not
+                        await backupCollection.updateOne(
+                            { _id: doc._id },
+                            { $set: doc },
+                            { upsert: true } // Insert if it doesn't exist
+                        );
+                    }
+                    console.log(`Synchronized collection: ${name}`); // For logging/debugging
                 }
-                console.log(`Synchronized collection: ${name}`); // For logging/debugging
             }
         } catch (error) {
             console.error('Error during real-time sync polling:', error);
