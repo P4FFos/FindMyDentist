@@ -104,18 +104,18 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
-        this.mqttClient.subscribe('dentists/get/all/response');
-        this.mqttClient.subscribe('dentists/create/response');
-        this.mqttClient.subscribe('patients/get/login/response');
-        this.mqttClient.subscribe('patients/create/response');
-        this.mqttClient.subscribe('patients/get/all/response');
-        this.mqttClient.subscribe('appointments/system/get/all/response');
-        this.mqttClient.subscribe('appointments/create/response');
-        this.mqttClient.subscribe('appointments/delete/response');
-        this.mqttClient.subscribe('timeslots/get/available/response');
-        this.mqttClient.subscribe('timeslots/create/response');
-        this.mqttClient.subscribe('timeslots/delete/response');
-        this.mqttClient.subscribe('services/heartbeat')
+        this.mqttClient.subscribe('dentists/get/all/response', { qos: 1 });
+        this.mqttClient.subscribe('dentists/create/response', { qos: 1 });
+        this.mqttClient.subscribe('patients/get/login/response', { qos: 1 });
+        this.mqttClient.subscribe('patients/create/response', { qos: 1 });
+        this.mqttClient.subscribe('patients/get/all/response', { qos: 1 });
+        this.mqttClient.subscribe('appointments/system/get/all/response', { qos: 1 });
+        this.mqttClient.subscribe('appointments/create/response', { qos: 1 });
+        this.mqttClient.subscribe('appointments/delete/response', { qos: 1 });
+        this.mqttClient.subscribe('timeslots/get/available/response', { qos: 1 });
+        this.mqttClient.subscribe('timeslots/create/response', { qos: 1 });
+        this.mqttClient.subscribe('timeslots/delete/response', { qos: 1 });
+        this.mqttClient.subscribe('services/heartbeat', { qos: 1 })
       });
 
       this.mqttClient.on('message', (topic, message) => {
