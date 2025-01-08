@@ -273,12 +273,12 @@ export default {
     // Publish a message to the MQTT broker to get all timeslots
     getPatients() {
       const payload = {}
-      this.mqttClient.publish('patients/get/all', JSON.stringify(payload))
+      this.mqttClient.publish('patients/get/all', JSON.stringify(payload), { qos: 1 })
     },
     // Publish a message to the MQTT broker to get all appointments
     getAppointments() {
       const payload = {}
-      this.mqttClient.publish('appointments/system/get/all', JSON.stringify(payload))
+      this.mqttClient.publish('appointments/system/get/all', JSON.stringify(payload), { qos: 1 })
     },
   },
   mounted() {
