@@ -49,8 +49,8 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
-        this.mqttClient.subscribe('patients/get/login/response');
-        this.mqttClient.subscribe('dentists/get/login/response');
+        this.mqttClient.subscribe('patients/get/login/response', { qos: 1 });
+        this.mqttClient.subscribe('dentists/get/login/response', { qos: 1 });
       });
 
       this.mqttClient.on('message', (topic, message) => {
@@ -83,9 +83,9 @@ export default {
         password: this.password
       };
       if (this.userType === 'patient') {
-        this.mqttClient.publish('patients/get/login', JSON.stringify(payload));
+        this.mqttClient.publish('patients/get/login', JSON.stringify(payload), { qos: 1 });
       } else if (this.userType === 'dentist') {
-        this.mqttClient.publish('dentists/get/login', JSON.stringify(payload));
+        this.mqttClient.publish('dentists/get/login', JSON.stringify(payload), { qos: 1 });
       }
     },
     // Validate the response format
