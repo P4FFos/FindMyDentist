@@ -41,12 +41,12 @@ client.on('connect', () => {
             status: 'alive',
             timestamp: Date.now(),
         });
-        client.publish('services/heartbeat', payload);
+        client.publish('services/heartbeat', payload, { qos: 1 });
     }, 1000);
-    client.subscribe('dentists/create');
-    client.subscribe('dentists/get/login');
-    client.subscribe('dentists/get/all');
-    client.subscribe('dentists/get');
+    client.subscribe('dentists/create', { qos: 1 });
+    client.subscribe('dentists/get/login', { qos: 1 });
+    client.subscribe('dentists/get/all', { qos: 1 });
+    client.subscribe('dentists/get', { qos: 1 });
 });
 
 // MQTT client message handling
@@ -80,7 +80,7 @@ async function handleDentistCreate(payload) {
             client.publish('dentists/create/response', JSON.stringify({
                 status: 'error',
                 message: 'Dentist Account with this email already exists. Try again with a different email'
-            }));
+            }), { qos: 1 });
             return;
         }
         const dentist = new DentistModel(payload);
@@ -89,9 +89,9 @@ async function handleDentistCreate(payload) {
             status: 'success',
             message: `Dentist ${dentist._id} was added to the system`,
             dentist
-        }));
+        }), { qos: 1 });
     } catch (error) {
-        client.publish('dentists/create/response', JSON.stringify({ status: 'error', message: error.message }));
+        client.publish('dentists/create/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
     }
 }
 
@@ -100,15 +100,15 @@ async function handleDentistLogin(payload) {
     try {
         const dentist = await DentistModel.findOne({ email: payload.email, password: payload.password });
         if (dentist) {
-            client.publish('dentists/get/login/response', JSON.stringify({ status: 'success', dentist }));
+            client.publish('dentists/get/login/response', JSON.stringify({ status: 'success', dentist }), { qos: 1 });
         } else {
             client.publish('dentists/get/login/response', JSON.stringify({
                 status: 'error',
                 message: 'Invalid dentist credentials. Try again'
-            }));
+            }), { qos: 1 });
         }
     } catch (error) {
-        client.publish('dentists/get/login/response', JSON.stringify({ status: 'error', message: error.message }));
+        client.publish('dentists/get/login/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
     }
 }
 
@@ -120,9 +120,9 @@ async function handleGetAllDentists() {
             status: 'success',
             message: 'Dentists list was fetched',
             dentists
-         }));
+         }), { qos: 1 });
     } catch (error) {
-        client.publish('dentists/get/all/response', JSON.stringify({ status: 'error', message: error.message }));
+        client.publish('dentists/get/all/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
     }
 }
 
@@ -131,15 +131,15 @@ async function handleGetDentist(payload) {
     try {
         const dentist = await DentistModel.findById(payload.dentistId);
         if (dentist) {
-            client.publish('dentists/get/response', JSON.stringify({ status: 'success', dentist }));
+            client.publish('dentists/get/response', JSON.stringify({ status: 'success', dentist }), { qos: 1 });
         } else {
             client.publish('dentists/get/response', JSON.stringify({
                 status: 'error',
                 message: 'Dentist is not found (404). Try again'
-            }));
+            }), { qos: 1 });
         }
     } catch (error) {
-        client.publish('dentists/get/response', JSON.stringify({ status: 'error', message: error.message }));
+        client.publish('dentists/get/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
     }
 }
 
