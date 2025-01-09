@@ -61,6 +61,7 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
+        console.log('Connected to MQTT broker');
         this.mqttClient.subscribe('patients/create/response');
         this.mqttClient.subscribe('dentists/create/response');
       });

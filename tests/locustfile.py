@@ -6,7 +6,7 @@ import time
 
 # MQTT settings
 BROKER = "localhost"
-PORT = 1883
+PORT = 8080
 KEEP_ALIVE_INTERVAL = 60
 
 # MQTT Topics
