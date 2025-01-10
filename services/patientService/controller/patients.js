@@ -40,13 +40,13 @@ client.on('connect', () => {
             status: 'alive',
             timestamp: Date.now(),
         });
-        client.publish('services/heartbeat', payload);
+        client.publish('services/heartbeat', payload, { qos: 1 });
     }, 1000);
-    client.subscribe('patients/create');
-    client.subscribe('patients/get/login');
-    client.subscribe('patients/get');
-    client.subscribe('patients/get/all');
-    client.subscribe('patients/update');
+    client.subscribe('patients/create', { qos: 1 });
+    client.subscribe('patients/get/login'), { qos: 1 };
+    client.subscribe('patients/get', { qos: 1 });
+    client.subscribe('patients/get/all', { qos: 1 });
+    client.subscribe('patients/update', { qos: 1 });
 });
 
 // MQTT client message handling
@@ -94,7 +94,7 @@ async function handlePatientUpdate(payload) {
         client.publish('patients/update/response', JSON.stringify({
             status: 'error',
             message: error.message
-        }));
+        }), { qos: 1 });
     }
 }
 
@@ -111,7 +111,7 @@ async function addAppointment({ patientId, appointment }) {
             client.publish('patients/update/response', JSON.stringify({
                 status: 'success',
                 patient: updatedPatient
-            }));
+            }), { qos: 1 });
         } else {
             throw new Error('Patient not found (404)');
         }
@@ -149,7 +149,7 @@ async function handlePatientCreate(payload) {
             client.publish('patients/create/response', JSON.stringify({
                 status: 'error',
                 message: 'Patient Account with this email already exists. Try again with a different email'
-            }));
+            }), { qos: 1 });
             return;
         }
         const patient = new PatientModel(payload);
@@ -158,9 +158,9 @@ async function handlePatientCreate(payload) {
             status: 'success',
             message: `Patient ${patient._id} was registered`,
             patient
-        }));
+        }), { qos: 1 });
     } catch (error) {
-        client.publish('patients/create/response', JSON.stringify({ status: 'error', message: error.message }));
+        client.publish('patients/create/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
     }
 }
 
@@ -169,15 +169,15 @@ async function handlePatientLogin(payload) {
     try {
         const patient = await PatientModel.findOne({ email: payload.email, password: payload.password });
         if (patient) {
-            client.publish('patients/get/login/response', JSON.stringify({ status: 'success', patient }));
+            client.publish('patients/get/login/response', JSON.stringify({ status: 'success', patient }), { qos: 1 });
         } else {
             client.publish('patients/get/login/response', JSON.stringify({
                 status: 'error',
                 message: 'Invalid patient credentials. Try again'
-            }));
+            }), { qos: 1 });
         }
     } catch (error) {
-        client.publish('patients/get/login/response', JSON.stringify({ status: 'error', message: error.message }));
+        client.publish('patients/get/login/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
     }
 }
 
@@ -186,15 +186,15 @@ async function handleGetPatient(payload) {
     try {
         const patient = await PatientModel.findById(payload.patientId);
         if (patient) {
-            client.publish('patients/get/response', JSON.stringify({ status: 'success', patient }));
+            client.publish('patients/get/response', JSON.stringify({ status: 'success', patient }), { qos: 1 });
         } else {
             client.publish('patients/get/response', JSON.stringify({
                 status: 'error',
                 message: 'Patient is not found (404). Try again'
-            }));
+            }), { qos: 1 });
         }
     } catch (error) {
-        client.publish('patients/get/response', JSON.stringify({ status: 'error', message: error.message }));
+        client.publish('patients/get/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
     }
 }
 
@@ -205,12 +205,12 @@ async function handleGetAllPatients() {
         client.publish('patients/get/all/response', JSON.stringify({
             status: 'success',
             patients
-        }));
+        }), { qos: 1 });
     } catch (error) {
         client.publish('patients/get/all/response', JSON.stringify({
             status: 'error',
             message: error.message
-        }));
+        }), { qos: 1 });
     }
 }
 
