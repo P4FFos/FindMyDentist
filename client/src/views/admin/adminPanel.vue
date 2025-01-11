@@ -242,8 +242,6 @@ export default {
         } else {
             console.error('Canvas element not found.');
         }
-      } else {
-        console.error('Chart instance is not initialized.');
       }
     },
     // Update the status of the services
