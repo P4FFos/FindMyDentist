@@ -61,9 +61,8 @@ export default {
     setupMqttClient() {
       this.mqttClient = mqtt.connect('ws://localhost:8080');
       this.mqttClient.on('connect', () => {
-        console.log('Connected to MQTT broker');
-        this.mqttClient.subscribe('patients/create/response');
-        this.mqttClient.subscribe('dentists/create/response');
+        this.mqttClient.subscribe('patients/create/response', { qos: 1 });
+        this.mqttClient.subscribe('dentists/create/response', { qos: 1 });
       });
 
       this.mqttClient.on('message', (topic, message) => {
@@ -99,13 +98,13 @@ export default {
       };
       if (this.userType === 'patient') {
         payload.phone = this.phone;
-        this.mqttClient.publish('patients/create', JSON.stringify(payload));
+        this.mqttClient.publish('patients/create', JSON.stringify(payload), { qos: 1 });
       } else if (this.userType === 'dentist') {
         payload.location = {
           latitude: this.latitude,
           longitude: this.longitude
         };
-        this.mqttClient.publish('dentists/create', JSON.stringify(payload));
+        this.mqttClient.publish('dentists/create', JSON.stringify(payload), { qos: 1 });
       }
     },
     // Validate the response format

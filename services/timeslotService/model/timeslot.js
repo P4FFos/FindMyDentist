@@ -7,4 +7,6 @@ const timeslotSchema = new mongoose.Schema({
     isBooked: { type: Boolean, default: false }
 }, { _id: true });
 
-module.exports = mongoose.model('Timeslot', timeslotSchema);
+const Timeslot = mongoose.model('Timeslot', timeslotSchema);
+
+module.exports = Timeslot;

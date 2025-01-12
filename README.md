@@ -29,6 +29,9 @@ FindMyDentist system uses a **Service-Oriented Architecture (SOA)** and **Publis
 - TimeSlot Controller: allows dentists to create their time slots
 - TimeSlot Model: Initialisation of a specific format that entity has in the database
 
+### Synch Service 
+- Used to synch the main database and the back up database together 
+
 #### An MQTT broker
 Used as a communication middleware component, all subsystems/services subscribe and publish data through it 
 

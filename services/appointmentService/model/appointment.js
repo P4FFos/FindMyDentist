@@ -9,4 +9,6 @@ const appointmentSchema = new mongoose.Schema({
   time: { type: String, required: true },
 });
 
-module.exports = mongoose.model('Appointment', appointmentSchema);
+const Appointment = mongoose.model('Appointment', appointmentSchema)
+
+module.exports = Appointment;

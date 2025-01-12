@@ -17,9 +17,9 @@ client.on('connect', () => {
             status: 'alive',
             timestamp: Date.now(),
         });
-        client.publish('services/heartbeat', payload);
+        client.publish('services/heartbeat', payload, { qos: 1 });
     }, 1000);
-    client.subscribe('notifications/create');
+    client.subscribe('notifications/create', { qos: 1 });
 });
 
 
@@ -43,10 +43,10 @@ async function handleCreateNotificationRequest(payload) {
         const notificationRequest = new NotificationRequest(payload);
         await notificationRequest.save();
         const responsePayload = { status: 'success', notificationRequest };
-        client.publish('notifications/create/response', JSON.stringify(responsePayload));
+        client.publish('notifications/create/response', JSON.stringify(responsePayload), { qos: 1 });
     } catch (error) {
         const errorPayload = { status: 'error', message: error.message };
-        client.publish('notifications/create/response', JSON.stringify(errorPayload));
+        client.publish('notifications/create/response', JSON.stringify(errorPayload), { qos: 1 });
     }
 }
 
