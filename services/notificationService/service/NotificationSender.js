@@ -1,3 +1,6 @@
+var express = require('express');
+var router = express.Router();
+
 const NodeMailer = require('./NodeMailer');
 
 const mailer = new NodeMailer();

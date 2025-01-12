@@ -8,7 +8,7 @@ var port = process.env.PORT || 3001;
 // Import routes
 var notificationsController = require('./controller/notifications.js');
 const notificationsHandler = require('./service/NotificationHandler.js');
-const notificationsSender = require ('./service/NotificationSender.js')
+const notificationsSender = require('./service/NotificationSender.js');
 
 // Initialize databases
 (async () => {

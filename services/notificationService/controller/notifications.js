@@ -8,6 +8,30 @@ const NotificationRequest = require('../model/NotificationRequest');
 // MQTT client initialization
 const client = require('../../../mqtt/mqtt-config');
 
+let currentDB = null;
+var NotificationModel = null;
+
+router.setDatabase = function(db) {
+    currentDB = db;
+
+    // Set models
+    setNotificationModel();
+};
+
+function setNotificationModel() {
+    if (currentDB) {
+        console.log('Setting NotificationModel with DB:', currentDB.name);
+        // Check if the model already exists on the connection
+        if (currentDB.models['Notification']) {
+            NotificationModel = currentDB.models['Notification'];
+        } else {
+            NotificationModel = currentDB.model('Notification', NotificationRequest.schema);
+        }
+    } else {
+        console.error('Error: currentDB is undefined');
+    }
+}
+
 // MQTT client connection
 client.on('connect', () => {
     console.log('Connected to MQTT broker');
