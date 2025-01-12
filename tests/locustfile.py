@@ -6,7 +6,7 @@ import time
 
 # MQTT settings
 BROKER = "localhost"
-PORT = 1883
+PORT = 8080
 KEEP_ALIVE_INTERVAL = 60
 
 # MQTT Topics
@@ -33,7 +33,7 @@ class RegisterUser(HttpUser):
 
     def on_start(self):
         """Set up the MQTT client when a user starts."""
-        self.client = mqtt.Client()
+        self.client = mqtt.Client(transport="websockets")
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
         self.client.connect(BROKER, PORT, KEEP_ALIVE_INTERVAL)
@@ -86,7 +86,7 @@ class RegisterUser(HttpUser):
         timeout = 5
         while not self.response_received:
             if time.time() - start_time > timeout:
-                self.environment.events.request_failure.fire(
+                self.environment.events.request.fire(
                     request_type="MQTT",
                     name="register_patient",
                     response_time=(time.time() - start_time) * 1000,
@@ -140,7 +140,7 @@ class RegisterUser(HttpUser):
         timeout = 5
         while not self.response_received:
             if time.time() - start_time > timeout:
-                self.environment.events.request_failure.fire(
+                self.environment.events.request.fire(
                     request_type="MQTT",
                     name="get_all_dentists",
                     response_time=(time.time() - start_time) * 1000,
@@ -199,7 +199,7 @@ class RegisterUser(HttpUser):
             timeout = 5
             while not self.response_received:
                 if time.time() - start_time > timeout:
-                    self.environment.events.request_failure.fire(
+                    self.environment.events.request.fire(
                         request_type="MQTT",
                         name="get_dentist_timeslots",
                         response_time=(time.time() - start_time) * 1000,
@@ -270,7 +270,7 @@ class RegisterUser(HttpUser):
             timeout = 5
             while not self.response_received:
                 if time.time() - start_time > timeout:
-                    self.environment.events.request_failure.fire(
+                    self.environment.events.request.fire(
                         request_type="MQTT",
                         name="book_appointment",
                         response_time=(time.time() - start_time) * 1000,

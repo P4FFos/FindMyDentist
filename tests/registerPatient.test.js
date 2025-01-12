@@ -1,14 +1,15 @@
 const mqtt = require('mqtt');
 const mongoose = require('mongoose');
-const mqttUrl = process.env.MQTT_URL || "mqtt://localhost:1883";
-const mongoUri = process.env.DATABASE_URL || "mongodb://localhost:27017/FindMyDentistTestDB"; 
+const mqttUrl = process.env.MQTT_URL || "ws://localhost:8080";
+const mongoUri = process.env.DATABASE_URL || "mongodb://localhost:27017/FindMyDentistTestDB";
 
-// A function to wait (predicatbly) for services to start. 
+// A function to wait (predicatbly) for services to start.
 // The test works the first time and then for some reason always starts ahead before service starts
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms)); 
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Set up mongoDB
 beforeAll(async () => {
+  const mongoUri = process.env.DATABASE_URL || "mongodb://localhost:27017/FindMyDentistTestDB";
   await sleep(1000);
   await mongoose.connect(mongoUri);
   await mongoose.connection.dropDatabase();
@@ -17,7 +18,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await mongoose.connection.dropDatabase();
   await mongoose.disconnect();
-}); 
+});
 
 describe('MQTT Controller', () => {
   let mqttClient;
@@ -47,8 +48,8 @@ describe('MQTT Controller', () => {
         };
 
         mqttClient.subscribe('patients/create/response');
-      
-        
+
+
         const publishPromise = new Promise((resolve) => {
           mqttClient.once('message', (topic, message) => {
             if (topic === 'patients/create/response') {
@@ -57,16 +58,16 @@ describe('MQTT Controller', () => {
           });
         });
 
-        
+
         mqttClient.publish('patients/create', JSON.stringify(payload));
-    
-        
+
+
         const response = await publishPromise;
-        
+
         expect(response.status).toBe('success');
         expect(response).toBeTruthy();
 
-        
+
         const loginPayload = {
           email: payload.email,
           password: payload.password,
