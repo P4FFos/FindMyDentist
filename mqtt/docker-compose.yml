@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  mqtt_broker1:
+    image: eclipse-mosquitto
+    container_name: mqtt_broker1
+    ports:
+      - "1883:1883"
+      - "8081:8081"
+    networks:
+      - mqtt-network
+    volumes:
+      - ./broker1/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  mqtt_broker2:
+    image: eclipse-mosquitto
+    container_name: mqtt_broker2
+    ports:
+      - "1884:1884"
+      - "8082:8082"
+    networks:
+      - mqtt-network
+    volumes:
+      - ./broker2/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+networks:
+  mqtt-network:
+    name: mqtt-network
+    driver: bridge

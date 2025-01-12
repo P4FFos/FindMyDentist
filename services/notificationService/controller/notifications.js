@@ -1,0 +1,77 @@
+// Imports
+var express = require('express');
+var router = express.Router();
+
+// Import models
+const NotificationRequest = require('../model/NotificationRequest');
+
+// MQTT client initialization
+const client = require('../../../mqtt/mqtt-config');
+
+let currentDB = null;
+var NotificationModel = null;
+
+router.setDatabase = function(db) {
+    currentDB = db;
+
+    // Set models
+    setNotificationModel();
+};
+
+function setNotificationModel() {
+    if (currentDB) {
+        console.log('Setting NotificationModel with DB:', currentDB.name);
+        // Check if the model already exists on the connection
+        if (currentDB.models['Notification']) {
+            NotificationModel = currentDB.models['Notification'];
+        } else {
+            NotificationModel = currentDB.model('Notification', NotificationRequest.schema);
+        }
+    } else {
+        console.error('Error: currentDB is undefined');
+    }
+}
+
+// MQTT client connection
+client.on('connect', () => {
+    console.log('Connected to MQTT broker');
+    setInterval(() => {
+        const payload = JSON.stringify({
+            serviceName: 'Notifications Service',
+            status: 'alive',
+            timestamp: Date.now(),
+        });
+        client.publish('services/heartbeat', payload, { qos: 1 });
+    }, 1000);
+    client.subscribe('notifications/create', { qos: 1 });
+});
+
+
+// MQTT client message handling
+client.on('message', async (topic, message) => {
+    try {
+        const payload = JSON.parse(message.toString());
+        switch (topic) {
+            case 'notifications/create':
+                await handleCreateNotificationRequest(payload);
+                break;
+        }
+    } catch (error) {
+        console.error('Error handling message:', error);
+    }
+});
+
+// Create a notification request
+async function handleCreateNotificationRequest(payload) {
+    try {
+        const notificationRequest = new NotificationRequest(payload);
+        await notificationRequest.save();
+        const responsePayload = { status: 'success', notificationRequest };
+        client.publish('notifications/create/response', JSON.stringify(responsePayload), { qos: 1 });
+    } catch (error) {
+        const errorPayload = { status: 'error', message: error.message };
+        client.publish('notifications/create/response', JSON.stringify(errorPayload), { qos: 1 });
+    }
+}
+
+module.exports = router;

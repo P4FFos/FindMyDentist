@@ -1,0 +1,146 @@
+// Imports
+const express = require('express');
+const router = express.Router();
+
+// Import models
+const Dentist = require('../model/dentist.js');
+
+// MQTT client initialization
+const client = require('../../../mqtt/mqtt-config');
+
+var DentistModel = null;
+var currentDB = null;
+
+router.setDatabase = function(db) {
+    currentDB = db;
+
+    // Set models
+    setDentistModel()
+};
+
+function setDentistModel() {
+    if (currentDB) {
+        console.log('Setting DentistModel with DB:', currentDB.name);
+        // Check if the model already exists on the connection
+        if (currentDB.models['Dentist']) {
+            DentistModel = currentDB.models['Dentist'];
+        } else {
+            DentistModel = currentDB.model('Dentist', Dentist.schema);
+        }
+    } else {
+        console.error('Error: currentDB is undefined');
+    }
+}
+
+// MQTT client connection
+client.on('connect', () => {
+    console.log('Connected to MQTT broker');
+    setInterval(() => {
+        const payload = JSON.stringify({
+            serviceName: 'Dentist Service',
+            status: 'alive',
+            timestamp: Date.now(),
+        });
+        client.publish('services/heartbeat', payload, { qos: 1 });
+    }, 1000);
+    client.subscribe('dentists/create', { qos: 1 });
+    client.subscribe('dentists/get/login', { qos: 1 });
+    client.subscribe('dentists/get/all', { qos: 1 });
+    client.subscribe('dentists/get', { qos: 1 });
+});
+
+// MQTT client message handling
+client.on('message', async (topic, message) => {
+    try {
+        const payload = JSON.parse(message.toString());
+        switch (topic) {
+            case 'dentists/create':
+                await handleDentistCreate(payload);
+                break;
+            case 'dentists/get/login':
+                await handleDentistLogin(payload);
+                break;
+            case 'dentists/get/all':
+                await handleGetAllDentists();
+                break;
+            case 'dentists/get':
+                await handleGetDentist(payload);
+                break;
+        }
+    } catch (error) {
+        console.error('Error handling message:', error);
+    }
+});
+
+// Create a dentist
+async function handleDentistCreate(payload) {
+    try {
+        const existingDentistEmail = await DentistModel.findOne({ email: payload.email });
+        if (existingDentistEmail) {
+            client.publish('dentists/create/response', JSON.stringify({
+                status: 'error',
+                message: 'Dentist Account with this email already exists. Try again with a different email'
+            }), { qos: 1 });
+            return;
+        }
+        const dentist = new DentistModel(payload);
+        await dentist.save();
+        client.publish('dentists/create/response', JSON.stringify({
+            status: 'success',
+            message: `Dentist ${dentist._id} was added to the system`,
+            dentist
+        }), { qos: 1 });
+    } catch (error) {
+        client.publish('dentists/create/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
+    }
+}
+
+// Login a dentist
+async function handleDentistLogin(payload) {
+    try {
+        const dentist = await DentistModel.findOne({ email: payload.email, password: payload.password });
+        if (dentist) {
+            client.publish('dentists/get/login/response', JSON.stringify({ status: 'success', dentist }), { qos: 1 });
+        } else {
+            client.publish('dentists/get/login/response', JSON.stringify({
+                status: 'error',
+                message: 'Invalid dentist credentials. Try again'
+            }), { qos: 1 });
+        }
+    } catch (error) {
+        client.publish('dentists/get/login/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
+    }
+}
+
+// Get all dentists
+async function handleGetAllDentists() {
+    try {
+        const dentists = await DentistModel.find();
+        client.publish('dentists/get/all/response', JSON.stringify({
+            status: 'success',
+            message: 'Dentists list was fetched',
+            dentists
+         }), { qos: 1 });
+    } catch (error) {
+        client.publish('dentists/get/all/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
+    }
+}
+
+// Get a dentist
+async function handleGetDentist(payload) {
+    try {
+        const dentist = await DentistModel.findById(payload.dentistId);
+        if (dentist) {
+            client.publish('dentists/get/response', JSON.stringify({ status: 'success', dentist }), { qos: 1 });
+        } else {
+            client.publish('dentists/get/response', JSON.stringify({
+                status: 'error',
+                message: 'Dentist is not found (404). Try again'
+            }), { qos: 1 });
+        }
+    } catch (error) {
+        client.publish('dentists/get/response', JSON.stringify({ status: 'error', message: error.message }), { qos: 1 });
+    }
+}
+
+module.exports = router;

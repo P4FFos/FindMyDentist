@@ -13,7 +13,7 @@ const routes = [
     {path: '/dentist/:dentistId/booking', name: 'Booking Page', component: AppointmentBooking, props: true},
     {path: '/dentist/:dentistId/managing', name: 'Booking Managing Page', component: TimeslotsManagement},
     {path: '/patient_main', name: 'Patient Main Page', component: MainPatientPage},
-    {path: '/adminpanel', name: 'Admin Panel', component: AdminPanel},
+    {path: '/admin-panel', name: 'Admin Panel', component: AdminPanel},
     {path: '/register', name: 'Registration Page', component: Register},
     {path: '/login', name: 'Login Page', component: Login}
 ]
