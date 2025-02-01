@@ -39,13 +39,13 @@ Used as a communication middleware component, all subsystems/services subscribe 
 
 
 # Component Diagram 
-![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/Component%20diagram.png?ref_type=heads)
+![ ](https://github.com/P4FFos/FindMyDentist/blob/development/docs/Component%20diagram.png?raw=true)
 
 # ER Diagram
-![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/ER%20Diagram.png)
+![ ](https://github.com/P4FFos/FindMyDentist/blob/development/docs/ER%20Diagram.png?raw=true)
 
 # MQTT Diagram 
-![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/MQTTDiagram.png)
+![ ](https://github.com/P4FFos/FindMyDentist/blob/development/docs/MQTTDiagram.png?raw=true)
 
 # SPEM 2.0 Diagram
-![ ](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_08/group-8/findmydentist/-/raw/development/docs/SPEM%202.0%20diagram.png?ref_type=heads)
+![ ](https://github.com/P4FFos/FindMyDentist/blob/development/docs/SPEM%202.0%20diagram.png?raw=true)
